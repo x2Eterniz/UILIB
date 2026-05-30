@@ -384,6 +384,8 @@ function DarkUI:CreateWindow(config)
 
 	local headerHeight = 52
 	local tabHeight = 48
+	local tabWidth = config.TabWidth or 158
+	local tabContentGap = 10
 	local searchHeight = config.Search == false and 0 or 42
 	local windowSize = config.Size or UDim2.fromOffset(680, 430)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
@@ -575,18 +577,21 @@ function DarkUI:CreateWindow(config)
 
 	local tabs = styledBackground(make("Frame", {
 		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, tabHeight),
+		Size = UDim2.new(0, tabWidth, 1, 0),
 		Parent = body,
 	}, {
 		make("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
+			FillDirection = Enum.FillDirection.Vertical,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			VerticalAlignment = Enum.VerticalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Top,
 		}),
 		make("UIPadding", {
+			PaddingBottom = UDim.new(0, 8),
 			PaddingLeft = UDim.new(0, 8),
 			PaddingRight = UDim.new(0, 8),
+			PaddingTop = UDim.new(0, 8),
 		}),
 	}), "Tab")
 
@@ -596,8 +601,8 @@ function DarkUI:CreateWindow(config)
 		local searchStroke = styledStroke(stroke(theme.Stroke, 0.35, 1), "Stroke")
 		local searchBar = styledBackground(make("Frame", {
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, tabHeight + 8),
-			Size = UDim2.new(1, 0, 0, 34),
+			Position = UDim2.fromOffset(tabWidth + tabContentGap, 0),
+			Size = UDim2.new(1, -tabWidth - tabContentGap, 0, 34),
 			Parent = body,
 		}, {
 			corner(7),
@@ -665,8 +670,8 @@ function DarkUI:CreateWindow(config)
 
 	local pagesHolder = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, tabHeight + searchHeight + 8),
-		Size = UDim2.new(1, 0, 1, -tabHeight - searchHeight - 8),
+		Position = UDim2.fromOffset(tabWidth + tabContentGap, searchHeight),
+		Size = UDim2.new(1, -tabWidth - tabContentGap, 1, -searchHeight),
 		Parent = body,
 	})
 
@@ -1263,7 +1268,7 @@ function DarkUI:CreateWindow(config)
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
 			Font = DarkUI.Fonts.Bold,
-			Size = UDim2.fromOffset(tabConfig.Width or 142, 42),
+			Size = UDim2.new(1, -16, 0, 42),
 			Text = "",
 			Parent = tabs,
 		}, {
