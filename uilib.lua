@@ -384,7 +384,7 @@ function DarkUI:CreateWindow(config)
 
 	local headerHeight = 52
 	local tabHeight = 48
-	local tabWidth = config.TabWidth or 182
+	local tabWidth = config.TabWidth or 205 -- sidebar background width; tab buttons stay 142 by default
 	local tabContentGap = 10
 	local contentTopOffset = config.ContentTopOffset or 20
 	local searchHeight = config.Search == false and 0 or 42
