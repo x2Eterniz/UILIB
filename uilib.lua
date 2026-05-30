@@ -1228,14 +1228,18 @@ function DarkUI:CreateWindow(config)
 				}, 0.14)
 				local accent = tabButton:FindFirstChild("DarkUIAccent")
 				if accent then
-					if tabName == name then
+					local selected = tabName == name
+					if selected then
 						accent.Visible = true
 					end
+
+					-- Vertical active tab marker, like a left-side pill indicator.
 					tween(accent, {
-						Size = tabName == name and UDim2.fromOffset(46, 2) or UDim2.fromOffset(0, 2),
-						BackgroundTransparency = tabName == name and 0 or 0.35,
+						Size = selected and UDim2.fromOffset(3, 20) or UDim2.fromOffset(3, 0),
+						BackgroundTransparency = selected and 0 or 1,
 					}, 0.16)
-					if tabName ~= name then
+
+					if not selected then
 						task.delay(0.16, function()
 							if accent.Parent and self.SelectedTab ~= tabName then
 								accent.Visible = false
@@ -1349,7 +1353,7 @@ function DarkUI:CreateWindow(config)
 			}), "Tab")
 			attachPress(tabButton, 0.96)
 
-			local textOffset = tabConfig.Icon and 42 or 14
+			local textOffset = tabConfig.Icon and 42 or 22
 		if tabConfig.Icon then
 			make("ImageLabel", {
 				BackgroundTransparency = 1,
@@ -1372,11 +1376,11 @@ function DarkUI:CreateWindow(config)
 
 		make("Frame", {
 			Name = "DarkUIAccent",
-			AnchorPoint = Vector2.new(0.5, 1),
+			AnchorPoint = Vector2.new(0, 0.5),
 			BackgroundColor3 = self.Theme.Accent,
 			BorderSizePixel = 0,
-			Position = UDim2.new(0.5, 0, 1, -5),
-			Size = UDim2.fromOffset(0, 2),
+			Position = UDim2.new(0, 9, 0.5, 0),
+			Size = UDim2.fromOffset(3, 0),
 			Visible = false,
 			Parent = tabButton,
 			}, {
