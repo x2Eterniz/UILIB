@@ -25,13 +25,14 @@ local function getFont(fontName, fallback)
 end
 
 DarkUI.Fonts = {
-	Title = getFont("FredokaOne", getFont("Nunito", Enum.Font.GothamBlack)),
-	Bold = getFont("FredokaOne", getFont("Nunito", Enum.Font.GothamBold)),
-	Body = getFont("FredokaOne", getFont("Nunito", Enum.Font.GothamBold)),
+	-- Font kiểu giống mẫu: gọn, sắc, ít bo tròn hơn FredokaOne
+	Title = getFont("GothamBlack", getFont("GothamBold", Enum.Font.GothamBlack)),
+	Bold = getFont("GothamBold", getFont("GothamSemibold", Enum.Font.GothamBold)),
+	Body = getFont("GothamSemibold", getFont("Gotham", Enum.Font.Gotham)),
 }
-DarkUI.TextScale = 1.16
-DarkUI.TextStrokeColor = Color3.fromRGB(30, 32, 38)
-DarkUI.TextStrokeTransparency = 0.38
+DarkUI.TextScale = 1.08
+DarkUI.TextStrokeColor = Color3.fromRGB(18, 18, 18)
+DarkUI.TextStrokeTransparency = 0.82
 
 DarkUI.ThemePresets = {
 	Dark = {
