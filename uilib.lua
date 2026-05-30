@@ -113,6 +113,18 @@ DarkUI.ThemePresets = {
 
 DarkUI.Theme = DarkUI.ThemePresets.Dark
 
+-- Default glass effect. You can override this from CreateWindow with:
+-- BackgroundTransparency = 0.12
+-- or BackgroundTransparency = { Background = 0.12, Surface = 0.05, Panel = 0.1, Tab = 0.04 }
+DarkUI.DefaultBackgroundTransparency = {
+	Background = 0.10,
+	Surface = 0.04,
+	Panel = 0.08,
+	PanelLight = 0.06,
+	Tab = 0.05,
+	TabActive = 0.02,
+}
+
 local function copyTable(source)
 	local nextTable = {}
 
@@ -229,6 +241,14 @@ function DarkUI:CreateWindow(config)
 		theme.Accent = config.Accent
 	end
 
+	if theme.BackgroundTransparency == nil then
+		theme.BackgroundTransparency = copyTable(DarkUI.DefaultBackgroundTransparency)
+	end
+
+	if config.BackgroundTransparency ~= nil then
+		theme.BackgroundTransparency = config.BackgroundTransparency
+	end
+
 	local guiName = config.Name or "VxiziUILibrary"
 	local parent = config.Parent or playerGui
 
@@ -275,9 +295,41 @@ function DarkUI:CreateWindow(config)
 		return connect(signal, callback)
 	end
 
+	local function getThemeBackgroundTransparency(key)
+		local transparency = window.Theme.BackgroundTransparency
+		if type(transparency) == "table" then
+			local value = transparency[key]
+			if type(value) == "number" then
+				return math.clamp(value, 0, 1)
+			end
+		elseif type(transparency) == "number" then
+			return math.clamp(transparency, 0, 1)
+		end
+
+		local keyTransparency = window.Theme[key .. "Transparency"]
+		if type(keyTransparency) == "number" then
+			return math.clamp(keyTransparency, 0, 1)
+		end
+
+		return nil
+	end
+
+	local function applyBackgroundTransparency(instance, key)
+		if not instance:IsA("GuiObject") or instance:GetAttribute("DarkUIThemeTransparency") ~= true then
+			return
+		end
+
+		local value = getThemeBackgroundTransparency(key)
+		instance.BackgroundTransparency = value ~= nil and value or 0
+	end
+
 	local function styledBackground(instance, key)
 		instance:SetAttribute("DarkUIBackground", key)
+		if instance.BackgroundTransparency == 0 then
+			instance:SetAttribute("DarkUIThemeTransparency", true)
+		end
 		instance.BackgroundColor3 = window.Theme[key]
+		applyBackgroundTransparency(instance, key)
 		return instance
 	end
 
@@ -441,6 +493,8 @@ function DarkUI:CreateWindow(config)
 		stroke(theme.Stroke, 0, 1),
 	})
 	root:SetAttribute("DarkUIBackground", "Background")
+	root:SetAttribute("DarkUIThemeTransparency", true)
+	applyBackgroundTransparency(root, "Background")
 	root.UIStroke:SetAttribute("DarkUIStroke", "Stroke")
 
 	local rootScale = make("UIScale", {
@@ -736,6 +790,7 @@ function DarkUI:CreateWindow(config)
 
 			if backgroundKey and descendant:IsA("GuiObject") then
 				descendant.BackgroundColor3 = self.Theme[backgroundKey]
+				applyBackgroundTransparency(descendant, backgroundKey)
 			end
 
 			if textKey and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) then
@@ -788,6 +843,15 @@ function DarkUI:CreateWindow(config)
 			end
 		end
 
+		if self.Theme.BackgroundTransparency == nil then
+			self.Theme.BackgroundTransparency = copyTable(DarkUI.DefaultBackgroundTransparency)
+		end
+
+		self:_applyTheme()
+	end
+
+	function window:SetBackgroundTransparency(transparency)
+		self.Theme.BackgroundTransparency = transparency
 		self:_applyTheme()
 	end
 
@@ -1157,8 +1221,10 @@ function DarkUI:CreateWindow(config)
 
 			local tabButton = self.TabButtons[tabName]
 			if tabButton then
+				local targetKey = tabName == name and "TabActive" or "Tab"
 				tween(tabButton, {
-					BackgroundColor3 = tabName == name and self.Theme.TabActive or self.Theme.Tab,
+					BackgroundColor3 = self.Theme[targetKey],
+					BackgroundTransparency = getThemeBackgroundTransparency(targetKey) or 0,
 				}, 0.14)
 				local accent = tabButton:FindFirstChild("DarkUIAccent")
 				if accent then
@@ -1196,7 +1262,8 @@ function DarkUI:CreateWindow(config)
 		function control:SetDisabled(disabled)
 			self.Disabled = disabled == true
 			row:SetAttribute("Disabled", self.Disabled)
-			row.BackgroundTransparency = self.Disabled and 0.35 or 0
+			local normalTransparency = getThemeBackgroundTransparency(row:GetAttribute("DarkUIBackground") or "Panel") or 0
+			row.BackgroundTransparency = self.Disabled and math.max(normalTransparency, 0.35) or normalTransparency
 
 			for _, descendant in ipairs(row:GetDescendants()) do
 				if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
@@ -1320,6 +1387,7 @@ function DarkUI:CreateWindow(config)
 				if window.SelectedTab ~= tabName then
 					tween(tabButton, {
 						BackgroundColor3 = window.Theme.Panel,
+						BackgroundTransparency = getThemeBackgroundTransparency("Panel") or 0,
 					}, 0.12)
 					tween(getScale(tabButton), {
 						Scale = 1.015,
@@ -1331,6 +1399,7 @@ function DarkUI:CreateWindow(config)
 				if window.SelectedTab ~= tabName then
 					tween(tabButton, {
 						BackgroundColor3 = window.Theme.Tab,
+						BackgroundTransparency = getThemeBackgroundTransparency("Tab") or 0,
 					}, 0.12)
 				end
 				tween(getScale(tabButton), {
