@@ -386,7 +386,7 @@ function DarkUI:CreateWindow(config)
 	local tabHeight = 48
 	local tabWidth = config.TabWidth or 158
 	local tabContentGap = 10
-	local contentTopOffset = config.ContentTopOffset or 8
+	local contentTopOffset = config.ContentTopOffset or 20
 	local searchHeight = config.Search == false and 0 or 42
 	local windowSize = config.Size or UDim2.fromOffset(680, 430)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
