@@ -386,6 +386,7 @@ function DarkUI:CreateWindow(config)
 	local tabHeight = 48
 	local tabWidth = config.TabWidth or 158
 	local tabContentGap = 10
+	local contentTopOffset = config.ContentTopOffset or 8
 	local searchHeight = config.Search == false and 0 or 42
 	local windowSize = config.Size or UDim2.fromOffset(680, 430)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
@@ -601,7 +602,7 @@ function DarkUI:CreateWindow(config)
 		local searchStroke = styledStroke(stroke(theme.Stroke, 0.35, 1), "Stroke")
 		local searchBar = styledBackground(make("Frame", {
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(tabWidth + tabContentGap, 0),
+			Position = UDim2.fromOffset(tabWidth + tabContentGap, contentTopOffset),
 			Size = UDim2.new(1, -tabWidth - tabContentGap, 0, 34),
 			Parent = body,
 		}, {
@@ -670,8 +671,8 @@ function DarkUI:CreateWindow(config)
 
 	local pagesHolder = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(tabWidth + tabContentGap, searchHeight),
-		Size = UDim2.new(1, -tabWidth - tabContentGap, 1, -searchHeight),
+		Position = UDim2.fromOffset(tabWidth + tabContentGap, searchHeight + contentTopOffset),
+		Size = UDim2.new(1, -tabWidth - tabContentGap, 1, -searchHeight - contentTopOffset),
 		Parent = body,
 	})
 
