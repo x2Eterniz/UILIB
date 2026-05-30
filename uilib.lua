@@ -384,9 +384,9 @@ function DarkUI:CreateWindow(config)
 
 	local headerHeight = 52
 	local tabHeight = 48
-	local tabWidth = config.TabWidth or 246 -- sidebar background width
-	local tabButtonWidth = config.TabButtonWidth or 189 -- keep tab buttons the same size while only widening the sidebar background
-	local tabContentGap = config.TabContentGap or -8 -- pull content closer to sidebar
+	local tabWidth = config.TabWidth or 200 -- sidebar background width (reduced to just past the tab buttons)
+	local tabButtonWidth = config.TabButtonWidth or 189 -- keep tab buttons the same size
+	local tabContentGap = config.TabContentGap or -12 -- pull content closer to the reduced sidebar
 	local tabLeftOffset = config.TabLeftOffset or -10 -- expand sidebar background closer to window edge
 	local tabBottomExtra = config.TabBottomExtra or 8 -- expand sidebar background closer to bottom edge
 	local contentTopOffset = config.ContentTopOffset or 20
