@@ -384,8 +384,9 @@ function DarkUI:CreateWindow(config)
 
 	local headerHeight = 52
 	local tabHeight = 48
-	local tabWidth = config.TabWidth or 205 -- sidebar background width; tab buttons stay 142 by default
-	local tabContentGap = 10
+	local tabWidth = config.TabWidth or 230 -- sidebar background width
+	local tabButtonWidth = config.TabButtonWidth or 189 -- keep tab buttons the same size while only widening the sidebar background
+	local tabContentGap = config.TabContentGap or 4
 	local contentTopOffset = config.ContentTopOffset or 20
 	local searchHeight = config.Search == false and 0 or 42
 	local windowSize = config.Size or UDim2.fromOffset(680, 430)
@@ -1269,7 +1270,7 @@ function DarkUI:CreateWindow(config)
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
 			Font = DarkUI.Fonts.Bold,
-			Size = UDim2.new(1, -16, 0, 42),
+			Size = UDim2.fromOffset(tabConfig.Width or tabButtonWidth, 42),
 			Text = "",
 			Parent = tabs,
 		}, {
