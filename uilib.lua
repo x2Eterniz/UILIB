@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.5"
+DarkUI.Version = "1.0.6"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -692,7 +692,7 @@ function DarkUI:CreateWindow(config)
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0, navWidth + 8, 0, 8),
-		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 14),
+		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 8),
 		Parent = body,
 	})
 
@@ -783,12 +783,18 @@ function DarkUI:CreateWindow(config)
 			AnchorPoint = Vector2.new(0, 1),
 			BorderSizePixel = 0,
 			ClipsDescendants = true,
-			Position = UDim2.new(0, 8, 1, -6),
-			Size = UDim2.new(1, -16, 0, footerHeight),
+			Position = UDim2.new(0, 0, 1, 0),
+			Size = UDim2.new(1, 0, 0, footerHeight),
 			Parent = body,
 		}, {
 			corner(10),
-			styledStroke(stroke(theme.Stroke, 0.2, 1), "Stroke"),
+		}), "Surface")
+
+		styledBackground(make("Frame", {
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(0, 0),
+			Size = UDim2.new(1, 0, 0, 9),
+			Parent = footer,
 		}), "Surface")
 
 		make("Frame", {
