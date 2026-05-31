@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.4"
+DarkUI.Version = "1.0.5"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -141,15 +141,6 @@ local function corner(radius)
 	return make("UICorner", {
 		CornerRadius = UDim.new(0, radius),
 	})
-end
-
-local function bottomCorner(radius)
-	local rounded = corner(radius)
-	pcall(function()
-		rounded.TopLeftRadius = UDim.new(0, 0)
-		rounded.TopRightRadius = UDim.new(0, 0)
-	end)
-	return rounded
 end
 
 local function stroke(color, transparency, thickness)
@@ -619,7 +610,7 @@ function DarkUI:CreateWindow(config)
 	local navPanel = styledBackground(make("Frame", {
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
-		Size = UDim2.new(0, navWidth, 1, 0),
+		Size = UDim2.new(0, navWidth, 1, -footerHeight),
 		Parent = body,
 	}, {
 		corner(10),
@@ -681,7 +672,7 @@ function DarkUI:CreateWindow(config)
 		ScrollBarImageTransparency = 0.42,
 		ScrollBarThickness = 2,
 		Position = UDim2.fromOffset(0, navTabsStartY),
-		Size = UDim2.new(1, 0, 1, -(navTabsStartY + footerHeight)),
+		Size = UDim2.new(1, 0, 1, -(navTabsStartY + 6)),
 		Parent = navPanel,
 	}, {
 		make("UIListLayout", {
@@ -701,7 +692,7 @@ function DarkUI:CreateWindow(config)
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0, navWidth + 8, 0, 8),
-		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 8),
+		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 14),
 		Parent = body,
 	})
 
@@ -792,11 +783,12 @@ function DarkUI:CreateWindow(config)
 			AnchorPoint = Vector2.new(0, 1),
 			BorderSizePixel = 0,
 			ClipsDescendants = true,
-			Position = UDim2.new(0, 0, 1, 0),
-			Size = UDim2.new(1, 0, 0, footerHeight),
+			Position = UDim2.new(0, 8, 1, -6),
+			Size = UDim2.new(1, -16, 0, footerHeight),
 			Parent = body,
 		}, {
-			bottomCorner(10),
+			corner(10),
+			styledStroke(stroke(theme.Stroke, 0.2, 1), "Stroke"),
 		}), "Surface")
 
 		make("Frame", {
