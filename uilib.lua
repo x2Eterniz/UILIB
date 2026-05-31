@@ -35,16 +35,16 @@ DarkUI.TextStrokeTransparency = 1
 
 DarkUI.ThemePresets = {
 	Dark = {
-		Background = Color3.fromRGB(21, 22, 25),
-		Surface = Color3.fromRGB(30, 32, 37),
-		Panel = Color3.fromRGB(34, 37, 44),
-		PanelLight = Color3.fromRGB(45, 49, 58),
-		Tab = Color3.fromRGB(24, 25, 28),
-		TabActive = Color3.fromRGB(31, 39, 36),
-		Stroke = Color3.fromRGB(78, 84, 96),
-		Text = Color3.fromRGB(244, 247, 252),
-		Muted = Color3.fromRGB(180, 187, 198),
-		Accent = Color3.fromRGB(19, 236, 150),
+		Background = Color3.fromRGB(25, 25, 26),
+		Surface = Color3.fromRGB(32, 32, 33),
+		Panel = Color3.fromRGB(28, 28, 29),
+		PanelLight = Color3.fromRGB(36, 36, 38),
+		Tab = Color3.fromRGB(26, 26, 27),
+		TabActive = Color3.fromRGB(30, 43, 37),
+		Stroke = Color3.fromRGB(66, 67, 71),
+		Text = Color3.fromRGB(234, 236, 239),
+		Muted = Color3.fromRGB(141, 146, 154),
+		Accent = Color3.fromRGB(21, 233, 137),
 		Success = Color3.fromRGB(56, 219, 142),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -463,6 +463,15 @@ function DarkUI:CreateWindow(config)
 		Size = UDim2.new(1, 0, 0, 9),
 		Parent = header,
 	}), "Surface")
+
+	make("Frame", {
+		Name = "DarkUIAccent",
+		BorderSizePixel = 0,
+		BackgroundColor3 = theme.Accent,
+		Position = UDim2.new(0, 0, 1, -1),
+		Size = UDim2.new(1, 0, 0, 1),
+		Parent = header,
+	})
 
 	if config.Icon then
 		make("ImageLabel", {
