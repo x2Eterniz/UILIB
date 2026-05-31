@@ -27,24 +27,24 @@ end
 DarkUI.Fonts = {
 	Title = getFont("GothamBlack", getFont("GothamBold", Enum.Font.SourceSansBold)),
 	Bold = getFont("GothamBold", Enum.Font.SourceSansBold),
-	Body = getFont("Gotham", Enum.Font.SourceSans),
+	Body = getFont("GothamMedium", getFont("Gotham", Enum.Font.SourceSansSemibold)),
 }
-DarkUI.TextScale = 1.09
+DarkUI.TextScale = 1.12
 DarkUI.TextStrokeColor = Color3.fromRGB(27, 30, 35)
-DarkUI.TextStrokeTransparency = 0.54
+DarkUI.TextStrokeTransparency = 1
 
 DarkUI.ThemePresets = {
 	Dark = {
 		Background = Color3.fromRGB(21, 22, 25),
-		Surface = Color3.fromRGB(32, 34, 38),
-		Panel = Color3.fromRGB(26, 27, 31),
-		PanelLight = Color3.fromRGB(39, 42, 47),
+		Surface = Color3.fromRGB(30, 32, 37),
+		Panel = Color3.fromRGB(34, 37, 44),
+		PanelLight = Color3.fromRGB(45, 49, 58),
 		Tab = Color3.fromRGB(24, 25, 28),
 		TabActive = Color3.fromRGB(31, 39, 36),
-		Stroke = Color3.fromRGB(57, 61, 68),
-		Text = Color3.fromRGB(234, 236, 240),
-		Muted = Color3.fromRGB(151, 157, 168),
-		Accent = Color3.fromRGB(26, 229, 145),
+		Stroke = Color3.fromRGB(78, 84, 96),
+		Text = Color3.fromRGB(244, 247, 252),
+		Muted = Color3.fromRGB(180, 187, 198),
+		Accent = Color3.fromRGB(19, 236, 150),
 		Success = Color3.fromRGB(56, 219, 142),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -292,7 +292,7 @@ function DarkUI:CreateWindow(config)
 			end
 
 			instance.TextStrokeColor3 = DarkUI.TextStrokeColor
-			instance.TextStrokeTransparency = key == "Muted" and 0.58 or DarkUI.TextStrokeTransparency
+			instance.TextStrokeTransparency = 1
 		end
 
 		return instance
@@ -849,7 +849,7 @@ function DarkUI:CreateWindow(config)
 			if textKey and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) then
 				descendant.TextColor3 = self.Theme[textKey]
 				descendant.TextStrokeColor3 = DarkUI.TextStrokeColor
-				descendant.TextStrokeTransparency = textKey == "Muted" and 0.58 or DarkUI.TextStrokeTransparency
+				descendant.TextStrokeTransparency = 1
 				if descendant:IsA("TextBox") then
 					descendant.PlaceholderColor3 = self.Theme.Muted
 				end
@@ -1285,7 +1285,7 @@ function DarkUI:CreateWindow(config)
 				if tabDesc then
 					tween(tabDesc, {
 						TextColor3 = self.Theme.Muted,
-						TextTransparency = selected and 0.12 or 0.34,
+						TextTransparency = selected and 0.08 or 0.2,
 					}, 0.14)
 				end
 
@@ -1456,7 +1456,7 @@ function DarkUI:CreateWindow(config)
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Muted")
 		descLabel.Name = "TabDesc"
-		descLabel.TextTransparency = 0.34
+		descLabel.TextTransparency = 0.22
 
 		make("Frame", {
 			Name = "DarkUIAccent",
@@ -1589,17 +1589,17 @@ function DarkUI:CreateWindow(config)
 				Size = UDim2.new(1, -4, 0, 0),
 				Parent = target,
 			}, {
-				corner(10),
-				styledStroke(stroke(window.Theme.Stroke, 0.36, 1), "Stroke"),
+				corner(11),
+				styledStroke(stroke(window.Theme.Stroke, 0.18, 1), "Stroke"),
 				make("UIPadding", {
 					PaddingBottom = UDim.new(0, 10),
 					PaddingLeft = UDim.new(0, 10),
 					PaddingRight = UDim.new(0, 10),
-					PaddingTop = UDim.new(0, 8),
+					PaddingTop = UDim.new(0, 9),
 				}),
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 8),
+					Padding = UDim.new(0, 9),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
 			}), "Panel")
@@ -1619,7 +1619,7 @@ function DarkUI:CreateWindow(config)
 				Position = UDim2.fromOffset(6, 1),
 				Size = UDim2.new(1, -12, 0, 24),
 				Text = options.Title or "Section",
-				TextSize = 15,
+				TextSize = 16,
 				TextXAlignment = Enum.TextXAlignment.Left,
 			}), "Text")
 
@@ -1663,7 +1663,7 @@ function DarkUI:CreateWindow(config)
 				BackgroundColor3 = window.Theme.Accent,
 				BorderSizePixel = 0,
 				Position = UDim2.new(0.5, 0, 1, -2),
-				Size = UDim2.new(1, -4, 0, 2),
+				Size = UDim2.new(1, -4, 0, 3),
 				Parent = headerButton,
 			}, {
 				make("UIGradient", {
@@ -1674,9 +1674,9 @@ function DarkUI:CreateWindow(config)
 						ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
 					}),
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 0.97),
-						NumberSequenceKeypoint.new(0.5, 0.14),
-						NumberSequenceKeypoint.new(1, 0.97),
+						NumberSequenceKeypoint.new(0, 0.86),
+						NumberSequenceKeypoint.new(0.5, 0),
+						NumberSequenceKeypoint.new(1, 0.86),
 					}),
 				}),
 			})
@@ -1768,8 +1768,8 @@ function DarkUI:CreateWindow(config)
 					Parent = bodyFrame,
 				}, {
 					corner(8),
-					styledStroke(stroke(window.Theme.Stroke, 0.48, 1), "Stroke"),
-				}), "Surface")
+					styledStroke(stroke(window.Theme.Stroke, 0.26, 1), "Stroke"),
+				}), "Panel")
 
 				attachHover(row, "Panel", "PanelLight")
 				addSearchRow(row, (options.Title or "") .. " " .. (options.Description or "") .. " " .. (options.SearchText or ""))
