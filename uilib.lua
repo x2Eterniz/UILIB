@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.3"
+DarkUI.Version = "1.0.4"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -452,6 +452,7 @@ function DarkUI:CreateWindow(config)
 		Name = "Header",
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, headerHeight),
+		ZIndex = 50,
 		Parent = root,
 	}, {
 		corner(10),
@@ -461,6 +462,7 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 0, 1, -9),
 		Size = UDim2.new(1, 0, 0, 9),
+		ZIndex = 50,
 		Parent = header,
 	}), "Surface")
 
@@ -470,6 +472,7 @@ function DarkUI:CreateWindow(config)
 		BackgroundColor3 = theme.Accent,
 		Position = UDim2.new(0, 0, 1, -1),
 		Size = UDim2.new(1, 0, 0, 1),
+		ZIndex = 51,
 		Parent = header,
 	})
 
@@ -480,6 +483,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(16, 8),
 			ScaleType = Enum.ScaleType.Fit,
 			Size = UDim2.fromOffset(30, 30),
+			ZIndex = 52,
 			Parent = header,
 		})
 	end
@@ -494,6 +498,7 @@ function DarkUI:CreateWindow(config)
 		Text = config.Title or "Vxizi Hub",
 		TextSize = 20,
 	}), "Text")
+	title.ZIndex = 52
 
 	local subtitle = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Body,
@@ -503,6 +508,7 @@ function DarkUI:CreateWindow(config)
 		Text = config.Subtitle or "clean dark interface",
 		TextSize = 12,
 	}), "Muted")
+	subtitle.ZIndex = 52
 
 	local statusPill = styledBackground(make("TextLabel", {
 		AnchorPoint = Vector2.new(1, 0.5),
@@ -512,6 +518,7 @@ function DarkUI:CreateWindow(config)
 		Size = UDim2.fromOffset(90, 28),
 		Text = "WORKING",
 		TextSize = 12,
+		ZIndex = 52,
 		Parent = header,
 	}, {
 		corner(7),
@@ -527,6 +534,7 @@ function DarkUI:CreateWindow(config)
 		Size = UDim2.fromOffset(30, 28),
 		Text = "-",
 		TextSize = 18,
+		ZIndex = 52,
 		Parent = header,
 	}, {
 		corner(8),
@@ -544,6 +552,7 @@ function DarkUI:CreateWindow(config)
 		Size = UDim2.fromOffset(30, 28),
 		Text = "x",
 		TextSize = 15,
+		ZIndex = 52,
 		Parent = header,
 	}, {
 		corner(8),
@@ -556,6 +565,7 @@ function DarkUI:CreateWindow(config)
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, headerHeight),
 		Size = UDim2.new(1, 0, 1, -headerHeight),
+		ZIndex = 1,
 		Parent = root,
 	})
 
@@ -602,6 +612,8 @@ function DarkUI:CreateWindow(config)
 		ClipsDescendants = true,
 		Size = UDim2.new(0, navWidth, 1, 0),
 		Parent = body,
+	}, {
+		corner(10),
 	}), "Surface")
 
 	local navBrandText = tostring(config.NavBrand or "")
