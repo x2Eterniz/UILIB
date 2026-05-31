@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.0"
+DarkUI.Version = "1.0.1"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
