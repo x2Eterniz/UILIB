@@ -600,14 +600,16 @@ function DarkUI:CreateWindow(config)
 	local navPanel = styledBackground(make("Frame", {
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
-		Size = UDim2.new(0, navWidth, 1, -footerHeight),
+		Size = UDim2.new(0, navWidth, 1, 0),
 		Parent = body,
 	}, {
 		corner(9),
 		styledStroke(stroke(theme.Stroke, 0.22, 1), "Stroke"),
 	}), "Surface")
 
-	local navHeaderHeight = 48
+	local navBrandText = tostring(config.NavBrand or "")
+	local hasNavBrand = navBrandText ~= ""
+	local navHeaderHeight = hasNavBrand and 48 or 0
 	local navHeader = make("Frame", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, navHeaderHeight),
@@ -615,7 +617,7 @@ function DarkUI:CreateWindow(config)
 	})
 
 	local navHeaderOffset = 12
-	if config.Icon then
+	if hasNavBrand and config.Icon then
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
 			Image = config.Icon,
@@ -627,25 +629,30 @@ function DarkUI:CreateWindow(config)
 		navHeaderOffset = 38
 	end
 
-	styledText(DarkUI:Text({
-		Font = DarkUI.Fonts.Title,
-		Parent = navHeader,
-		Position = UDim2.fromOffset(navHeaderOffset, 9),
-		Size = UDim2.new(1, -navHeaderOffset - 10, 0, 24),
-		Text = config.NavBrand or config.Title or "alchemy",
-		TextSize = 15,
-		TextXAlignment = Enum.TextXAlignment.Left,
-	}), "Text")
+	if hasNavBrand then
+		styledText(DarkUI:Text({
+			Font = DarkUI.Fonts.Title,
+			Parent = navHeader,
+			Position = UDim2.fromOffset(navHeaderOffset, 9),
+			Size = UDim2.new(1, -navHeaderOffset - 10, 0, 24),
+			Text = navBrandText,
+			TextSize = 15,
+			TextXAlignment = Enum.TextXAlignment.Left,
+		}), "Text")
+	end
 
-	make("Frame", {
-		Name = "DarkUIAccent",
-		BorderSizePixel = 0,
-		BackgroundColor3 = theme.Accent,
-		Position = UDim2.fromOffset(0, navHeaderHeight),
-		Size = UDim2.new(1, 0, 0, 1),
-		Parent = navPanel,
-	})
+	if hasNavBrand then
+		make("Frame", {
+			Name = "DarkUIAccent",
+			BorderSizePixel = 0,
+			BackgroundColor3 = theme.Accent,
+			Position = UDim2.fromOffset(0, navHeaderHeight),
+			Size = UDim2.new(1, 0, 0, 1),
+			Parent = navPanel,
+		})
+	end
 
+	local navTabsTopOffset = hasNavBrand and 6 or 0
 	local tabs = make("ScrollingFrame", {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
@@ -654,8 +661,8 @@ function DarkUI:CreateWindow(config)
 		ScrollBarImageColor3 = theme.Accent,
 		ScrollBarImageTransparency = 0.42,
 		ScrollBarThickness = 2,
-		Position = UDim2.fromOffset(0, navHeaderHeight + 6),
-		Size = UDim2.new(1, 0, 1, -(navHeaderHeight + 6)),
+		Position = UDim2.fromOffset(0, navHeaderHeight + navTabsTopOffset),
+		Size = UDim2.new(1, 0, 1, -(navHeaderHeight + footerHeight + navTabsTopOffset)),
 		Parent = navPanel,
 	}, {
 		make("UIListLayout", {
