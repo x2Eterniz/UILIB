@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.9"
+DarkUI.Version = "1.1.0"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -250,9 +250,14 @@ function DarkUI:CreateWindow(config)
 		Renderers = {},
 		Pages = {},
 		TabButtons = {},
+		TabOrder = {},
 		SearchItems = {},
 		Sections = {},
 		SelectedTab = nil,
+		FooterButtons = {},
+		FooterRole = "Home",
+		FooterHomeTab = nil,
+		FooterSettingsTab = nil,
 		Destroyed = false,
 	}
 
@@ -778,6 +783,96 @@ function DarkUI:CreateWindow(config)
 	})
 
 	local footer = nil
+	local footerButtons = {}
+	local footerActiveRole = "Home"
+
+	local function isSettingsTabName(tabName)
+		local lowered = string.lower(tostring(tabName or ""))
+		return string.find(lowered, "setting", 1, true) ~= nil
+			or string.find(lowered, "config", 1, true) ~= nil
+	end
+
+	local function resolveHomeTabName()
+		if window.FooterHomeTab and window.Pages[window.FooterHomeTab] then
+			return window.FooterHomeTab
+		end
+
+		if config.HomeTabName and window.Pages[config.HomeTabName] then
+			return config.HomeTabName
+		end
+
+		return window.TabOrder[1]
+	end
+
+	local function resolveSettingsTabName()
+		if window.FooterSettingsTab and window.Pages[window.FooterSettingsTab] then
+			return window.FooterSettingsTab
+		end
+
+		if config.SettingsTabName and window.Pages[config.SettingsTabName] then
+			return config.SettingsTabName
+		end
+
+		for _, tabName in ipairs(window.TabOrder) do
+			if isSettingsTabName(tabName) then
+				return tabName
+			end
+		end
+
+		return nil
+	end
+
+	local function footerRoleForTab(tabName)
+		local settingsTabName = resolveSettingsTabName()
+		if settingsTabName and tabName == settingsTabName then
+			return "Setting"
+		end
+
+		return "Home"
+	end
+
+	local function setFooterActive(role, animated)
+		footerActiveRole = role or "Home"
+		window.FooterRole = footerActiveRole
+
+		for buttonRole, refs in pairs(footerButtons) do
+			local active = buttonRole == footerActiveRole
+			local targetBackground = window.Theme[active and "Panel" or "Surface"]
+			local targetIconColor = window.Theme[active and "Accent" or "Muted"]
+			local targetTextColor = window.Theme[active and "Text" or "Muted"]
+			local strokeObject = refs.Button:FindFirstChildOfClass("UIStroke")
+
+			refs.Button:SetAttribute("DarkUIBackground", active and "Panel" or "Surface")
+			refs.Label:SetAttribute("DarkUIText", active and "Text" or "Muted")
+			refs.Icon:SetAttribute("DarkUIFooterIconState", active and "Active" or "Muted")
+			refs.Button:SetAttribute("DarkUIFooterActive", active)
+
+			if animated then
+				tween(refs.Button, {
+					BackgroundColor3 = targetBackground,
+				}, 0.14)
+				tween(refs.Icon, {
+					ImageColor3 = targetIconColor,
+				}, 0.14)
+				tween(refs.Label, {
+					TextColor3 = targetTextColor,
+				}, 0.14)
+				if strokeObject then
+					tween(strokeObject, {
+						Transparency = active and 0.16 or 0.4,
+					}, 0.14)
+				end
+			else
+				refs.Button.BackgroundColor3 = targetBackground
+				refs.Icon.ImageColor3 = targetIconColor
+				refs.Label.TextColor3 = targetTextColor
+				if strokeObject then
+					strokeObject.Transparency = active and 0.16 or 0.4
+				end
+			end
+		end
+	end
+
 	if footerHeight > 0 then
 		footer = styledBackground(make("Frame", {
 			AnchorPoint = Vector2.new(0, 1),
@@ -813,15 +908,20 @@ function DarkUI:CreateWindow(config)
 			}),
 		})
 
-		local function createFooterButton(titleText, iconAssetId, active)
-			local button = styledBackground(make("Frame", {
+		local function createFooterButton(roleName, titleText, iconAssetId, active)
+			local button = styledBackground(make("TextButton", {
+				Name = "DarkUIFooterButton",
+				AutoButtonColor = false,
 				BorderSizePixel = 0,
 				Size = UDim2.fromOffset(96, 38),
+				Text = "",
 				Parent = footerCenter,
 			}, {
 				corner(8),
 				styledStroke(stroke(theme.Stroke, active and 0.16 or 0.4, 1), "Stroke"),
 			}), active and "Panel" or "Surface")
+			button:SetAttribute("DarkUIFooterRole", roleName)
+			button:SetAttribute("DarkUIFooterActive", active)
 
 			local footerIcon = make("ImageLabel", {
 				Name = "DarkUIFooterIcon",
@@ -834,7 +934,7 @@ function DarkUI:CreateWindow(config)
 			})
 			footerIcon:SetAttribute("DarkUIFooterIconState", active and "Active" or "Muted")
 
-			styledText(DarkUI:Text({
+			local footerLabel = styledText(DarkUI:Text({
 				Font = DarkUI.Fonts.Bold,
 				Parent = button,
 				Position = UDim2.fromOffset(0, 19),
@@ -843,10 +943,60 @@ function DarkUI:CreateWindow(config)
 				TextSize = 12,
 				TextXAlignment = Enum.TextXAlignment.Center,
 			}), active and "Text" or "Muted")
+			footerLabel.Name = "DarkUIFooterLabel"
+
+			footerButtons[roleName] = {
+				Button = button,
+				Icon = footerIcon,
+				Label = footerLabel,
+			}
+			window.FooterButtons[roleName] = button
+
+			connect(button.MouseEnter, function()
+				tween(getScale(button), {
+					Scale = 1.02,
+				}, 0.12)
+				if not button:GetAttribute("DarkUIFooterActive") then
+					tween(button, {
+						BackgroundColor3 = window.Theme.Panel,
+					}, 0.12)
+				end
+			end)
+
+			connect(button.MouseLeave, function()
+				tween(getScale(button), {
+					Scale = 1,
+				}, 0.12)
+				if button:GetAttribute("DarkUIFooterActive") then
+					tween(button, {
+						BackgroundColor3 = window.Theme.Panel,
+					}, 0.12)
+				else
+					tween(button, {
+						BackgroundColor3 = window.Theme.Surface,
+					}, 0.12)
+				end
+			end)
+
+			attachPress(button, 0.92)
+			connect(button.MouseButton1Click, function()
+				if roleName == "Setting" then
+					local settingsTabName = resolveSettingsTabName()
+					if settingsTabName then
+						window:SelectTab(settingsTabName)
+					end
+				else
+					local homeTabName = resolveHomeTabName()
+					if homeTabName then
+						window:SelectTab(homeTabName)
+					end
+				end
+			end)
 		end
 
-		createFooterButton("Home", "170940874", true)
-		createFooterButton("Setting", "17824369886", false)
+		createFooterButton("Home", "Home", "170940874", true)
+		createFooterButton("Setting", "Setting", "17824369886", false)
+		setFooterActive("Home", false)
 	end
 
 	local notifications = make("Frame", {
@@ -1388,6 +1538,7 @@ function DarkUI:CreateWindow(config)
 		end
 
 		self.SelectedTab = name
+		setFooterActive(footerRoleForTab(name), true)
 		self:ApplySearch(searchBox and searchBox.Text or "")
 	end
 
@@ -1650,6 +1801,15 @@ function DarkUI:CreateWindow(config)
 
 		self.Pages[tabName] = page
 		self.TabButtons[tabName] = tabButton
+		table.insert(self.TabOrder, tabName)
+
+		if not self.FooterHomeTab then
+			self.FooterHomeTab = tabName
+		end
+
+		if not self.FooterSettingsTab and isSettingsTabName(tabName) then
+			self.FooterSettingsTab = tabName
+		end
 
 		local tab = {
 			Name = tabName,
