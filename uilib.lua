@@ -1519,7 +1519,7 @@ function DarkUI:CreateWindow(config)
 			ScrollBarImageColor3 = self.Theme.Accent,
 			ScrollBarImageTransparency = 0.4,
 			ScrollBarThickness = 2,
-			Size = UDim2.new(0.62, -5, 1, 0),
+			Size = UDim2.new(0.5, -5, 1, 0),
 			Parent = page,
 		}, {
 			make("UIListLayout", {
@@ -1542,7 +1542,7 @@ function DarkUI:CreateWindow(config)
 			ScrollBarImageColor3 = self.Theme.Accent,
 			ScrollBarImageTransparency = 0.4,
 			ScrollBarThickness = 2,
-			Size = UDim2.new(0.38, -5, 1, 0),
+			Size = UDim2.new(0.5, -5, 1, 0),
 			Parent = page,
 		}, {
 			make("UIListLayout", {
