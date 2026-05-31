@@ -554,8 +554,8 @@ function DarkUI:CreateWindow(config)
 
 	local body = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(12, headerHeight + 8),
-		Size = UDim2.new(1, -24, 1, -headerHeight - 20),
+		Position = UDim2.fromOffset(0, headerHeight),
+		Size = UDim2.new(1, 0, 1, -headerHeight),
 		Parent = root,
 	})
 
@@ -602,9 +602,6 @@ function DarkUI:CreateWindow(config)
 		ClipsDescendants = true,
 		Size = UDim2.new(0, navWidth, 1, 0),
 		Parent = body,
-	}, {
-		corner(9),
-		styledStroke(stroke(theme.Stroke, 0.22, 1), "Stroke"),
 	}), "Surface")
 
 	local navBrandText = tostring(config.NavBrand or "")
@@ -681,8 +678,8 @@ function DarkUI:CreateWindow(config)
 
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, navWidth + 10, 0, 0),
-		Size = UDim2.new(1, -navWidth - 10, 1, -footerHeight),
+		Position = UDim2.new(0, navWidth + 8, 0, 8),
+		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 8),
 		Parent = body,
 	})
 
@@ -775,9 +772,6 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.new(0, 0, 1, 0),
 			Size = UDim2.new(1, 0, 0, footerHeight),
 			Parent = body,
-		}, {
-			corner(9),
-			styledStroke(stroke(theme.Stroke, 0.28, 1), "Stroke"),
 		}), "Surface")
 
 		make("Frame", {
