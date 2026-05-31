@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.1.5"
+DarkUI.Version = "1.1.7"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -907,9 +907,7 @@ function DarkUI:CreateWindow(config)
 		for buttonRole, refs in pairs(footerButtons) do
 			local active = buttonRole == footerActiveRole
 			local targetBackground = window.Theme[active and "Panel" or "Surface"]
-			local targetIconColor = window.Theme[active and "Background" or "Text"]
-			local targetIconBadgeColor = window.Theme[active and "Accent" or "PanelLight"]
-			local targetIconBadgeTransparency = active and 0.1 or 0.18
+			local targetIconColor = window.Theme[active and "Accent" or "Text"]
 			local targetTextColor = window.Theme[active and "Text" or "Muted"]
 			local strokeObject = refs.Button:FindFirstChildOfClass("UIStroke")
 
@@ -925,12 +923,6 @@ function DarkUI:CreateWindow(config)
 				tween(refs.Icon, {
 					ImageColor3 = targetIconColor,
 				}, 0.14)
-				if refs.IconBadge then
-					tween(refs.IconBadge, {
-						BackgroundColor3 = targetIconBadgeColor,
-						BackgroundTransparency = targetIconBadgeTransparency,
-					}, 0.14)
-				end
 				tween(refs.Label, {
 					TextColor3 = targetTextColor,
 				}, 0.14)
@@ -942,10 +934,6 @@ function DarkUI:CreateWindow(config)
 			else
 				refs.Button.BackgroundColor3 = targetBackground
 				refs.Icon.ImageColor3 = targetIconColor
-				if refs.IconBadge then
-					refs.IconBadge.BackgroundColor3 = targetIconBadgeColor
-					refs.IconBadge.BackgroundTransparency = targetIconBadgeTransparency
-				end
 				refs.Label.TextColor3 = targetTextColor
 				if strokeObject then
 					strokeObject.Transparency = active and 0.16 or 0.4
@@ -1005,27 +993,14 @@ function DarkUI:CreateWindow(config)
 			button:SetAttribute("DarkUIFooterRole", roleName)
 			button:SetAttribute("DarkUIFooterActive", active)
 
-			local footerIconBadge = make("Frame", {
-				Name = "DarkUIFooterIconBadge",
-				AnchorPoint = Vector2.new(0.5, 0),
-				BackgroundColor3 = active and theme.Accent or theme.PanelLight,
-				BackgroundTransparency = active and 0.1 or 0.18,
-				BorderSizePixel = 0,
-				Position = UDim2.new(0.5, -8, 0, 4),
-				Size = UDim2.fromOffset(16, 16),
-				Parent = button,
-			}, {
-				corner(5),
-			})
-
 			local footerIcon = make("ImageLabel", {
 				Name = "DarkUIFooterIcon",
 				BackgroundTransparency = 1,
 				Image = resolvedFooterIcon or "",
-				ImageColor3 = active and theme.Background or theme.Text,
-				Position = UDim2.fromOffset(2, 2),
-				Size = UDim2.fromOffset(12, 12),
-				Parent = footerIconBadge,
+				ImageColor3 = active and theme.Accent or theme.Text,
+				Position = UDim2.new(0.5, -8, 0, 4),
+				Size = UDim2.fromOffset(16, 16),
+				Parent = button,
 			})
 			footerIcon:SetAttribute("DarkUIFooterIconState", active and "Active" or "Muted")
 
@@ -1043,7 +1018,6 @@ function DarkUI:CreateWindow(config)
 			footerButtons[roleName] = {
 				Button = button,
 				Icon = footerIcon,
-				IconBadge = footerIconBadge,
 				Label = footerLabel,
 			}
 			window.FooterButtons[roleName] = button
@@ -1090,8 +1064,8 @@ function DarkUI:CreateWindow(config)
 			end)
 		end
 
-		createFooterButton("Home", "Home", "10723407389", true)
-		createFooterButton("Setting", "Setting", "10734950309", false)
+		createFooterButton("Home", "Home", "170940874", true)
+		createFooterButton("Setting", "Setting", "17824369886", false)
 		setFooterActive("Home", false)
 	end
 
