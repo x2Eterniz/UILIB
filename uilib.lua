@@ -590,18 +590,52 @@ function DarkUI:CreateWindow(config)
 
 	local navPanel = styledBackground(make("Frame", {
 		BorderSizePixel = 0,
+		ClipsDescendants = true,
 		Size = UDim2.new(0, navWidth, 1, -footerHeight),
 		Parent = body,
 	}, {
 		corner(9),
-		styledStroke(stroke(theme.Stroke, 0.24, 1), "Stroke"),
-		make("UIPadding", {
-			PaddingLeft = UDim.new(0, 6),
-			PaddingRight = UDim.new(0, 6),
-			PaddingTop = UDim.new(0, 8),
-			PaddingBottom = UDim.new(0, 8),
-		}),
-	}), "Tab")
+		styledStroke(stroke(theme.Stroke, 0.22, 1), "Stroke"),
+	}), "Surface")
+
+	local navHeaderHeight = 48
+	local navHeader = make("Frame", {
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, navHeaderHeight),
+		Parent = navPanel,
+	})
+
+	local navHeaderOffset = 12
+	if config.Icon then
+		make("ImageLabel", {
+			BackgroundTransparency = 1,
+			Image = config.Icon,
+			Position = UDim2.fromOffset(10, 9),
+			ScaleType = Enum.ScaleType.Fit,
+			Size = UDim2.fromOffset(24, 24),
+			Parent = navHeader,
+		})
+		navHeaderOffset = 38
+	end
+
+	styledText(DarkUI:Text({
+		Font = DarkUI.Fonts.Title,
+		Parent = navHeader,
+		Position = UDim2.fromOffset(navHeaderOffset, 9),
+		Size = UDim2.new(1, -navHeaderOffset - 10, 0, 24),
+		Text = config.NavBrand or config.Title or "alchemy",
+		TextSize = 15,
+		TextXAlignment = Enum.TextXAlignment.Left,
+	}), "Text")
+
+	make("Frame", {
+		Name = "DarkUIAccent",
+		BorderSizePixel = 0,
+		BackgroundColor3 = theme.Accent,
+		Position = UDim2.fromOffset(0, navHeaderHeight),
+		Size = UDim2.new(1, 0, 0, 1),
+		Parent = navPanel,
+	})
 
 	local tabs = make("ScrollingFrame", {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -611,20 +645,21 @@ function DarkUI:CreateWindow(config)
 		ScrollBarImageColor3 = theme.Accent,
 		ScrollBarImageTransparency = 0.42,
 		ScrollBarThickness = 2,
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromOffset(0, navHeaderHeight + 6),
+		Size = UDim2.new(1, 0, 1, -(navHeaderHeight + 6)),
 		Parent = navPanel,
 	}, {
 		make("UIListLayout", {
 			FillDirection = Enum.FillDirection.Vertical,
-			Padding = UDim.new(0, 4),
+			Padding = UDim.new(0, 2),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		}),
 		make("UIPadding", {
-			PaddingLeft = UDim.new(0, 4),
-			PaddingRight = UDim.new(0, 4),
-			PaddingTop = UDim.new(0, 2),
-			PaddingBottom = UDim.new(0, 2),
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8),
+			PaddingTop = UDim.new(0, 4),
+			PaddingBottom = UDim.new(0, 4),
 		}),
 	})
 
@@ -868,6 +903,8 @@ function DarkUI:CreateWindow(config)
 					ColorSequenceKeypoint.new(0.5, self.Theme.Accent),
 					ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
 				})
+			elseif descendant.Name == "DarkUITabActiveGlow" and descendant:IsA("Frame") then
+				descendant.BackgroundColor3 = self.Theme.Accent
 			elseif descendant.Name == "DarkUIGlow" and descendant:IsA("Frame") then
 				descendant.BackgroundColor3 = self.Theme.Accent
 			elseif descendant.Name == "DarkUIGlowStroke" and descendant:IsA("UIStroke") then
@@ -1275,13 +1312,17 @@ function DarkUI:CreateWindow(config)
 			local tabButton = self.TabButtons[tabName]
 			if tabButton then
 				tween(tabButton, {
-					BackgroundColor3 = selected and self.Theme.TabActive or self.Theme.Tab,
+					BackgroundColor3 = selected and self.Theme.TabActive or self.Theme.Surface,
 				}, 0.14)
 
 				local tabTitle = tabButton:FindFirstChild("TabTitle")
 				if tabTitle then
 					tween(tabTitle, {
-						TextColor3 = selected and self.Theme.Text or self.Theme.Muted,
+						TextColor3 = selected and self.Theme.Text or Color3.fromRGB(
+							math.floor((self.Theme.Text.R * 255) * 0.84 + 0.5),
+							math.floor((self.Theme.Text.G * 255) * 0.84 + 0.5),
+							math.floor((self.Theme.Text.B * 255) * 0.84 + 0.5)
+						),
 					}, 0.14)
 				end
 
@@ -1289,7 +1330,14 @@ function DarkUI:CreateWindow(config)
 				if tabDesc then
 					tween(tabDesc, {
 						TextColor3 = self.Theme.Muted,
-						TextTransparency = selected and 0.08 or 0.2,
+						TextTransparency = selected and 0.1 or 0.42,
+					}, 0.14)
+				end
+
+				local activeGlow = tabButton:FindFirstChild("DarkUITabActiveGlow")
+				if activeGlow then
+					tween(activeGlow, {
+						BackgroundTransparency = selected and 0 or 1,
 					}, 0.14)
 				end
 
@@ -1299,7 +1347,7 @@ function DarkUI:CreateWindow(config)
 						accent.Visible = true
 					end
 					tween(accent, {
-						Size = selected and UDim2.new(0, 3, 1, -16) or UDim2.new(0, 3, 0, 0),
+						Size = selected and UDim2.new(0, 3, 1, -14) or UDim2.new(0, 3, 0, 0),
 						BackgroundTransparency = selected and 0 or 0.4,
 					}, 0.16)
 					if not selected then
@@ -1418,23 +1466,41 @@ function DarkUI:CreateWindow(config)
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
 			Font = DarkUI.Fonts.Bold,
-			Size = UDim2.new(1, -6, 0, tabConfig.Height or tabHeight),
+			Size = UDim2.new(1, -2, 0, tabConfig.Height or 56),
 			Text = "",
 			Parent = tabs,
 		}, {
-			corner(7),
-			styledStroke(stroke(self.Theme.Stroke, 0.55, 1), "Stroke"),
-		}), "Tab")
+			corner(6),
+		}), "Surface")
 		attachPress(tabButton, 0.97)
+
+		local activeGlow = make("Frame", {
+			Name = "DarkUITabActiveGlow",
+			BackgroundColor3 = self.Theme.Accent,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 1),
+			Parent = tabButton,
+		}, {
+			corner(6),
+			make("UIGradient", {
+				Rotation = 0,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.86),
+					NumberSequenceKeypoint.new(0.45, 0.92),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		})
 
 		local textOffset = tabConfig.Icon and 42 or 14
 		if tabConfig.Icon then
 			make("ImageLabel", {
 				BackgroundTransparency = 1,
 				Image = tabConfig.Icon,
-				Position = UDim2.fromOffset(13, 10),
+				Position = UDim2.fromOffset(12, 11),
 				ScaleType = Enum.ScaleType.Fit,
-				Size = UDim2.fromOffset(19, 19),
+				Size = UDim2.fromOffset(18, 18),
 				Parent = tabButton,
 			})
 		end
@@ -1442,10 +1508,10 @@ function DarkUI:CreateWindow(config)
 		local titleLabel = styledText(DarkUI:Text({
 			Font = DarkUI.Fonts.Bold,
 			Parent = tabButton,
-			Position = UDim2.fromOffset(textOffset, 7),
+			Position = UDim2.fromOffset(textOffset, 8),
 			Size = UDim2.new(1, -textOffset - 12, 0, 20),
 			Text = tabName,
-			TextSize = 15,
+			TextSize = 14,
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Text")
 		titleLabel.Name = "TabTitle"
@@ -1453,21 +1519,21 @@ function DarkUI:CreateWindow(config)
 		local descLabel = styledText(DarkUI:Text({
 			Font = DarkUI.Fonts.Body,
 			Parent = tabButton,
-			Position = UDim2.fromOffset(textOffset, 27),
-			Size = UDim2.new(1, -textOffset - 12, 0, 18),
+			Position = UDim2.fromOffset(textOffset, 28),
+			Size = UDim2.new(1, -textOffset - 12, 0, 17),
 			Text = tabDescription,
-			TextSize = 12,
+			TextSize = 11,
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Muted")
 		descLabel.Name = "TabDesc"
-		descLabel.TextTransparency = 0.22
+		descLabel.TextTransparency = 0.42
 
 		make("Frame", {
 			Name = "DarkUIAccent",
 			AnchorPoint = Vector2.new(0, 0),
 			BackgroundColor3 = self.Theme.Accent,
 			BorderSizePixel = 0,
-			Position = UDim2.new(0, 0, 0, 8),
+			Position = UDim2.new(0, 0, 0, 7),
 			Size = UDim2.new(0, 3, 0, 0),
 			Visible = false,
 			Parent = tabButton,
@@ -1478,10 +1544,10 @@ function DarkUI:CreateWindow(config)
 		connect(tabButton.MouseEnter, function()
 			if window.SelectedTab ~= tabName then
 				tween(tabButton, {
-					BackgroundColor3 = window.Theme.Panel,
+					BackgroundColor3 = window.Theme.Tab,
 				}, 0.12)
 				tween(getScale(tabButton), {
-					Scale = 1.01,
+					Scale = 1.006,
 				}, 0.12)
 			end
 		end)
@@ -1489,7 +1555,7 @@ function DarkUI:CreateWindow(config)
 		connect(tabButton.MouseLeave, function()
 			if window.SelectedTab ~= tabName then
 				tween(tabButton, {
-					BackgroundColor3 = window.Theme.Tab,
+					BackgroundColor3 = window.Theme.Surface,
 				}, 0.12)
 			end
 			tween(getScale(tabButton), {
