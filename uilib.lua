@@ -143,6 +143,15 @@ local function corner(radius)
 	})
 end
 
+local function bottomCorner(radius)
+	local rounded = corner(radius)
+	pcall(function()
+		rounded.TopLeftRadius = UDim.new(0, 0)
+		rounded.TopRightRadius = UDim.new(0, 0)
+	end)
+	return rounded
+end
+
 local function stroke(color, transparency, thickness)
 	return make("UIStroke", {
 		Color = color,
@@ -782,9 +791,12 @@ function DarkUI:CreateWindow(config)
 		footer = styledBackground(make("Frame", {
 			AnchorPoint = Vector2.new(0, 1),
 			BorderSizePixel = 0,
+			ClipsDescendants = true,
 			Position = UDim2.new(0, 0, 1, 0),
 			Size = UDim2.new(1, 0, 0, footerHeight),
 			Parent = body,
+		}, {
+			bottomCorner(10),
 		}), "Surface")
 
 		make("Frame", {
