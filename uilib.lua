@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.1.0"
+DarkUI.Version = "1.1.1"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -24,10 +24,25 @@ local function getFont(fontName, fallback)
 	return ok and font or fallback
 end
 
+local function getFontFace(family, weight, style)
+	local ok, fontFace = pcall(function()
+		return Font.new(
+			family,
+			weight or Enum.FontWeight.Regular,
+			style or Enum.FontStyle.Normal
+		)
+	end)
+
+	return ok and fontFace or nil
+end
+
 DarkUI.Fonts = {
 	Title = getFont("BuilderSansBold", getFont("GothamBold", Enum.Font.SourceSansBold)),
 	Bold = getFont("BuilderSansMedium", getFont("GothamSemibold", getFont("GothamBold", Enum.Font.SourceSansBold))),
 	Body = getFont("BuilderSans", getFont("Gotham", Enum.Font.SourceSans)),
+}
+DarkUI.FontFaces = {
+	WindowTitle = getFontFace("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 }
 DarkUI.TextScale = 1
 DarkUI.TextStrokeColor = Color3.fromRGB(27, 30, 35)
@@ -200,7 +215,7 @@ end
 function DarkUI:Text(props)
 	props = props or {}
 
-	return make("TextLabel", {
+	local label = make("TextLabel", {
 		BackgroundTransparency = 1,
 		Font = props.Font or self.Fonts.Body,
 		LayoutOrder = props.LayoutOrder or 0,
@@ -218,6 +233,14 @@ function DarkUI:Text(props)
 		TextYAlignment = props.TextYAlignment or Enum.TextYAlignment.Center,
 		Parent = props.Parent,
 	})
+
+	if props.FontFace then
+		pcall(function()
+			label.FontFace = props.FontFace
+		end)
+	end
+
+	return label
 end
 
 function DarkUI:CreateWindow(config)
@@ -496,12 +519,13 @@ function DarkUI:CreateWindow(config)
 	local titleOffset = config.Icon and 52 or 16
 	local title = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Title,
+		FontFace = config.TitleFontFace or DarkUI.FontFaces.WindowTitle,
 		Parent = header,
 		Position = UDim2.fromOffset(titleOffset, 2),
 		RichText = true,
 		Size = UDim2.new(1, -200 - titleOffset, 0, 23),
 		Text = config.Title or "Vxizi Hub",
-		TextSize = 20,
+		TextSize = 19,
 	}), "Text")
 	title.ZIndex = 52
 
