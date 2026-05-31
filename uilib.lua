@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.1.2"
+DarkUI.Version = "1.1.3"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -34,6 +34,50 @@ local function getFontFace(family, weight, style)
 	end)
 
 	return ok and fontFace or nil
+end
+
+local function resolveContentId(value)
+	if value == nil then
+		return nil
+	end
+
+	if type(value) == "number" then
+		return "rbxassetid://" .. tostring(math.floor(value))
+	end
+
+	local text = tostring(value or "")
+	text = string.gsub(text, "^%s+", "")
+	text = string.gsub(text, "%s+$", "")
+	if text == "" then
+		return nil
+	end
+
+	local lowered = string.lower(text)
+	if string.find(lowered, "rbxassetid://", 1, true)
+		or string.find(lowered, "rbxthumb://", 1, true)
+		or string.find(lowered, "asset://", 1, true)
+		or string.find(lowered, "http://", 1, true)
+		or string.find(lowered, "https://", 1, true)
+		or string.find(lowered, "data:", 1, true) then
+		return text
+	end
+
+	local assetIdProtocol = string.match(text, "^assetid://(%d+)$")
+	if assetIdProtocol then
+		return "rbxassetid://" .. assetIdProtocol
+	end
+
+	local queryId = string.match(text, "[%?&]id=(%d+)")
+	if queryId then
+		return "rbxassetid://" .. queryId
+	end
+
+	local numericId = string.match(text, "^(%d+)$")
+	if numericId then
+		return "rbxassetid://" .. numericId
+	end
+
+	return text
 end
 
 DarkUI.Fonts = {
@@ -418,6 +462,7 @@ function DarkUI:CreateWindow(config)
 	local windowSize = config.Size or UDim2.fromOffset(820, 510)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
+	local windowIcon = resolveContentId(config.Icon)
 	local minWindowSize = config.MinSize or Vector2.new(560, 360)
 	local resizable = config.Resizable ~= false
 	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
@@ -504,10 +549,10 @@ function DarkUI:CreateWindow(config)
 		Parent = header,
 	})
 
-	if config.Icon then
+	if windowIcon then
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
-			Image = config.Icon,
+			Image = windowIcon,
 			Position = UDim2.fromOffset(16, 8),
 			ScaleType = Enum.ScaleType.Fit,
 			Size = UDim2.fromOffset(30, 30),
@@ -516,7 +561,7 @@ function DarkUI:CreateWindow(config)
 		})
 	end
 
-	local titleOffset = config.Icon and 52 or 16
+	local titleOffset = windowIcon and 52 or 16
 	local title = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Title,
 		FontFace = config.TitleFontFace or DarkUI.FontFaces.WindowTitle,
@@ -655,10 +700,10 @@ function DarkUI:CreateWindow(config)
 	})
 
 	local navHeaderOffset = 12
-	if hasNavBrand and config.Icon then
+	if hasNavBrand and windowIcon then
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
-			Image = config.Icon,
+			Image = windowIcon,
 			Position = UDim2.fromOffset(10, 9),
 			ScaleType = Enum.ScaleType.Fit,
 			Size = UDim2.fromOffset(24, 24),
@@ -1651,6 +1696,7 @@ function DarkUI:CreateWindow(config)
 
 		tabConfig = tabConfig or {}
 		local tabName = tabConfig.Name or ("Tab " .. tostring(#self.TabButtons + 1))
+		local tabIcon = resolveContentId(tabConfig.Icon)
 
 		local tabDescription = tabConfig.Description or tabConfig.Subtitle
 		if not tabDescription or tabDescription == "" then
@@ -1694,11 +1740,11 @@ function DarkUI:CreateWindow(config)
 			}),
 		})
 
-		local textOffset = tabConfig.Icon and 42 or 14
-		if tabConfig.Icon then
+		local textOffset = tabIcon and 42 or 14
+		if tabIcon then
 			make("ImageLabel", {
 				BackgroundTransparency = 1,
-				Image = tabConfig.Icon,
+				Image = tabIcon,
 				Position = UDim2.fromOffset(12, 11),
 				ScaleType = Enum.ScaleType.Fit,
 				Size = UDim2.fromOffset(18, 18),
@@ -2122,6 +2168,7 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddButton(options)
 				options = options or {}
+				local buttonIcon = resolveContentId(options.Icon)
 				local row = createRow(options, 44)
 
 				local button = styledBackground(make("TextButton", {
@@ -2134,10 +2181,10 @@ function DarkUI:CreateWindow(config)
 					Parent = row,
 				}), "Panel")
 
-				if options.Icon then
+				if buttonIcon then
 					make("ImageLabel", {
 						BackgroundTransparency = 1,
-						Image = options.Icon,
+						Image = buttonIcon,
 						Position = UDim2.fromOffset(14, 12),
 						ScaleType = Enum.ScaleType.Fit,
 						Size = UDim2.fromOffset(20, 20),
@@ -2148,11 +2195,11 @@ function DarkUI:CreateWindow(config)
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = button,
-					Position = UDim2.fromOffset(options.Icon and 42 or 0, 0),
-					Size = UDim2.new(1, options.Icon and -56 or 0, 1, 0),
+					Position = UDim2.fromOffset(buttonIcon and 42 or 0, 0),
+					Size = UDim2.new(1, buttonIcon and -56 or 0, 1, 0),
 					Text = options.Title or "Button",
 					TextSize = 15,
-					TextXAlignment = options.Icon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center,
+					TextXAlignment = buttonIcon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center,
 				}), "Text")
 
 				local control = buildControlApi(row)
