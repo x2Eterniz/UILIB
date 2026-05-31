@@ -392,6 +392,7 @@ function DarkUI:CreateWindow(config)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
 	local minWindowSize = config.MinSize or Vector2.new(560, 360)
 	local resizable = config.Resizable ~= false
+	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
 
 	local function glowSize(size)
 		return UDim2.new(size.X.Scale, size.X.Offset + 12, size.Y.Scale, size.Y.Offset + 12)
@@ -551,27 +552,37 @@ function DarkUI:CreateWindow(config)
 
 	local resizeHandle = make("TextButton", {
 		AnchorPoint = Vector2.new(1, 1),
+		Active = true,
 		AutoButtonColor = false,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.new(1, -5, 1, -5),
-		Size = UDim2.fromOffset(26, 26),
+		Position = UDim2.new(1, -2, 1, -2),
+		Size = UDim2.fromOffset(gripSize, gripSize),
 		Text = "",
-		ZIndex = 70,
+		ZIndex = 220,
 		Visible = resizable,
 		Parent = root,
+	})
+
+	local gripVisual = make("Frame", {
+		AnchorPoint = Vector2.new(1, 1),
+		BackgroundTransparency = 1,
+		Position = UDim2.new(1, -2, 1, -2),
+		Size = UDim2.fromOffset(26, 26),
+		ZIndex = 221,
+		Parent = resizeHandle,
 	})
 
 	for index = 0, 2 do
 		styledBackground(make("Frame", {
 			AnchorPoint = Vector2.new(1, 1),
-			BackgroundTransparency = 0.2 + (index * 0.16),
+			BackgroundTransparency = 0.26 + (index * 0.16),
 			BorderSizePixel = 0,
-			Position = UDim2.new(1, -4 - (index * 6), 1, -4),
+			Position = UDim2.new(1, -3 - (index * 6), 1, -3),
 			Rotation = -45,
-			Size = UDim2.fromOffset(14 + (index * 5), 2),
-			ZIndex = 71,
-			Parent = resizeHandle,
+			Size = UDim2.fromOffset(13 + (index * 5), 2),
+			ZIndex = 222,
+			Parent = gripVisual,
 		}, {
 			corner(999),
 		}), "Accent")
