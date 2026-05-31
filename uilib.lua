@@ -26,13 +26,13 @@ end
 
 DarkUI.Fonts = {
 	-- Font kiểu giống mẫu: gọn, sắc, ít bo tròn hơn FredokaOne
-	Title = getFont("GothamBlack", getFont("GothamBold", Enum.Font.GothamBlack)),
-	Bold = getFont("GothamBold", getFont("GothamSemibold", Enum.Font.GothamBold)),
-	Body = getFont("GothamSemibold", getFont("Gotham", Enum.Font.Gotham)),
+	Title = getFont("GothamBold", getFont("GothamSemibold", Enum.Font.GothamBold)),
+	Bold = getFont("GothamSemibold", getFont("GothamMedium", Enum.Font.GothamSemibold)),
+	Body = getFont("GothamMedium", getFont("Gotham", Enum.Font.Gotham)),
 }
-DarkUI.TextScale = 1.08
+DarkUI.TextScale = 1.12
 DarkUI.TextStrokeColor = Color3.fromRGB(18, 18, 18)
-DarkUI.TextStrokeTransparency = 0.82
+DarkUI.TextStrokeTransparency = 1
 
 DarkUI.ThemePresets = {
 	Dark = {
@@ -345,7 +345,7 @@ function DarkUI:CreateWindow(config)
 			end
 
 			instance.TextStrokeColor3 = DarkUI.TextStrokeColor
-			instance.TextStrokeTransparency = key == "Muted" and 0.58 or DarkUI.TextStrokeTransparency
+			instance.TextStrokeTransparency = DarkUI.TextStrokeTransparency
 		end
 
 		return instance
@@ -797,7 +797,7 @@ function DarkUI:CreateWindow(config)
 			if textKey and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) then
 				descendant.TextColor3 = self.Theme[textKey]
 				descendant.TextStrokeColor3 = DarkUI.TextStrokeColor
-				descendant.TextStrokeTransparency = textKey == "Muted" and 0.58 or DarkUI.TextStrokeTransparency
+				descendant.TextStrokeTransparency = DarkUI.TextStrokeTransparency
 				if descendant:IsA("TextBox") then
 					descendant.PlaceholderColor3 = self.Theme.Muted
 				end
