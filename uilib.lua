@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.1"
+DarkUI.Version = "1.0.2"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -25,11 +25,11 @@ local function getFont(fontName, fallback)
 end
 
 DarkUI.Fonts = {
-	Title = getFont("GothamBlack", getFont("GothamBold", Enum.Font.SourceSansBold)),
-	Bold = getFont("GothamBold", Enum.Font.SourceSansBold),
-	Body = getFont("GothamMedium", getFont("Gotham", Enum.Font.SourceSansSemibold)),
+	Title = getFont("BuilderSansBold", getFont("GothamBold", Enum.Font.SourceSansBold)),
+	Bold = getFont("BuilderSansMedium", getFont("GothamSemibold", getFont("GothamBold", Enum.Font.SourceSansBold))),
+	Body = getFont("BuilderSans", getFont("Gotham", Enum.Font.SourceSans)),
 }
-DarkUI.TextScale = 1.04
+DarkUI.TextScale = 1
 DarkUI.TextStrokeColor = Color3.fromRGB(27, 30, 35)
 DarkUI.TextStrokeTransparency = 1
 
