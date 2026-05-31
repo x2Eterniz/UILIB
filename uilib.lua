@@ -391,7 +391,7 @@ function DarkUI:CreateWindow(config)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
 	local minWindowSize = config.MinSize or Vector2.new(560, 360)
-	local resizable = config.Resizable == true
+	local resizable = config.Resizable ~= false
 
 	local function glowSize(size)
 		return UDim2.new(size.X.Scale, size.X.Offset + 12, size.Y.Scale, size.Y.Offset + 12)
