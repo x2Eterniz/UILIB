@@ -30,9 +30,10 @@ DarkUI.Fonts = {
 	Bold = getFont("BuilderSansMedium", getFont("GothamSemibold", Enum.Font.GothamSemibold)),
 	Body = getFont("BuilderSans", getFont("Gotham", Enum.Font.Gotham)),
 }
-DarkUI.TextScale = 1.04
+DarkUI.TextScale = 1.02
 DarkUI.TextStrokeColor = Color3.fromRGB(18, 18, 18)
 DarkUI.TextStrokeTransparency = 1
+DarkUI.MutedTextTransparency = 0.2
 
 DarkUI.ThemePresets = {
 	Dark = {
@@ -41,11 +42,11 @@ DarkUI.ThemePresets = {
 		Panel = Color3.fromRGB(18, 21, 28),
 		PanelLight = Color3.fromRGB(25, 29, 38),
 		Tab = Color3.fromRGB(11, 13, 18),
-		TabActive = Color3.fromRGB(18, 22, 30),
+		TabActive = Color3.fromRGB(21, 24, 31),
 		Stroke = Color3.fromRGB(35, 40, 52),
 		Text = Color3.fromRGB(232, 236, 243),
 		Muted = Color3.fromRGB(128, 138, 154),
-		Accent = Color3.fromRGB(173, 206, 255),
+		Accent = Color3.fromRGB(18, 223, 155),
 		Success = Color3.fromRGB(74, 222, 128),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -346,6 +347,7 @@ function DarkUI:CreateWindow(config)
 
 			instance.TextStrokeColor3 = DarkUI.TextStrokeColor
 			instance.TextStrokeTransparency = DarkUI.TextStrokeTransparency
+			instance.TextTransparency = key == "Muted" and DarkUI.MutedTextTransparency or 0
 		end
 
 		return instance
@@ -437,12 +439,15 @@ function DarkUI:CreateWindow(config)
 
 	local headerHeight = 52
 	local tabHeight = 48
+	local controlHeight = config.ControlHeight or 30
+	local controlRadius = config.ControlRadius or 6
+	local rowRadius = config.RowRadius or 6
 	local tabWidth = config.TabWidth or 163 -- compact sidebar background width, ends near the marked line
 	local tabButtonWidth = config.TabButtonWidth or 142 -- compact tab buttons so they fit inside the smaller sidebar
 	local tabContentGap = config.TabContentGap or 0 -- content starts right after the compact sidebar
 	local tabLeftOffset = config.TabLeftOffset or -10 -- keep sidebar background close to the left border
 	local tabBottomExtra = config.TabBottomExtra or 8 -- keep sidebar background close to the bottom border
-	local contentTopOffset = config.ContentTopOffset or 20
+	local contentTopOffset = config.ContentTopOffset or 22
 	local searchHeight = config.Search == false and 0 or 42
 	local windowSize = config.Size or UDim2.fromOffset(680, 430)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
@@ -450,7 +455,7 @@ function DarkUI:CreateWindow(config)
 	local minWindowSize = config.MinSize or Vector2.new(500, 320)
 
 	local function glowSize(size)
-		return UDim2.new(size.X.Scale, size.X.Offset + 16, size.Y.Scale, size.Y.Offset + 16)
+		return UDim2.new(size.X.Scale, size.X.Offset + 10, size.Y.Scale, size.Y.Offset + 10)
 	end
 
 	local shadow = make("Frame", {
@@ -465,19 +470,19 @@ function DarkUI:CreateWindow(config)
 		corner(10),
 	})
 
-	local glowStroke = stroke(theme.Accent, 0.48, 2)
+	local glowStroke = stroke(theme.Accent, 0.74, 1)
 	glowStroke.Name = "DarkUIGlowStroke"
 	local glow = make("Frame", {
 		Name = "DarkUIGlow",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Accent,
-		BackgroundTransparency = 0.93,
+		BackgroundTransparency = 0.975,
 		BorderSizePixel = 0,
 		Position = windowPosition,
 		Size = glowSize(windowSize),
 		Parent = screenGui,
 	}, {
-		corner(12),
+		corner(10),
 		glowStroke,
 	})
 
@@ -540,7 +545,7 @@ function DarkUI:CreateWindow(config)
 		RichText = true,
 		Size = UDim2.new(1, -190 - titleOffset, 0, 24),
 		Text = config.Title or "Vxizi Hub",
-		TextSize = 19,
+		TextSize = 18,
 	}), "Text")
 
 	local subtitle = styledText(DarkUI:Text({
@@ -549,7 +554,7 @@ function DarkUI:CreateWindow(config)
 		Position = UDim2.fromOffset(titleOffset, 27),
 		Size = UDim2.new(1, -190 - titleOffset, 0, 18),
 		Text = config.Subtitle or "clean dark interface",
-		TextSize = 12,
+		TextSize = 11,
 	}), "Muted")
 
 	local statusPill = styledBackground(make("TextLabel", {
@@ -557,14 +562,14 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		Font = DarkUI.Fonts.Bold,
 		Position = UDim2.new(1, -84, 0.5, 0),
-		Size = UDim2.fromOffset(82, 28),
+		Size = UDim2.fromOffset(82, controlHeight),
 		Text = "READY",
-		TextSize = 12,
+		TextSize = 11,
 		Parent = header,
 	}, {
-		corner(6),
+		corner(controlRadius),
 	}), "Panel")
-	styledText(statusPill, "Accent")
+	styledText(statusPill, "Success")
 
 	local minimizeButton = styledBackground(make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),
@@ -572,12 +577,12 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		Font = DarkUI.Fonts.Bold,
 		Position = UDim2.new(1, -48, 0.5, 0),
-		Size = UDim2.fromOffset(28, 28),
+		Size = UDim2.fromOffset(controlHeight, controlHeight),
 		Text = "-",
 		TextSize = 18,
 		Parent = header,
 	}, {
-		corner(6),
+		corner(controlRadius),
 	}), "PanelLight")
 	styledText(minimizeButton, "Text")
 	attachHover(minimizeButton, "PanelLight", "Panel", 1.04)
@@ -589,12 +594,12 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		Font = DarkUI.Fonts.Bold,
 		Position = UDim2.new(1, -14, 0.5, 0),
-		Size = UDim2.fromOffset(28, 28),
+		Size = UDim2.fromOffset(controlHeight, controlHeight),
 		Text = "x",
 		TextSize = 14,
 		Parent = header,
 	}, {
-		corner(6),
+		corner(controlRadius),
 	}), "PanelLight")
 	styledText(closeButton, "Text")
 	attachHover(closeButton, "PanelLight", "Panel", 1.04)
@@ -640,19 +645,19 @@ function DarkUI:CreateWindow(config)
 		Size = UDim2.new(0, tabWidth, 1, tabBottomExtra),
 		Parent = body,
 	}, {
-		corner(8),
+		corner(7),
 		make("UIListLayout", {
 			FillDirection = Enum.FillDirection.Vertical,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			Padding = UDim.new(0, 6),
+			Padding = UDim.new(0, 8),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			VerticalAlignment = Enum.VerticalAlignment.Top,
 		}),
 		make("UIPadding", {
-			PaddingBottom = UDim.new(0, 8),
-			PaddingLeft = UDim.new(0, 8),
-			PaddingRight = UDim.new(0, 8),
-			PaddingTop = UDim.new(0, 8),
+			PaddingBottom = UDim.new(0, 10),
+			PaddingLeft = UDim.new(0, 10),
+			PaddingRight = UDim.new(0, 10),
+			PaddingTop = UDim.new(0, 10),
 		}),
 	}), "Tab")
 
@@ -663,10 +668,10 @@ function DarkUI:CreateWindow(config)
 		local searchBar = styledBackground(make("Frame", {
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(tabWidth + tabContentGap, contentTopOffset),
-			Size = UDim2.new(1, -tabWidth - tabContentGap, 0, 34),
+			Size = UDim2.new(1, -tabWidth - tabContentGap, 0, controlHeight + 4),
 			Parent = body,
 		}, {
-			corner(7),
+			corner(controlRadius),
 			searchStroke,
 		}), "Panel")
 
@@ -674,7 +679,7 @@ function DarkUI:CreateWindow(config)
 			Font = DarkUI.Fonts.Bold,
 			Parent = searchBar,
 			Position = UDim2.fromOffset(13, 0),
-			Size = UDim2.fromOffset(54, 34),
+			Size = UDim2.fromOffset(54, controlHeight + 4),
 			Text = "Search",
 			TextSize = 12,
 		}), "Muted")
@@ -708,7 +713,7 @@ function DarkUI:CreateWindow(config)
 			Visible = false,
 			Parent = searchBar,
 		}, {
-			corner(5),
+			corner(controlRadius),
 		}), "Surface")
 		styledText(searchClear, "Muted")
 		attachHover(searchClear, "Surface", "PanelLight", 1.05)
@@ -798,6 +803,7 @@ function DarkUI:CreateWindow(config)
 				descendant.TextColor3 = self.Theme[textKey]
 				descendant.TextStrokeColor3 = DarkUI.TextStrokeColor
 				descendant.TextStrokeTransparency = DarkUI.TextStrokeTransparency
+				descendant.TextTransparency = textKey == "Muted" and DarkUI.MutedTextTransparency or 0
 				if descendant:IsA("TextBox") then
 					descendant.PlaceholderColor3 = self.Theme.Muted
 				end
@@ -858,8 +864,8 @@ function DarkUI:CreateWindow(config)
 
 	function window:SetStatus(text, good)
 		statusPill.Text = text or "READY"
-		statusPill:SetAttribute("DarkUIText", good == false and "Error" or "Accent")
-		statusPill.TextColor3 = good == false and self.Theme.Error or self.Theme.Accent
+		statusPill:SetAttribute("DarkUIText", good == false and "Error" or "Success")
+		statusPill.TextColor3 = good == false and self.Theme.Error or self.Theme.Success
 	end
 
 	function window:AttachTooltip(guiObject, text)
@@ -1051,7 +1057,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(15, 8),
 			Size = UDim2.new(1, -30, 0, 20),
 			Text = titleText or notifyType,
-			TextSize = 15,
+			TextSize = 14,
 		}), "Text")
 
 		styledText(DarkUI:Text({
@@ -1342,7 +1348,7 @@ function DarkUI:CreateWindow(config)
 		tabConfig = tabConfig or {}
 		local tabName = tabConfig.Name or ("Tab " .. tostring(#self.TabButtons + 1))
 
-			local tabButton = styledBackground(make("TextButton", {
+		local tabButton = styledBackground(make("TextButton", {
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
 			Font = DarkUI.Fonts.Bold,
@@ -1350,7 +1356,7 @@ function DarkUI:CreateWindow(config)
 			Text = "",
 			Parent = tabs,
 		}, {
-			corner(4),
+			corner(controlRadius),
 			}), "Tab")
 			attachPress(tabButton, 0.96)
 
@@ -1372,7 +1378,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(textOffset, 0),
 			Size = UDim2.new(1, -textOffset - 8, 1, 0),
 			Text = tabName,
-			TextSize = 15,
+			TextSize = 14,
 		}), "Text")
 
 		make("Frame", {
@@ -1420,7 +1426,7 @@ function DarkUI:CreateWindow(config)
 		}, {
 			make("UIListLayout", {
 				FillDirection = Enum.FillDirection.Horizontal,
-				Padding = UDim.new(0, 14),
+				Padding = UDim.new(0, 16),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		})
@@ -1439,12 +1445,12 @@ function DarkUI:CreateWindow(config)
 		}, {
 			make("UIListLayout", {
 				FillDirection = Enum.FillDirection.Vertical,
-				Padding = UDim.new(0, 10),
+				Padding = UDim.new(0, 12),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 			make("UIPadding", {
-				PaddingBottom = UDim.new(0, 8),
-				PaddingTop = UDim.new(0, 12),
+				PaddingBottom = UDim.new(0, 10),
+				PaddingTop = UDim.new(0, 14),
 			}),
 		})
 
@@ -1462,12 +1468,12 @@ function DarkUI:CreateWindow(config)
 		}, {
 			make("UIListLayout", {
 				FillDirection = Enum.FillDirection.Vertical,
-				Padding = UDim.new(0, 10),
+				Padding = UDim.new(0, 12),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 			make("UIPadding", {
-				PaddingBottom = UDim.new(0, 8),
-				PaddingTop = UDim.new(0, 12),
+				PaddingBottom = UDim.new(0, 10),
+				PaddingTop = UDim.new(0, 14),
 			}),
 		})
 
@@ -1510,7 +1516,7 @@ function DarkUI:CreateWindow(config)
 			}, {
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 7),
+					Padding = UDim.new(0, 10),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
 			})
@@ -1530,7 +1536,7 @@ function DarkUI:CreateWindow(config)
 				Position = UDim2.fromOffset(0, 1),
 				Size = UDim2.new(1, 0, 0, 24),
 				Text = options.Title or "Section",
-				TextSize = 17,
+				TextSize = 15,
 				TextXAlignment = Enum.TextXAlignment.Center,
 			}), "Text")
 
@@ -1574,7 +1580,7 @@ function DarkUI:CreateWindow(config)
 				BackgroundColor3 = window.Theme.Accent,
 				BorderSizePixel = 0,
 				Position = UDim2.new(0.5, 0, 0, 30),
-				Size = UDim2.new(0.9, 0, 0, 2),
+				Size = UDim2.new(0.86, 0, 0, 2),
 				Parent = headerButton,
 			}, {
 				make("UIGradient", {
@@ -1585,9 +1591,9 @@ function DarkUI:CreateWindow(config)
 						ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
 					}),
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 0.9),
-						NumberSequenceKeypoint.new(0.5, 0),
-						NumberSequenceKeypoint.new(1, 0.9),
+						NumberSequenceKeypoint.new(0, 0.95),
+						NumberSequenceKeypoint.new(0.5, 0.38),
+						NumberSequenceKeypoint.new(1, 0.95),
 					}),
 				}),
 			})
@@ -1602,7 +1608,7 @@ function DarkUI:CreateWindow(config)
 			}, {
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 7),
+					Padding = UDim.new(0, 8),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
 			})
@@ -1678,8 +1684,8 @@ function DarkUI:CreateWindow(config)
 					Size = UDim2.new(1, 0, 0, height),
 					Parent = bodyFrame,
 				}, {
-					corner(5),
-					styledStroke(stroke(window.Theme.Stroke, 0.48, 1), "Stroke"),
+					corner(rowRadius),
+					styledStroke(stroke(window.Theme.Stroke, 0.4, 1), "Stroke"),
 				}), "Panel")
 
 				attachHover(row, "Panel", "PanelLight")
@@ -1726,7 +1732,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(14, 8),
 					Size = UDim2.new(1, -28, 0, 18),
 					Text = options.Title or "Info",
-					TextSize = 14,
+					TextSize = 13,
 				}), "Text")
 
 				local bodyText = styledText(DarkUI:Text({
@@ -1735,7 +1741,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(14, 31),
 					Size = UDim2.new(1, -28, 0, 34),
 					Text = options.Text or "",
-					TextSize = 13,
+					TextSize = 12,
 					TextWrapped = true,
 					TextYAlignment = Enum.TextYAlignment.Top,
 				}), "Muted")
@@ -1751,7 +1757,7 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddButton(options)
 				options = options or {}
-				local row = createRow(options, 44)
+				local row = createRow(options, 46)
 
 				local button = styledBackground(make("TextButton", {
 					AutoButtonColor = false,
@@ -1780,7 +1786,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(options.Icon and 42 or 0, 0),
 					Size = UDim2.new(1, options.Icon and -56 or 0, 1, 0),
 					Text = options.Title or "Button",
-					TextSize = 15,
+					TextSize = 14,
 					TextXAlignment = options.Icon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center,
 				}), "Text")
 
@@ -1800,15 +1806,15 @@ function DarkUI:CreateWindow(config)
 				options = options or {}
 				local value = options.Default == true
 				local hasDescription = options.Description and options.Description ~= ""
-				local row = createRow(options, hasDescription and 70 or 48)
+				local row = createRow(options, hasDescription and 76 or 54)
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = row,
 					Position = UDim2.fromOffset(14, hasDescription and 8 or 0),
-					Size = UDim2.new(1, -66, 0, hasDescription and 18 or 48),
+					Size = UDim2.new(1, -66, 0, hasDescription and 18 or 54),
 					Text = options.Title or "Toggle",
-					TextSize = 15,
+					TextSize = 14,
 				}), "Text")
 
 				if hasDescription then
@@ -1818,7 +1824,7 @@ function DarkUI:CreateWindow(config)
 						Position = UDim2.fromOffset(14, 29),
 						Size = UDim2.new(1, -76, 0, 34),
 						Text = options.Description,
-						TextSize = 12,
+						TextSize = 11,
 						TextWrapped = true,
 						TextYAlignment = Enum.TextYAlignment.Top,
 					}), "Muted")
@@ -1830,11 +1836,11 @@ function DarkUI:CreateWindow(config)
 					AutoButtonColor = false,
 					BorderSizePixel = 0,
 					Position = UDim2.new(1, -16, 0.5, 0),
-					Size = UDim2.fromOffset(30, 30),
+					Size = UDim2.fromOffset(controlHeight, controlHeight),
 					Text = "",
 					Parent = row,
 				}, {
-					corner(6),
+					corner(controlRadius),
 					shellStroke,
 				}), "Surface")
 
@@ -1844,10 +1850,10 @@ function DarkUI:CreateWindow(config)
 					BackgroundColor3 = Color3.fromRGB(8, 9, 12),
 					BorderSizePixel = 0,
 					Position = UDim2.fromScale(0.5, 0.5),
-					Size = UDim2.fromOffset(22, 22),
+					Size = UDim2.fromOffset(controlHeight - 8, controlHeight - 8),
 					Parent = shell,
 				}, {
-					corner(5),
+					corner(controlRadius - 1),
 					innerStroke,
 				})
 
@@ -2005,7 +2011,7 @@ function DarkUI:CreateWindow(config)
 				local decimals = options.Decimals or 0
 				local factor = 10 ^ decimals
 				local value = math.clamp(options.Default or minValue, minValue, maxValue)
-				local row = createRow(options, 64)
+				local row = createRow(options, 70)
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2013,7 +2019,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, 6),
 					Size = UDim2.new(1, -24, 0, 18),
 					Text = options.Title or "Slider",
-					TextSize = 14,
+					TextSize = 13,
 				}), "Text")
 
 				local valueBoxStroke = styledStroke(stroke(window.Theme.Stroke, 0.45, 1), "Stroke")
@@ -2024,14 +2030,14 @@ function DarkUI:CreateWindow(config)
 					Font = DarkUI.Fonts.Bold,
 					PlaceholderColor3 = window.Theme.Muted,
 					PlaceholderText = "0",
-					Position = UDim2.new(1, -12, 0, 43),
-					Size = UDim2.fromOffset(72, 28),
+					Position = UDim2.new(1, -12, 0, 46),
+					Size = UDim2.fromOffset(72, controlHeight),
 					Text = tostring(value),
 					TextSize = 13,
 					TextXAlignment = Enum.TextXAlignment.Center,
 					Parent = row,
 				}, {
-					corner(6),
+					corner(controlRadius),
 					valueBoxStroke,
 				}), "Surface")
 				styledText(valueBox, "Accent")
@@ -2039,7 +2045,7 @@ function DarkUI:CreateWindow(config)
 
 				local track = styledBackground(make("Frame", {
 					BorderSizePixel = 0,
-					Position = UDim2.fromOffset(12, 42),
+					Position = UDim2.fromOffset(12, 48),
 					Size = UDim2.new(1, -104, 0, 6),
 					Parent = row,
 				}, {
@@ -2190,7 +2196,7 @@ function DarkUI:CreateWindow(config)
 					end
 				end
 
-				local row = createRow(options, 44)
+				local row = createRow(options, 46)
 				local open = false
 				local listHeight = 0
 				local filteredCount = #items
@@ -2200,9 +2206,9 @@ function DarkUI:CreateWindow(config)
 					Font = DarkUI.Fonts.Bold,
 					Parent = row,
 					Position = UDim2.fromOffset(12, 0),
-					Size = UDim2.new(0.42, -12, 0, 44),
+					Size = UDim2.new(0.42, -12, 0, 46),
 					Text = options.Title or "Dropdown",
-					TextSize = 14,
+					TextSize = 13,
 				}), "Text")
 
 				local button = styledBackground(make("TextButton", {
@@ -2211,11 +2217,11 @@ function DarkUI:CreateWindow(config)
 					BorderSizePixel = 0,
 					Font = DarkUI.Fonts.Bold,
 					Position = UDim2.new(1, -12, 0, 8),
-					Size = UDim2.new(0.58, -8, 0, 28),
+					Size = UDim2.new(0.58, -8, 0, controlHeight),
 					Text = "",
 					Parent = row,
 				}, {
-					corner(6),
+					corner(controlRadius),
 					styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke"),
 				}), "Surface")
 
@@ -2260,7 +2266,7 @@ function DarkUI:CreateWindow(config)
 				local list = make("Frame", {
 					BackgroundTransparency = 1,
 					ClipsDescendants = true,
-					Position = UDim2.fromOffset(12, 42),
+					Position = UDim2.fromOffset(12, 44),
 					Size = UDim2.new(1, -24, 0, 0),
 					Parent = row,
 				}, {
@@ -2328,10 +2334,10 @@ function DarkUI:CreateWindow(config)
 
 				local function setOpen(nextOpen)
 					open = nextOpen == true
-					local searchHeight = searchable and 35 or 0
+					local searchHeight = searchable and (controlHeight + 6) or 0
 					listHeight = open and (searchHeight + (filteredCount * 41)) or 0
 					tween(row, {
-						Size = UDim2.new(1, 0, 0, 44 + listHeight),
+						Size = UDim2.new(1, 0, 0, 46 + listHeight),
 					}, 0.16)
 					tween(list, {
 						Size = UDim2.new(1, -24, 0, listHeight),
@@ -2502,7 +2508,7 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddTextBox(options)
 				options = options or {}
-				local row = createRow(options, 44)
+				local row = createRow(options, 46)
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2510,7 +2516,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, 0),
 					Size = UDim2.new(0.42, -12, 1, 0),
 					Text = options.Title or "Text",
-					TextSize = 14,
+					TextSize = 13,
 				}), "Text")
 
 				local boxStroke = styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke")
@@ -2522,12 +2528,12 @@ function DarkUI:CreateWindow(config)
 					PlaceholderColor3 = window.Theme.Muted,
 					PlaceholderText = options.Placeholder or "Type...",
 					Position = UDim2.new(1, -12, 0.5, 0),
-					Size = UDim2.new(0.58, -8, 0, 28),
+					Size = UDim2.new(0.58, -8, 0, controlHeight),
 					Text = options.Default or "",
 					TextSize = 13,
 					Parent = row,
 				}, {
-					corner(6),
+					corner(controlRadius),
 					make("UIPadding", {
 						PaddingLeft = UDim.new(0, 8),
 						PaddingRight = UDim.new(0, 8),
@@ -2578,7 +2584,7 @@ function DarkUI:CreateWindow(config)
 				options = options or {}
 				local key = options.Default or Enum.KeyCode.RightShift
 				local listening = false
-				local row = createRow(options, 44)
+				local row = createRow(options, 46)
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2586,7 +2592,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, 0),
 					Size = UDim2.new(1, -120, 1, 0),
 					Text = options.Title or "Keybind",
-					TextSize = 14,
+					TextSize = 13,
 				}), "Text")
 
 				local keyButton = styledBackground(make("TextButton", {
@@ -2595,12 +2601,12 @@ function DarkUI:CreateWindow(config)
 					BorderSizePixel = 0,
 					Font = DarkUI.Fonts.Bold,
 					Position = UDim2.new(1, -12, 0.5, 0),
-					Size = UDim2.fromOffset(96, 28),
+					Size = UDim2.fromOffset(96, controlHeight),
 					Text = key.Name,
 					TextSize = 13,
 					Parent = row,
 				}, {
-					corner(6),
+					corner(controlRadius),
 					styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke"),
 				}), "Surface")
 				styledText(keyButton, "Text")
