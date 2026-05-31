@@ -1606,7 +1606,7 @@ function DarkUI:CreateWindow(config)
 					Padding = UDim.new(0, 9),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
-			}), "Panel")
+			}), "Surface")
 
 			local headerButton = make("TextButton", {
 				AutoButtonColor = false,
@@ -1773,9 +1773,9 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(8),
 					styledStroke(stroke(window.Theme.Stroke, 0.26, 1), "Stroke"),
-				}), "Panel")
+				}), "Tab")
 
-				attachHover(row, "Panel", "PanelLight")
+				attachHover(row, "Tab", "Surface")
 				addSearchRow(row, (options.Title or "") .. " " .. (options.Description or "") .. " " .. (options.SearchText or ""))
 				return row
 			end
