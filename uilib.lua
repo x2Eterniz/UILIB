@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.6"
+DarkUI.Version = "1.0.7"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -786,15 +786,6 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.new(0, 0, 1, 0),
 			Size = UDim2.new(1, 0, 0, footerHeight),
 			Parent = body,
-		}, {
-			corner(10),
-		}), "Surface")
-
-		styledBackground(make("Frame", {
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(0, 0),
-			Size = UDim2.new(1, 0, 0, 9),
-			Parent = footer,
 		}), "Surface")
 
 		make("Frame", {
