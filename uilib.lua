@@ -554,8 +554,8 @@ function DarkUI:CreateWindow(config)
 
 	local body = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 0),
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromOffset(0, headerHeight),
+		Size = UDim2.new(1, 0, 1, -headerHeight),
 		Parent = root,
 	})
 
@@ -650,7 +650,7 @@ function DarkUI:CreateWindow(config)
 	end
 
 	local navTabsTopOffset = hasNavBrand and 6 or 0
-	local navTabsStartY = headerHeight + navHeaderHeight + navTabsTopOffset
+	local navTabsStartY = navHeaderHeight + navTabsTopOffset
 	local tabs = make("ScrollingFrame", {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
@@ -679,8 +679,8 @@ function DarkUI:CreateWindow(config)
 
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, navWidth + 8, 0, headerHeight + 8),
-		Size = UDim2.new(1, -navWidth - 16, 1, -(headerHeight + footerHeight + 8)),
+		Position = UDim2.new(0, navWidth + 8, 0, 8),
+		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 8),
 		Parent = body,
 	})
 
