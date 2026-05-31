@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.7"
+DarkUI.Version = "1.0.8"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -141,6 +141,17 @@ local function corner(radius)
 	return make("UICorner", {
 		CornerRadius = UDim.new(0, radius),
 	})
+end
+
+local function cornerBottomOnly(radius)
+	local rounded = corner(radius)
+	pcall(function()
+		rounded.TopLeftRadius = UDim.new(0, 0)
+		rounded.TopRightRadius = UDim.new(0, 0)
+		rounded.BottomLeftRadius = UDim.new(0, radius)
+		rounded.BottomRightRadius = UDim.new(0, radius)
+	end)
+	return rounded
 end
 
 local function stroke(color, transparency, thickness)
@@ -786,6 +797,15 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.new(0, 0, 1, 0),
 			Size = UDim2.new(1, 0, 0, footerHeight),
 			Parent = body,
+		}, {
+			cornerBottomOnly(10),
+		}), "Surface")
+
+		styledBackground(make("Frame", {
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(0, 0),
+			Size = UDim2.new(1, 0, 0, 10),
+			Parent = footer,
 		}), "Surface")
 
 		make("Frame", {
