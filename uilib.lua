@@ -1812,6 +1812,8 @@ function DarkUI:CreateWindow(config)
 			function sectionApi:AddParagraph(options)
 				options = options or {}
 				local row = createRow(options, 72)
+				row:SetAttribute("DarkUIBackground", "Surface")
+				row.BackgroundColor3 = window.Theme.Surface
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
