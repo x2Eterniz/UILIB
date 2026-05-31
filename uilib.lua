@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.1.7"
+DarkUI.Version = "1.1.8"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -900,6 +900,20 @@ function DarkUI:CreateWindow(config)
 		return "Home"
 	end
 
+	local function paintFooterIcon(parts, color, animated)
+		for _, part in ipairs(parts or {}) do
+			if part and part.Parent then
+				if animated then
+					tween(part, {
+						BackgroundColor3 = color,
+					}, 0.14)
+				else
+					part.BackgroundColor3 = color
+				end
+			end
+		end
+	end
+
 	local function setFooterActive(role, animated)
 		footerActiveRole = role or "Home"
 		window.FooterRole = footerActiveRole
@@ -913,16 +927,13 @@ function DarkUI:CreateWindow(config)
 
 			refs.Button:SetAttribute("DarkUIBackground", active and "Panel" or "Surface")
 			refs.Label:SetAttribute("DarkUIText", active and "Text" or "Muted")
-			refs.Icon:SetAttribute("DarkUIFooterIconState", active and "Active" or "Muted")
 			refs.Button:SetAttribute("DarkUIFooterActive", active)
 
 			if animated then
 				tween(refs.Button, {
 					BackgroundColor3 = targetBackground,
 				}, 0.14)
-				tween(refs.Icon, {
-					ImageColor3 = targetIconColor,
-				}, 0.14)
+				paintFooterIcon(refs.IconParts, targetIconColor, true)
 				tween(refs.Label, {
 					TextColor3 = targetTextColor,
 				}, 0.14)
@@ -933,7 +944,7 @@ function DarkUI:CreateWindow(config)
 				end
 			else
 				refs.Button.BackgroundColor3 = targetBackground
-				refs.Icon.ImageColor3 = targetIconColor
+				paintFooterIcon(refs.IconParts, targetIconColor, false)
 				refs.Label.TextColor3 = targetTextColor
 				if strokeObject then
 					strokeObject.Transparency = active and 0.16 or 0.4
@@ -978,7 +989,6 @@ function DarkUI:CreateWindow(config)
 		})
 
 		local function createFooterButton(roleName, titleText, iconAssetId, active)
-			local resolvedFooterIcon = resolveContentId(iconAssetId)
 			local button = styledBackground(make("TextButton", {
 				Name = "DarkUIFooterButton",
 				AutoButtonColor = false,
@@ -993,16 +1003,55 @@ function DarkUI:CreateWindow(config)
 			button:SetAttribute("DarkUIFooterRole", roleName)
 			button:SetAttribute("DarkUIFooterActive", active)
 
-			local footerIcon = make("ImageLabel", {
+			local footerIconHost = make("Frame", {
 				Name = "DarkUIFooterIcon",
 				BackgroundTransparency = 1,
-				Image = resolvedFooterIcon or "",
-				ImageColor3 = active and theme.Accent or theme.Text,
 				Position = UDim2.new(0.5, -8, 0, 4),
 				Size = UDim2.fromOffset(16, 16),
 				Parent = button,
 			})
-			footerIcon:SetAttribute("DarkUIFooterIconState", active and "Active" or "Muted")
+
+			local iconParts = {}
+			local function iconPart(props, radius)
+				props.BorderSizePixel = 0
+				props.BackgroundColor3 = active and theme.Accent or theme.Text
+				props.Parent = footerIconHost
+				local part = make("Frame", props, radius and { corner(radius) } or nil)
+				table.insert(iconParts, part)
+				return part
+			end
+
+			if roleName == "Setting" then
+				iconPart({
+					Position = UDim2.fromOffset(6, 6),
+					Size = UDim2.fromOffset(4, 4),
+				}, 999)
+				iconPart({ Position = UDim2.fromOffset(7, 1), Size = UDim2.fromOffset(2, 3) }, 1)
+				iconPart({ Position = UDim2.fromOffset(7, 12), Size = UDim2.fromOffset(2, 3) }, 1)
+				iconPart({ Position = UDim2.fromOffset(1, 7), Size = UDim2.fromOffset(3, 2) }, 1)
+				iconPart({ Position = UDim2.fromOffset(12, 7), Size = UDim2.fromOffset(3, 2) }, 1)
+				iconPart({ Position = UDim2.fromOffset(3, 3), Size = UDim2.fromOffset(2, 2) }, 1)
+				iconPart({ Position = UDim2.fromOffset(11, 3), Size = UDim2.fromOffset(2, 2) }, 1)
+				iconPart({ Position = UDim2.fromOffset(3, 11), Size = UDim2.fromOffset(2, 2) }, 1)
+				iconPart({ Position = UDim2.fromOffset(11, 11), Size = UDim2.fromOffset(2, 2) }, 1)
+			else
+				iconPart({
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromOffset(6, 6),
+					Size = UDim2.fromOffset(7, 2),
+					Rotation = -45,
+				}, 999)
+				iconPart({
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromOffset(10, 6),
+					Size = UDim2.fromOffset(7, 2),
+					Rotation = 45,
+				}, 999)
+				iconPart({ Position = UDim2.fromOffset(3, 8), Size = UDim2.fromOffset(2, 6) }, 1)
+				iconPart({ Position = UDim2.fromOffset(11, 8), Size = UDim2.fromOffset(2, 6) }, 1)
+				iconPart({ Position = UDim2.fromOffset(3, 13), Size = UDim2.fromOffset(10, 2) }, 1)
+				iconPart({ Position = UDim2.fromOffset(7, 10), Size = UDim2.fromOffset(2, 4) }, 1)
+			end
 
 			local footerLabel = styledText(DarkUI:Text({
 				Font = DarkUI.Fonts.Bold,
@@ -1017,7 +1066,7 @@ function DarkUI:CreateWindow(config)
 
 			footerButtons[roleName] = {
 				Button = button,
-				Icon = footerIcon,
+				IconParts = iconParts,
 				Label = footerLabel,
 			}
 			window.FooterButtons[roleName] = button
