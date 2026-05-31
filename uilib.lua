@@ -29,7 +29,7 @@ DarkUI.Fonts = {
 	Bold = getFont("GothamBold", Enum.Font.SourceSansBold),
 	Body = getFont("GothamMedium", getFont("Gotham", Enum.Font.SourceSansSemibold)),
 }
-DarkUI.TextScale = 1.12
+DarkUI.TextScale = 1.04
 DarkUI.TextStrokeColor = Color3.fromRGB(27, 30, 35)
 DarkUI.TextStrokeTransparency = 1
 
@@ -483,7 +483,7 @@ function DarkUI:CreateWindow(config)
 		RichText = true,
 		Size = UDim2.new(1, -200 - titleOffset, 0, 23),
 		Text = config.Title or "Vxizi Hub",
-		TextSize = 22,
+		TextSize = 20,
 	}), "Text")
 
 	local subtitle = styledText(DarkUI:Text({
@@ -492,7 +492,7 @@ function DarkUI:CreateWindow(config)
 		Position = UDim2.fromOffset(titleOffset, 24),
 		Size = UDim2.new(1, -200 - titleOffset, 0, 17),
 		Text = config.Subtitle or "clean dark interface",
-		TextSize = 13,
+		TextSize = 12,
 	}), "Muted")
 
 	local statusPill = styledBackground(make("TextLabel", {
@@ -502,7 +502,7 @@ function DarkUI:CreateWindow(config)
 		Position = UDim2.new(1, -92, 0.5, 0),
 		Size = UDim2.fromOffset(90, 28),
 		Text = "WORKING",
-		TextSize = 13,
+		TextSize = 12,
 		Parent = header,
 	}, {
 		corner(7),
@@ -752,7 +752,7 @@ function DarkUI:CreateWindow(config)
 			}),
 		})
 
-		local function createFooterButton(titleText, iconText, active)
+		local function createFooterButton(titleText, iconAssetId, active)
 			local button = styledBackground(make("Frame", {
 				BorderSizePixel = 0,
 				Size = UDim2.fromOffset(96, 38),
@@ -762,29 +762,30 @@ function DarkUI:CreateWindow(config)
 				styledStroke(stroke(theme.Stroke, active and 0.16 or 0.4, 1), "Stroke"),
 			}), active and "Panel" or "Surface")
 
-			styledText(DarkUI:Text({
-				Font = DarkUI.Fonts.Bold,
+			local footerIcon = make("ImageLabel", {
+				Name = "DarkUIFooterIcon",
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://" .. tostring(iconAssetId),
+				ImageColor3 = active and theme.Accent or theme.Muted,
+				Position = UDim2.new(0.5, -8, 0, 4),
+				Size = UDim2.fromOffset(16, 16),
 				Parent = button,
-				Position = UDim2.fromOffset(0, 3),
-				Size = UDim2.new(1, 0, 0, 15),
-				Text = iconText,
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Center,
-			}), active and "Accent" or "Muted")
+			})
+			footerIcon:SetAttribute("DarkUIFooterIconState", active and "Active" or "Muted")
 
 			styledText(DarkUI:Text({
 				Font = DarkUI.Fonts.Bold,
 				Parent = button,
-				Position = UDim2.fromOffset(0, 17),
+				Position = UDim2.fromOffset(0, 19),
 				Size = UDim2.new(1, 0, 0, 17),
 				Text = titleText,
-				TextSize = 13,
+				TextSize = 12,
 				TextXAlignment = Enum.TextXAlignment.Center,
 			}), active and "Text" or "Muted")
 		end
 
-		createFooterButton("Home", "O", true)
-		createFooterButton("Setting", "S", false)
+		createFooterButton("Home", "170940874", true)
+		createFooterButton("Setting", "17824369886", false)
 	end
 
 	local notifications = make("Frame", {
@@ -871,6 +872,9 @@ function DarkUI:CreateWindow(config)
 				descendant.BackgroundColor3 = self.Theme.Accent
 			elseif descendant.Name == "DarkUIGlowStroke" and descendant:IsA("UIStroke") then
 				descendant.Color = self.Theme.Accent
+			elseif descendant.Name == "DarkUIFooterIcon" and descendant:IsA("ImageLabel") then
+				local mode = descendant:GetAttribute("DarkUIFooterIconState")
+				descendant.ImageColor3 = mode == "Active" and self.Theme.Accent or self.Theme.Muted
 			elseif descendant:IsA("ScrollingFrame") then
 				descendant.ScrollBarImageColor3 = self.Theme.Accent
 			end
@@ -1441,7 +1445,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(textOffset, 7),
 			Size = UDim2.new(1, -textOffset - 12, 0, 20),
 			Text = tabName,
-			TextSize = 18,
+			TextSize = 15,
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Text")
 		titleLabel.Name = "TabTitle"
@@ -1452,7 +1456,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(textOffset, 27),
 			Size = UDim2.new(1, -textOffset - 12, 0, 18),
 			Text = tabDescription,
-			TextSize = 13,
+			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Muted")
 		descLabel.Name = "TabDesc"
@@ -1619,7 +1623,7 @@ function DarkUI:CreateWindow(config)
 				Position = UDim2.fromOffset(6, 1),
 				Size = UDim2.new(1, -12, 0, 24),
 				Text = options.Title or "Section",
-				TextSize = 16,
+				TextSize = 15,
 				TextXAlignment = Enum.TextXAlignment.Left,
 			}), "Text")
 
