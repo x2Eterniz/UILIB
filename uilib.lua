@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.1.1"
+DarkUI.Version = "1.1.2"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -2555,6 +2555,7 @@ function DarkUI:CreateWindow(config)
 				local items = options.Items or {}
 				local selected = multi and {} or options.Default or items[1]
 				local searchable = options.Searchable ~= false
+				local discordCollapse = options.DiscordCollapse ~= false
 				if multi then
 					for _, item in ipairs(options.Default or {}) do
 						selected[tostring(item)] = true
@@ -2603,6 +2604,7 @@ function DarkUI:CreateWindow(config)
 					AnchorPoint = Vector2.new(1, 0.5),
 					BackgroundTransparency = 1,
 					Position = UDim2.new(1, -9, 0.5, 0),
+					Rotation = discordCollapse and -90 or 0,
 					Size = UDim2.fromOffset(20, 18),
 					Parent = button,
 				}, {
@@ -2633,6 +2635,7 @@ function DarkUI:CreateWindow(config)
 					ClipsDescendants = true,
 					Position = UDim2.fromOffset(12, 42),
 					Size = UDim2.new(1, -24, 0, 0),
+					Visible = false,
 					Parent = row,
 				}, {
 					make("UIListLayout", {
@@ -2701,6 +2704,9 @@ function DarkUI:CreateWindow(config)
 					open = nextOpen == true
 					local searchHeight = searchable and 35 or 0
 					listHeight = open and (searchHeight + (filteredCount * 41)) or 0
+					if open then
+						list.Visible = true
+					end
 					tween(row, {
 						Size = UDim2.new(1, 0, 0, 44 + listHeight),
 					}, 0.16)
@@ -2708,8 +2714,15 @@ function DarkUI:CreateWindow(config)
 						Size = UDim2.new(1, -24, 0, listHeight),
 					}, 0.16)
 					tween(arrow, {
-						Rotation = open and 180 or 0,
+						Rotation = open and 0 or (discordCollapse and -90 or 0),
 					}, 0.16)
+					if not open then
+						task.delay(0.16, function()
+							if list.Parent and not open then
+								list.Visible = false
+							end
+						end)
+					end
 				end
 
 				local function rebuild()
@@ -2857,6 +2870,7 @@ function DarkUI:CreateWindow(config)
 
 				rebuild()
 				renderText()
+				setOpen(false)
 				registerRenderer(renderText)
 				window:RegisterConfig(options.Flag, control)
 				window:AttachTooltip(row, options.Tooltip)
