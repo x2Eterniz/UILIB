@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.1.3"
+DarkUI.Version = "1.1.4"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -1063,8 +1063,8 @@ function DarkUI:CreateWindow(config)
 			end)
 		end
 
-		createFooterButton("Home", "Home", "170940874", true)
-		createFooterButton("Setting", "Setting", "17824369886", false)
+		createFooterButton("Home", "Home", "10723407389", true)
+		createFooterButton("Setting", "Setting", "10734950309", false)
 		setFooterActive("Home", false)
 	end
 
