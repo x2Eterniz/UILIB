@@ -1507,25 +1507,33 @@ function DarkUI:CreateWindow(config)
 				target = self.Columns[((self.SectionOrder - 1) % #self.Columns) + 1]
 			end
 
-			local section = make("Frame", {
+			local section = styledBackground(make("Frame", {
 				AutomaticSize = Enum.AutomaticSize.Y,
-				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
 				LayoutOrder = self.SectionOrder,
 				Size = UDim2.new(1, -4, 0, 0),
 				Parent = target,
 			}, {
+				corner(10),
+				styledStroke(stroke(window.Theme.Stroke, 0.36, 1), "Stroke"),
+				make("UIPadding", {
+					PaddingBottom = UDim.new(0, 10),
+					PaddingLeft = UDim.new(0, 10),
+					PaddingRight = UDim.new(0, 10),
+					PaddingTop = UDim.new(0, 8),
+				}),
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 10),
+					Padding = UDim.new(0, 8),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
-			})
+			}), "Panel")
 
 			local headerButton = make("TextButton", {
 				AutoButtonColor = false,
 				BackgroundTransparency = 1,
 				LayoutOrder = 0,
-				Size = UDim2.new(1, 0, 0, 42),
+				Size = UDim2.new(1, 0, 0, 38),
 				Text = "",
 				Parent = section,
 			})
@@ -1533,11 +1541,11 @@ function DarkUI:CreateWindow(config)
 			styledText(DarkUI:Text({
 				Font = DarkUI.Fonts.Bold,
 				Parent = headerButton,
-				Position = UDim2.fromOffset(0, 1),
-				Size = UDim2.new(1, 0, 0, 24),
+				Position = UDim2.fromOffset(6, 1),
+				Size = UDim2.new(1, -12, 0, 24),
 				Text = options.Title or "Section",
 				TextSize = 15,
-				TextXAlignment = Enum.TextXAlignment.Center,
+				TextXAlignment = Enum.TextXAlignment.Left,
 			}), "Text")
 
 			local isCollapsible = options.Collapsible ~= false
@@ -1579,8 +1587,8 @@ function DarkUI:CreateWindow(config)
 				AnchorPoint = Vector2.new(0.5, 0),
 				BackgroundColor3 = window.Theme.Accent,
 				BorderSizePixel = 0,
-				Position = UDim2.new(0.5, 0, 0, 30),
-				Size = UDim2.new(0.86, 0, 0, 2),
+				Position = UDim2.new(0.5, 0, 1, -2),
+				Size = UDim2.new(1, -4, 0, 2),
 				Parent = headerButton,
 			}, {
 				make("UIGradient", {
@@ -1591,9 +1599,9 @@ function DarkUI:CreateWindow(config)
 						ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
 					}),
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 0.95),
-						NumberSequenceKeypoint.new(0.5, 0.38),
-						NumberSequenceKeypoint.new(1, 0.95),
+						NumberSequenceKeypoint.new(0, 0.97),
+						NumberSequenceKeypoint.new(0.5, 0.14),
+						NumberSequenceKeypoint.new(1, 0.97),
 					}),
 				}),
 			})
