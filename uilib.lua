@@ -261,7 +261,7 @@ function DarkUI:CreateWindow(config)
 		DisplayOrder = config.DisplayOrder or 100,
 		IgnoreGuiInset = true,
 		ResetOnSpawn = false,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		ZIndexBehavior = Enum.ZIndexBehavior.Global,
 		Parent = parent,
 	})
 
@@ -563,8 +563,8 @@ function DarkUI:CreateWindow(config)
 
 	local body = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, headerHeight),
-		Size = UDim2.new(1, 0, 1, -headerHeight),
+		Position = UDim2.fromOffset(0, headerHeight + 1),
+		Size = UDim2.new(1, 0, 1, -(headerHeight + 1)),
 		ZIndex = 1,
 		Parent = root,
 	})
