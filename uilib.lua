@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.0.2"
+DarkUI.Version = "1.0.3"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -386,7 +386,7 @@ function DarkUI:CreateWindow(config)
 	local tabHeight = 52
 	local searchHeight = config.Search == false and 0 or 44
 	local footerHeight = config.Footer == false and 0 or 56
-	local navWidth = config.NavWidth or 196
+	local navWidth = config.NavWidth or 210
 	local windowSize = config.Size or UDim2.fromOffset(820, 510)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
@@ -554,8 +554,8 @@ function DarkUI:CreateWindow(config)
 
 	local body = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, headerHeight),
-		Size = UDim2.new(1, 0, 1, -headerHeight),
+		Position = UDim2.fromOffset(0, 0),
+		Size = UDim2.fromScale(1, 1),
 		Parent = root,
 	})
 
@@ -650,6 +650,7 @@ function DarkUI:CreateWindow(config)
 	end
 
 	local navTabsTopOffset = hasNavBrand and 6 or 0
+	local navTabsStartY = headerHeight + navHeaderHeight + navTabsTopOffset
 	local tabs = make("ScrollingFrame", {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
@@ -658,8 +659,8 @@ function DarkUI:CreateWindow(config)
 		ScrollBarImageColor3 = theme.Accent,
 		ScrollBarImageTransparency = 0.42,
 		ScrollBarThickness = 2,
-		Position = UDim2.fromOffset(0, navHeaderHeight + navTabsTopOffset),
-		Size = UDim2.new(1, 0, 1, -(navHeaderHeight + footerHeight + navTabsTopOffset)),
+		Position = UDim2.fromOffset(0, navTabsStartY),
+		Size = UDim2.new(1, 0, 1, -(navTabsStartY + footerHeight)),
 		Parent = navPanel,
 	}, {
 		make("UIListLayout", {
@@ -678,8 +679,8 @@ function DarkUI:CreateWindow(config)
 
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, navWidth + 8, 0, 8),
-		Size = UDim2.new(1, -navWidth - 16, 1, -footerHeight - 8),
+		Position = UDim2.new(0, navWidth + 8, 0, headerHeight + 8),
+		Size = UDim2.new(1, -navWidth - 16, 1, -(headerHeight + footerHeight + 8)),
 		Parent = body,
 	})
 
