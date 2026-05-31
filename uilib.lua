@@ -26,11 +26,11 @@ end
 
 DarkUI.Fonts = {
 	-- Font kiểu giống mẫu: gọn, sắc, ít bo tròn hơn FredokaOne
-	Title = getFont("GothamBold", getFont("GothamSemibold", Enum.Font.GothamBold)),
-	Bold = getFont("GothamSemibold", getFont("GothamMedium", Enum.Font.GothamSemibold)),
-	Body = getFont("GothamMedium", getFont("Gotham", Enum.Font.Gotham)),
+	Title = getFont("BuilderSansBold", getFont("GothamBold", Enum.Font.GothamBold)),
+	Bold = getFont("BuilderSansMedium", getFont("GothamSemibold", Enum.Font.GothamSemibold)),
+	Body = getFont("BuilderSans", getFont("Gotham", Enum.Font.Gotham)),
 }
-DarkUI.TextScale = 1.12
+DarkUI.TextScale = 1.04
 DarkUI.TextStrokeColor = Color3.fromRGB(18, 18, 18)
 DarkUI.TextStrokeTransparency = 1
 
