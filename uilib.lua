@@ -991,16 +991,16 @@ DarkUI.TextStrokeTransparency = 1
 
 DarkUI.ThemePresets = {
 	Dark = {
-		Background = Color3.fromRGB(18, 18, 23),
-		Surface = Color3.fromRGB(22, 22, 28),
-		Panel = Color3.fromRGB(34, 34, 42),
-		PanelLight = Color3.fromRGB(43, 43, 52),
-		Tab = Color3.fromRGB(25, 35, 42),
-		TabActive = Color3.fromRGB(29, 42, 50),
-		Stroke = Color3.fromRGB(44, 44, 54),
-		Text = Color3.fromRGB(211, 211, 220),
-		Muted = Color3.fromRGB(132, 132, 145),
-		Accent = Color3.fromRGB(107, 211, 255),
+		Background = Color3.fromRGB(26, 26, 26),
+		Surface = Color3.fromRGB(20, 20, 20),
+		Panel = Color3.fromRGB(31, 31, 31),
+		PanelLight = Color3.fromRGB(18, 18, 18),
+		Tab = Color3.fromRGB(24, 24, 24),
+		TabActive = Color3.fromRGB(31, 31, 31),
+		Stroke = Color3.fromRGB(43, 43, 43),
+		Text = Color3.fromRGB(245, 245, 245),
+		Muted = Color3.fromRGB(160, 160, 160),
+		Accent = Color3.fromRGB(24, 179, 101),
 		Success = Color3.fromRGB(56, 219, 142),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -2869,42 +2869,82 @@ function DarkUI:CreateWindow(config)
 			local section = styledBackground(make("Frame", {
 				AutomaticSize = Enum.AutomaticSize.Y,
 				BorderSizePixel = 0,
-				BackgroundTransparency = 1,
+				BackgroundTransparency = 0,
 				LayoutOrder = self.SectionOrder,
-				Size = UDim2.new(1, -4, 0, 0),
+				Size = UDim2.new(1, -8, 0, 0),
 				Parent = target,
 			}, {
-				corner(0),
-				styledStroke(stroke(window.Theme.Stroke, 1, 1), "Stroke"),
+				corner(6),
+				styledStroke(stroke(Color3.fromRGB(38, 38, 38), 0.08, 1), "Stroke"),
 				make("UIPadding", {
-					PaddingBottom = UDim.new(0, 4),
-					PaddingLeft = UDim.new(0, 0),
-					PaddingRight = UDim.new(0, 0),
+					PaddingBottom = UDim.new(0, 14),
+					PaddingLeft = UDim.new(0, 14),
+					PaddingRight = UDim.new(0, 14),
 					PaddingTop = UDim.new(0, 0),
 				}),
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 7),
+					Padding = UDim.new(0, 8),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
-			}), "Background")
+			}), "Panel")
 
 			local headerButton = make("TextButton", {
 				AutoButtonColor = false,
 				BackgroundTransparency = 1,
 				LayoutOrder = 0,
-				Size = UDim2.new(1, 0, 0, 32),
+				Size = UDim2.new(1, 0, 0, 38),
 				Text = "",
 				Parent = section,
 			})
 
+			local hasSectionToggle = options.Toggle == true or options.Switch == true
+			local sectionToggleValue = options.Default ~= false
+			local ignoreNextHeaderClick = false
+			if hasSectionToggle then
+				local headerSwitch = make("Frame", {
+					BackgroundColor3 = sectionToggleValue and window.Theme.Accent or Color3.fromRGB(14, 14, 14),
+					BorderSizePixel = 0,
+					Position = UDim2.fromOffset(0, 10),
+					Size = UDim2.fromOffset(31, 16),
+					Parent = headerButton,
+				}, {
+					corner(999),
+				})
+
+				local headerKnob = make("Frame", {
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+					BorderSizePixel = 0,
+					Position = sectionToggleValue and UDim2.fromScale(0.74, 0.5) or UDim2.fromScale(0.26, 0.5),
+					Size = UDim2.fromOffset(10, 10),
+					Parent = headerSwitch,
+				}, {
+					corner(999),
+				})
+
+				connect(headerSwitch.InputBegan, function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+						ignoreNextHeaderClick = true
+						sectionToggleValue = not sectionToggleValue
+						tween(headerSwitch, {
+							BackgroundColor3 = sectionToggleValue and window.Theme.Accent or Color3.fromRGB(14, 14, 14),
+						}, 0.12)
+						tween(headerKnob, {
+							Position = sectionToggleValue and UDim2.fromScale(0.74, 0.5) or UDim2.fromScale(0.26, 0.5),
+						}, 0.12)
+						safe(options.Callback or options.OnToggle, sectionToggleValue)
+					end
+				end)
+			end
+
 			styledText(DarkUI:Text({
 				Font = DarkUI.Fonts.Bold,
 				Parent = headerButton,
-				Position = UDim2.fromOffset(0, 1),
-				Size = UDim2.new(1, -26, 0, 24),
-				Text = options.Title or "Section",
-				TextSize = 20,
+				Position = UDim2.fromOffset(hasSectionToggle and 42 or 0, 0),
+				Size = UDim2.new(1, (hasSectionToggle and -70 or -28), 1, 0),
+				Text = string.upper(options.Title or "SECTION"),
+				TextSize = 13,
 				TextXAlignment = Enum.TextXAlignment.Left,
 			}), "Text")
 
@@ -2912,9 +2952,9 @@ function DarkUI:CreateWindow(config)
 			local foldIcon = make("Frame", {
 				AnchorPoint = Vector2.new(1, 0),
 				BackgroundTransparency = 1,
-				Position = UDim2.new(1, -5, 0, 4),
-				Rotation = options.DefaultOpen == false and 90 or 0,
-				Size = UDim2.fromOffset(22, 22),
+				Position = UDim2.new(1, -2, 0, 10),
+				Rotation = options.DefaultOpen == false and -90 or 0,
+				Size = UDim2.fromOffset(14, 14),
 				Visible = isCollapsible,
 				Parent = headerButton,
 			})
@@ -2922,49 +2962,32 @@ function DarkUI:CreateWindow(config)
 				Scale = 1,
 				Parent = foldIcon,
 			})
-			local foldHorizontal = styledBackground(make("Frame", {
+			local foldHorizontal = make("ImageLabel", {
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				BorderSizePixel = 0,
+				BackgroundTransparency = 1,
+				Image = resolveIcon("chevron-down") or "",
+				ImageColor3 = window.Theme.Muted,
 				Position = UDim2.fromScale(0.5, 0.5),
-				Size = UDim2.fromOffset(12, 2),
+				ScaleType = Enum.ScaleType.Fit,
+				Size = UDim2.fromOffset(14, 14),
 				Parent = foldIcon,
-			}, {
-				corner(999),
-			}), "Muted")
-			local foldVertical = styledBackground(make("Frame", {
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				BackgroundTransparency = options.DefaultOpen == false and 0 or 1,
-				BorderSizePixel = 0,
-				Position = UDim2.fromScale(0.5, 0.5),
-				Size = UDim2.fromOffset(2, 12),
+			})
+			foldHorizontal:SetAttribute("DarkUIImageColor", "Muted")
+			local foldVertical = make("Frame", {
+				BackgroundTransparency = 1,
+				Size = UDim2.fromOffset(0, 0),
 				Parent = foldIcon,
-			}, {
-				corner(999),
-			}), "Muted")
+			})
 
 			make("Frame", {
 				Name = "DarkUIAccent",
-				AnchorPoint = Vector2.new(0.5, 0),
+				AnchorPoint = Vector2.new(0, 0),
 				BackgroundColor3 = window.Theme.Accent,
-				BackgroundTransparency = 1,
+				BackgroundTransparency = 0,
 				BorderSizePixel = 0,
-				Position = UDim2.new(0.5, 0, 1, -1),
+				Position = UDim2.new(0, 0, 1, -1),
 				Size = UDim2.new(1, 0, 0, 1),
 				Parent = headerButton,
-			}, {
-				make("UIGradient", {
-					Name = "DarkUIAccentGradient",
-					Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0, Color3.fromRGB(58, 58, 58)),
-						ColorSequenceKeypoint.new(0.5, window.Theme.Accent),
-						ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
-					}),
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 0.86),
-						NumberSequenceKeypoint.new(0.5, 0),
-						NumberSequenceKeypoint.new(1, 0.86),
-					}),
-				}),
 			})
 
 			local bodyFrame = make("Frame", {
@@ -2975,9 +2998,12 @@ function DarkUI:CreateWindow(config)
 				Visible = options.DefaultOpen ~= false,
 				Parent = section,
 			}, {
+				make("UIPadding", {
+					PaddingTop = UDim.new(0, 2),
+				}),
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 5),
+					Padding = UDim.new(0, 7),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
 			})
@@ -3014,13 +3040,13 @@ function DarkUI:CreateWindow(config)
 					Scale = 0.82,
 				}, 0.07)
 				tween(foldIcon, {
-					Rotation = self.Collapsed and 90 or 0,
+					Rotation = self.Collapsed and -90 or 0,
 				}, 0.18)
 				tween(foldVertical, {
 					BackgroundTransparency = self.Collapsed and 0 or 1,
 				}, 0.14)
 				tween(foldHorizontal, {
-					BackgroundTransparency = 0,
+					ImageTransparency = self.Collapsed and 0.18 or 0,
 				}, 0.14)
 				task.delay(0.07, function()
 					if foldIconScale.Parent then
@@ -3053,16 +3079,21 @@ function DarkUI:CreateWindow(config)
 					Size = UDim2.new(1, 0, 0, height),
 					Parent = bodyFrame,
 				}, {
-					corner(5),
-					styledStroke(stroke(window.Theme.Stroke, 0.82, 1), "Stroke"),
-				}), "PanelLight")
+					corner(4),
+					styledStroke(stroke(Color3.fromRGB(35, 35, 35), 0.78, 1), "Stroke"),
+				}), "Panel")
 
-				attachHover(row, "PanelLight", "Panel")
+				attachHover(row, "Panel", "PanelLight")
 				addSearchRow(row, (options.Title or "") .. " " .. (options.Description or "") .. " " .. (options.SearchText or ""))
 				return row
 			end
 
 			connect(headerButton.MouseButton1Click, function()
+				if ignoreNextHeaderClick then
+					ignoreNextHeaderClick = false
+					return
+				end
+
 				pop(headerButton, 0.985)
 				sectionApi:SetCollapsed(not sectionApi.Collapsed)
 			end)
@@ -3412,16 +3443,17 @@ function DarkUI:CreateWindow(config)
 				local decimals = options.Decimals or 0
 				local factor = 10 ^ decimals
 				local value = math.clamp(options.Default or minValue, minValue, maxValue)
-				local row = createRow(options, 64)
+				local row = createRow(options, 48)
+				local suffix = options.Suffix or options.Unit or ""
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = row,
-					Position = UDim2.fromOffset(12, 6),
-					Size = UDim2.new(1, -24, 0, 18),
+					Position = UDim2.fromOffset(12, 5),
+					Size = UDim2.new(1, -86, 0, 18),
 					Text = options.Title or "Slider",
-					TextSize = 13,
-				}), "Text")
+					TextSize = 11,
+				}), "Muted")
 
 				local valueBoxStroke = styledStroke(stroke(window.Theme.Stroke, 0.45, 1), "Stroke")
 				local valueBox = styledBackground(make("TextBox", {
@@ -3431,23 +3463,25 @@ function DarkUI:CreateWindow(config)
 					Font = DarkUI.Fonts.Bold,
 					PlaceholderColor3 = window.Theme.Muted,
 					PlaceholderText = "0",
-					Position = UDim2.new(1, -12, 0, 43),
-					Size = UDim2.fromOffset(72, 28),
+					Position = UDim2.new(1, -12, 0, 14),
+					Size = UDim2.fromOffset(62, 18),
 					Text = tostring(value),
-					TextSize = 13,
-					TextXAlignment = Enum.TextXAlignment.Center,
+					TextSize = 11,
+					TextXAlignment = Enum.TextXAlignment.Right,
 					Parent = row,
 				}, {
-					corner(6),
+					corner(4),
 					valueBoxStroke,
 				}), "Panel")
-				styledText(valueBox, "Accent")
+				valueBox.BackgroundTransparency = 1
+				valueBoxStroke.Transparency = 1
+				styledText(valueBox, "Text")
 				local valueBoxFocused = false
 
 				local track = styledBackground(make("Frame", {
 					BorderSizePixel = 0,
-					Position = UDim2.fromOffset(12, 42),
-					Size = UDim2.new(1, -104, 0, 6),
+					Position = UDim2.fromOffset(12, 30),
+					Size = UDim2.new(1, -24, 0, 7),
 					Parent = row,
 				}, {
 					corner(999),
@@ -3468,7 +3502,7 @@ function DarkUI:CreateWindow(config)
 					BackgroundColor3 = window.Theme.Accent,
 					BorderSizePixel = 0,
 					Position = UDim2.fromScale(0, 0.5),
-					Size = UDim2.fromOffset(15, 15),
+					Size = UDim2.fromOffset(0, 0),
 					Parent = track,
 				}, {
 					corner(999),
@@ -3482,10 +3516,14 @@ function DarkUI:CreateWindow(config)
 					return math.floor((nextValue * factor) + 0.5) / factor
 				end
 
+				local function displayValue(nextValue)
+					return tostring(nextValue) .. (suffix ~= "" and (" " .. suffix) or "")
+				end
+
 				local function render(animated)
 					local percent = maxValue == minValue and 0 or math.clamp((value - minValue) / (maxValue - minValue), 0, 1)
 					if not valueBoxFocused then
-						valueBox.Text = tostring(value)
+						valueBox.Text = displayValue(value)
 					end
 					if animated then
 						tween(fill, {
@@ -3501,11 +3539,11 @@ function DarkUI:CreateWindow(config)
 				end
 
 				local function applyTextValue()
-					local nextValue = tonumber(valueBox.Text)
+					local nextValue = tonumber(string.match(valueBox.Text, "[-+]?%d+%.?%d*"))
 					if nextValue then
 						control:Set(nextValue)
 					else
-						valueBox.Text = tostring(value)
+						valueBox.Text = displayValue(value)
 					end
 				end
 
@@ -3531,6 +3569,7 @@ function DarkUI:CreateWindow(config)
 
 				connect(valueBox.Focused, function()
 					valueBoxFocused = true
+					valueBox.Text = tostring(value)
 					if not control.Disabled then
 						tween(valueBoxStroke, {
 							Color = window.Theme.Accent,
@@ -3923,16 +3962,16 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddTextBox(options)
 				options = options or {}
-				local row = createRow(options, 44)
+				local row = createRow(options, 58)
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = row,
-					Position = UDim2.fromOffset(12, 0),
-					Size = UDim2.new(0.42, -12, 1, 0),
+					Position = UDim2.fromOffset(12, 5),
+					Size = UDim2.new(1, -24, 0, 17),
 					Text = options.Title or "Text",
-					TextSize = 14,
-				}), "Text")
+					TextSize = 11,
+				}), "Muted")
 
 				local boxStroke = styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke")
 				local box = styledBackground(make("TextBox", {
@@ -3942,19 +3981,19 @@ function DarkUI:CreateWindow(config)
 					Font = DarkUI.Fonts.Bold,
 					PlaceholderColor3 = window.Theme.Muted,
 					PlaceholderText = options.Placeholder or "Type...",
-					Position = UDim2.new(1, -12, 0.5, 0),
-					Size = UDim2.new(0.58, -8, 0, 28),
+					Position = UDim2.new(1, -12, 0, 38),
+					Size = UDim2.new(1, -24, 0, 29),
 					Text = options.Default or "",
 					TextSize = 13,
 					Parent = row,
 				}, {
-					corner(6),
+					corner(4),
 					make("UIPadding", {
 						PaddingLeft = UDim.new(0, 8),
 						PaddingRight = UDim.new(0, 8),
 					}),
 					boxStroke,
-				}), "Surface")
+				}), "PanelLight")
 				styledText(box, "Text")
 
 				local control = buildControlApi(row)
