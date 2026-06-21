@@ -992,9 +992,9 @@ DarkUI.TextStrokeTransparency = 1
 DarkUI.ThemePresets = {
 	Dark = {
 		Background = Color3.fromRGB(26, 26, 26),
-		Surface = Color3.fromRGB(20, 20, 20),
+		Surface = Color3.fromRGB(24, 24, 24),
 		Panel = Color3.fromRGB(31, 31, 31),
-		PanelLight = Color3.fromRGB(18, 18, 18),
+		PanelLight = Color3.fromRGB(16, 16, 16),
 		Tab = Color3.fromRGB(24, 24, 24),
 		TabActive = Color3.fromRGB(31, 31, 31),
 		Stroke = Color3.fromRGB(43, 43, 43),
@@ -3081,9 +3081,9 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(4),
 					styledStroke(stroke(Color3.fromRGB(35, 35, 35), 0.78, 1), "Stroke"),
-				}), "Panel")
+				}), "PanelLight")
 
-				attachHover(row, "Panel", "PanelLight")
+				attachHover(row, "PanelLight", "Surface")
 				addSearchRow(row, (options.Title or "") .. " " .. (options.Description or "") .. " " .. (options.SearchText or ""))
 				return row
 			end
@@ -3174,7 +3174,7 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(6),
 					styledStroke(stroke(window.Theme.Stroke, 0.42, 1), "Stroke"),
-				}), "Panel")
+				}), "PanelLight")
 				button:SetAttribute("DarkUIButton", true)
 
 				local flash = make("Frame", {
@@ -3215,7 +3215,7 @@ function DarkUI:CreateWindow(config)
 				connect(button.MouseEnter, function()
 					if not control.Disabled then
 						tween(button, {
-							BackgroundColor3 = window.Theme.InputFocused or window.Theme.Input or window.Theme.Panel,
+							BackgroundColor3 = window.Theme.Surface,
 						}, 0.12)
 					end
 				end)
@@ -3223,7 +3223,7 @@ function DarkUI:CreateWindow(config)
 				connect(button.MouseLeave, function()
 					if not control.Disabled then
 						tween(button, {
-							BackgroundColor3 = window.Theme.Panel,
+							BackgroundColor3 = window.Theme.PanelLight,
 						}, 0.12)
 					end
 				end)
