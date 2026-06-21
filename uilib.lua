@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.0"
+DarkUI.Version = "1.2.0"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -80,6 +80,903 @@ local function resolveContentId(value)
 	return text
 end
 
+DarkUI.Icons = {
+	["lucide-accessibility"] = "rbxassetid://10709751939",
+	["lucide-activity"] = "rbxassetid://10709752035",
+	["lucide-air-vent"] = "rbxassetid://10709752131",
+	["lucide-airplay"] = "rbxassetid://10709752254",
+	["lucide-alarm-check"] = "rbxassetid://10709752405",
+	["lucide-alarm-clock"] = "rbxassetid://10709752630",
+	["lucide-alarm-clock-off"] = "rbxassetid://10709752508",
+	["lucide-alarm-minus"] = "rbxassetid://10709752732",
+	["lucide-alarm-plus"] = "rbxassetid://10709752825",
+	["lucide-album"] = "rbxassetid://10709752906",
+	["lucide-alert-circle"] = "rbxassetid://10709752996",
+	["lucide-alert-octagon"] = "rbxassetid://10709753064",
+	["lucide-alert-triangle"] = "rbxassetid://10709753149",
+	["lucide-align-center"] = "rbxassetid://10709753570",
+	["lucide-align-center-horizontal"] = "rbxassetid://10709753272",
+	["lucide-align-center-vertical"] = "rbxassetid://10709753421",
+	["lucide-align-end-horizontal"] = "rbxassetid://10709753692",
+	["lucide-align-end-vertical"] = "rbxassetid://10709753808",
+	["lucide-align-horizontal-distribute-center"] = "rbxassetid://10747779791",
+	["lucide-align-horizontal-distribute-end"] = "rbxassetid://10747784534",
+	["lucide-align-horizontal-distribute-start"] = "rbxassetid://10709754118",
+	["lucide-align-horizontal-justify-center"] = "rbxassetid://10709754204",
+	["lucide-align-horizontal-justify-end"] = "rbxassetid://10709754317",
+	["lucide-align-horizontal-justify-start"] = "rbxassetid://10709754436",
+	["lucide-align-horizontal-space-around"] = "rbxassetid://10709754590",
+	["lucide-align-horizontal-space-between"] = "rbxassetid://10709754749",
+	["lucide-align-justify"] = "rbxassetid://10709759610",
+	["lucide-align-left"] = "rbxassetid://10709759764",
+	["lucide-align-right"] = "rbxassetid://10709759895",
+	["lucide-align-start-horizontal"] = "rbxassetid://10709760051",
+	["lucide-align-start-vertical"] = "rbxassetid://10709760244",
+	["lucide-align-vertical-distribute-center"] = "rbxassetid://10709760351",
+	["lucide-align-vertical-distribute-end"] = "rbxassetid://10709760434",
+	["lucide-align-vertical-distribute-start"] = "rbxassetid://10709760612",
+	["lucide-align-vertical-justify-center"] = "rbxassetid://10709760814",
+	["lucide-align-vertical-justify-end"] = "rbxassetid://10709761003",
+	["lucide-align-vertical-justify-start"] = "rbxassetid://10709761176",
+	["lucide-align-vertical-space-around"] = "rbxassetid://10709761324",
+	["lucide-align-vertical-space-between"] = "rbxassetid://10709761434",
+	["lucide-anchor"] = "rbxassetid://10709761530",
+	["lucide-angry"] = "rbxassetid://10709761629",
+	["lucide-annoyed"] = "rbxassetid://10709761722",
+	["lucide-aperture"] = "rbxassetid://10709761813",
+	["lucide-apple"] = "rbxassetid://10709761889",
+	["lucide-archive"] = "rbxassetid://10709762233",
+	["lucide-archive-restore"] = "rbxassetid://10709762058",
+	["lucide-armchair"] = "rbxassetid://10709762327",
+	["lucide-anvil"] = "rbxassetid://77943964625400",
+	["lucide-arrow-big-down"] = "rbxassetid://10747796644",
+	["lucide-arrow-big-left"] = "rbxassetid://10709762574",
+	["lucide-arrow-big-right"] = "rbxassetid://10709762727",
+	["lucide-arrow-big-up"] = "rbxassetid://10709762879",
+	["lucide-arrow-down"] = "rbxassetid://10709767827",
+	["lucide-arrow-down-circle"] = "rbxassetid://10709763034",
+	["lucide-arrow-down-left"] = "rbxassetid://10709767656",
+	["lucide-arrow-down-right"] = "rbxassetid://10709767750",
+	["lucide-arrow-left"] = "rbxassetid://10709768114",
+	["lucide-arrow-left-circle"] = "rbxassetid://10709767936",
+	["lucide-arrow-left-right"] = "rbxassetid://10709768019",
+	["lucide-arrow-right"] = "rbxassetid://10709768347",
+	["lucide-arrow-right-circle"] = "rbxassetid://10709768226",
+	["lucide-arrow-up"] = "rbxassetid://10709768939",
+	["lucide-arrow-up-circle"] = "rbxassetid://10709768432",
+	["lucide-arrow-up-down"] = "rbxassetid://10709768538",
+	["lucide-arrow-up-left"] = "rbxassetid://10709768661",
+	["lucide-arrow-up-right"] = "rbxassetid://10709768787",
+	["lucide-asterisk"] = "rbxassetid://10709769095",
+	["lucide-at-sign"] = "rbxassetid://10709769286",
+	["lucide-award"] = "rbxassetid://10709769406",
+	["lucide-axe"] = "rbxassetid://10709769508",
+	["lucide-axis-3d"] = "rbxassetid://10709769598",
+	["lucide-baby"] = "rbxassetid://10709769732",
+	["lucide-backpack"] = "rbxassetid://10709769841",
+	["lucide-baggage-claim"] = "rbxassetid://10709769935",
+	["lucide-banana"] = "rbxassetid://10709770005",
+	["lucide-banknote"] = "rbxassetid://10709770178",
+	["lucide-bar-chart"] = "rbxassetid://10709773755",
+	["lucide-bar-chart-2"] = "rbxassetid://10709770317",
+	["lucide-bar-chart-3"] = "rbxassetid://10709770431",
+	["lucide-bar-chart-4"] = "rbxassetid://10709770560",
+	["lucide-bar-chart-horizontal"] = "rbxassetid://10709773669",
+	["lucide-barcode"] = "rbxassetid://10747360675",
+	["lucide-baseline"] = "rbxassetid://10709773863",
+	["lucide-bath"] = "rbxassetid://10709773963",
+	["lucide-battery"] = "rbxassetid://10709774640",
+	["lucide-battery-charging"] = "rbxassetid://10709774068",
+	["lucide-battery-full"] = "rbxassetid://10709774206",
+	["lucide-battery-low"] = "rbxassetid://10709774370",
+	["lucide-battery-medium"] = "rbxassetid://10709774513",
+	["lucide-beaker"] = "rbxassetid://10709774756",
+	["lucide-bed"] = "rbxassetid://10709775036",
+	["lucide-bed-double"] = "rbxassetid://10709774864",
+	["lucide-bed-single"] = "rbxassetid://10709774968",
+	["lucide-beer"] = "rbxassetid://10709775167",
+	["lucide-bell"] = "rbxassetid://10709775704",
+	["lucide-bell-minus"] = "rbxassetid://10709775241",
+	["lucide-bell-off"] = "rbxassetid://10709775320",
+	["lucide-bell-plus"] = "rbxassetid://10709775448",
+	["lucide-bell-ring"] = "rbxassetid://10709775560",
+	["lucide-bike"] = "rbxassetid://10709775894",
+	["lucide-binary"] = "rbxassetid://10709776050",
+	["lucide-bitcoin"] = "rbxassetid://10709776126",
+	["lucide-bluetooth"] = "rbxassetid://10709776655",
+	["lucide-bluetooth-connected"] = "rbxassetid://10709776240",
+	["lucide-bluetooth-off"] = "rbxassetid://10709776344",
+	["lucide-bluetooth-searching"] = "rbxassetid://10709776501",
+	["lucide-bold"] = "rbxassetid://10747813908",
+	["lucide-bomb"] = "rbxassetid://10709781460",
+	["lucide-bone"] = "rbxassetid://10709781605",
+	["lucide-book"] = "rbxassetid://10709781824",
+	["lucide-book-open"] = "rbxassetid://10709781717",
+	["lucide-bookmark"] = "rbxassetid://10709782154",
+	["lucide-bookmark-minus"] = "rbxassetid://10709781919",
+	["lucide-bookmark-plus"] = "rbxassetid://10709782044",
+	["lucide-bot"] = "rbxassetid://10709782230",
+	["lucide-box"] = "rbxassetid://10709782497",
+	["lucide-box-select"] = "rbxassetid://10709782342",
+	["lucide-boxes"] = "rbxassetid://10709782582",
+	["lucide-briefcase"] = "rbxassetid://10709782662",
+	["lucide-brush"] = "rbxassetid://10709782758",
+	["lucide-bug"] = "rbxassetid://10709782845",
+	["lucide-building"] = "rbxassetid://10709783051",
+	["lucide-building-2"] = "rbxassetid://10709782939",
+	["lucide-bus"] = "rbxassetid://10709783137",
+	["lucide-cake"] = "rbxassetid://10709783217",
+	["lucide-calculator"] = "rbxassetid://10709783311",
+	["lucide-calendar"] = "rbxassetid://10709789505",
+	["lucide-calendar-check"] = "rbxassetid://10709783474",
+	["lucide-calendar-check-2"] = "rbxassetid://10709783392",
+	["lucide-calendar-clock"] = "rbxassetid://10709783577",
+	["lucide-calendar-days"] = "rbxassetid://10709783673",
+	["lucide-calendar-heart"] = "rbxassetid://10709783835",
+	["lucide-calendar-minus"] = "rbxassetid://10709783959",
+	["lucide-calendar-off"] = "rbxassetid://10709788784",
+	["lucide-calendar-plus"] = "rbxassetid://10709788937",
+	["lucide-calendar-range"] = "rbxassetid://10709789053",
+	["lucide-calendar-search"] = "rbxassetid://10709789200",
+	["lucide-calendar-x"] = "rbxassetid://10709789407",
+	["lucide-calendar-x-2"] = "rbxassetid://10709789329",
+	["lucide-camera"] = "rbxassetid://10709789686",
+	["lucide-camera-off"] = "rbxassetid://10747822677",
+	["lucide-car"] = "rbxassetid://10709789810",
+	["lucide-carrot"] = "rbxassetid://10709789960",
+	["lucide-cast"] = "rbxassetid://10709790097",
+	["lucide-charge"] = "rbxassetid://10709790202",
+	["lucide-check"] = "rbxassetid://10709790644",
+	["lucide-check-circle"] = "rbxassetid://10709790387",
+	["lucide-check-circle-2"] = "rbxassetid://10709790298",
+	["lucide-check-square"] = "rbxassetid://10709790537",
+	["lucide-chef-hat"] = "rbxassetid://10709790757",
+	["lucide-cherry"] = "rbxassetid://10709790875",
+	["lucide-chevron-down"] = "rbxassetid://10709790948",
+	["lucide-chevron-first"] = "rbxassetid://10709791015",
+	["lucide-chevron-last"] = "rbxassetid://10709791130",
+	["lucide-chevron-left"] = "rbxassetid://10709791281",
+	["lucide-chevron-right"] = "rbxassetid://10709791437",
+	["lucide-chevron-up"] = "rbxassetid://10709791523",
+	["lucide-chevrons-down"] = "rbxassetid://10709796864",
+	["lucide-chevrons-down-up"] = "rbxassetid://10709791632",
+	["lucide-chevrons-left"] = "rbxassetid://10709797151",
+	["lucide-chevrons-left-right"] = "rbxassetid://10709797006",
+	["lucide-chevrons-right"] = "rbxassetid://10709797382",
+	["lucide-chevrons-right-left"] = "rbxassetid://10709797274",
+	["lucide-chevrons-up"] = "rbxassetid://10709797622",
+	["lucide-chevrons-up-down"] = "rbxassetid://10709797508",
+	["lucide-chrome"] = "rbxassetid://10709797725",
+	["lucide-circle"] = "rbxassetid://10709798174",
+	["lucide-circle-dot"] = "rbxassetid://10709797837",
+	["lucide-circle-ellipsis"] = "rbxassetid://10709797985",
+	["lucide-circle-slashed"] = "rbxassetid://10709798100",
+	["lucide-citrus"] = "rbxassetid://10709798276",
+	["lucide-clapperboard"] = "rbxassetid://10709798350",
+	["lucide-clipboard"] = "rbxassetid://10709799288",
+	["lucide-clipboard-check"] = "rbxassetid://10709798443",
+	["lucide-clipboard-copy"] = "rbxassetid://10709798574",
+	["lucide-clipboard-edit"] = "rbxassetid://10709798682",
+	["lucide-clipboard-list"] = "rbxassetid://10709798792",
+	["lucide-clipboard-signature"] = "rbxassetid://10709798890",
+	["lucide-clipboard-type"] = "rbxassetid://10709798999",
+	["lucide-clipboard-x"] = "rbxassetid://10709799124",
+	["lucide-clock"] = "rbxassetid://10709805144",
+	["lucide-clock-1"] = "rbxassetid://10709799535",
+	["lucide-clock-10"] = "rbxassetid://10709799718",
+	["lucide-clock-11"] = "rbxassetid://10709799818",
+	["lucide-clock-12"] = "rbxassetid://10709799962",
+	["lucide-clock-2"] = "rbxassetid://10709803876",
+	["lucide-clock-3"] = "rbxassetid://10709803989",
+	["lucide-clock-4"] = "rbxassetid://10709804164",
+	["lucide-clock-5"] = "rbxassetid://10709804291",
+	["lucide-clock-6"] = "rbxassetid://10709804435",
+	["lucide-clock-7"] = "rbxassetid://10709804599",
+	["lucide-clock-8"] = "rbxassetid://10709804784",
+	["lucide-clock-9"] = "rbxassetid://10709804996",
+	["lucide-cloud"] = "rbxassetid://10709806740",
+	["lucide-cloud-cog"] = "rbxassetid://10709805262",
+	["lucide-cloud-drizzle"] = "rbxassetid://10709805371",
+	["lucide-cloud-fog"] = "rbxassetid://10709805477",
+	["lucide-cloud-hail"] = "rbxassetid://10709805596",
+	["lucide-cloud-lightning"] = "rbxassetid://10709805727",
+	["lucide-cloud-moon"] = "rbxassetid://10709805942",
+	["lucide-cloud-moon-rain"] = "rbxassetid://10709805838",
+	["lucide-cloud-off"] = "rbxassetid://10709806060",
+	["lucide-cloud-rain"] = "rbxassetid://10709806277",
+	["lucide-cloud-rain-wind"] = "rbxassetid://10709806166",
+	["lucide-cloud-snow"] = "rbxassetid://10709806374",
+	["lucide-cloud-sun"] = "rbxassetid://10709806631",
+	["lucide-cloud-sun-rain"] = "rbxassetid://10709806475",
+	["lucide-cloudy"] = "rbxassetid://10709806859",
+	["lucide-clover"] = "rbxassetid://10709806995",
+	["lucide-code"] = "rbxassetid://10709810463",
+	["lucide-code-2"] = "rbxassetid://10709807111",
+	["lucide-codepen"] = "rbxassetid://10709810534",
+	["lucide-codesandbox"] = "rbxassetid://10709810676",
+	["lucide-coffee"] = "rbxassetid://10709810814",
+	["lucide-cog"] = "rbxassetid://10709810948",
+	["lucide-coins"] = "rbxassetid://10709811110",
+	["lucide-columns"] = "rbxassetid://10709811261",
+	["lucide-command"] = "rbxassetid://10709811365",
+	["lucide-compass"] = "rbxassetid://10709811445",
+	["lucide-component"] = "rbxassetid://10709811595",
+	["lucide-concierge-bell"] = "rbxassetid://10709811706",
+	["lucide-connection"] = "rbxassetid://10747361219",
+	["lucide-contact"] = "rbxassetid://10709811834",
+	["lucide-contrast"] = "rbxassetid://10709811939",
+	["lucide-cookie"] = "rbxassetid://10709812067",
+	["lucide-copy"] = "rbxassetid://10709812159",
+	["lucide-copyleft"] = "rbxassetid://10709812251",
+	["lucide-copyright"] = "rbxassetid://10709812311",
+	["lucide-corner-down-left"] = "rbxassetid://10709812396",
+	["lucide-corner-down-right"] = "rbxassetid://10709812485",
+	["lucide-corner-left-down"] = "rbxassetid://10709812632",
+	["lucide-corner-left-up"] = "rbxassetid://10709812784",
+	["lucide-corner-right-down"] = "rbxassetid://10709812939",
+	["lucide-corner-right-up"] = "rbxassetid://10709813094",
+	["lucide-corner-up-left"] = "rbxassetid://10709813185",
+	["lucide-corner-up-right"] = "rbxassetid://10709813281",
+	["lucide-cpu"] = "rbxassetid://10709813383",
+	["lucide-croissant"] = "rbxassetid://10709818125",
+	["lucide-crop"] = "rbxassetid://10709818245",
+	["lucide-cross"] = "rbxassetid://10709818399",
+	["lucide-crosshair"] = "rbxassetid://10709818534",
+	["lucide-crown"] = "rbxassetid://10709818626",
+	["lucide-cup-soda"] = "rbxassetid://10709818763",
+	["lucide-curly-braces"] = "rbxassetid://10709818847",
+	["lucide-currency"] = "rbxassetid://10709818931",
+	["lucide-container"] = "rbxassetid://17466205552",
+	["lucide-database"] = "rbxassetid://10709818996",
+	["lucide-delete"] = "rbxassetid://10709819059",
+	["lucide-diamond"] = "rbxassetid://10709819149",
+	["lucide-dice-1"] = "rbxassetid://10709819266",
+	["lucide-dice-2"] = "rbxassetid://10709819361",
+	["lucide-dice-3"] = "rbxassetid://10709819508",
+	["lucide-dice-4"] = "rbxassetid://10709819670",
+	["lucide-dice-5"] = "rbxassetid://10709819801",
+	["lucide-dice-6"] = "rbxassetid://10709819896",
+	["lucide-dices"] = "rbxassetid://10723343321",
+	["lucide-diff"] = "rbxassetid://10723343416",
+	["lucide-disc"] = "rbxassetid://10723343537",
+	["lucide-divide"] = "rbxassetid://10723343805",
+	["lucide-divide-circle"] = "rbxassetid://10723343636",
+	["lucide-divide-square"] = "rbxassetid://10723343737",
+	["lucide-dollar-sign"] = "rbxassetid://10723343958",
+	["lucide-download"] = "rbxassetid://10723344270",
+	["lucide-download-cloud"] = "rbxassetid://10723344088",
+	["lucide-door-open"] = "rbxassetid://124179241653522",
+	["lucide-droplet"] = "rbxassetid://10723344432",
+	["lucide-droplets"] = "rbxassetid://10734883356",
+	["lucide-drumstick"] = "rbxassetid://10723344737",
+	["lucide-edit"] = "rbxassetid://10734883598",
+	["lucide-edit-2"] = "rbxassetid://10723344885",
+	["lucide-edit-3"] = "rbxassetid://10723345088",
+	["lucide-egg"] = "rbxassetid://10723345518",
+	["lucide-egg-fried"] = "rbxassetid://10723345347",
+	["lucide-electricity"] = "rbxassetid://10723345749",
+	["lucide-electricity-off"] = "rbxassetid://10723345643",
+	["lucide-equal"] = "rbxassetid://10723345990",
+	["lucide-equal-not"] = "rbxassetid://10723345866",
+	["lucide-eraser"] = "rbxassetid://10723346158",
+	["lucide-euro"] = "rbxassetid://10723346372",
+	["lucide-expand"] = "rbxassetid://10723346553",
+	["lucide-external-link"] = "rbxassetid://10723346684",
+	["lucide-eye"] = "rbxassetid://10723346959",
+	["lucide-eye-off"] = "rbxassetid://10723346871",
+	["lucide-factory"] = "rbxassetid://10723347051",
+	["lucide-fan"] = "rbxassetid://10723354359",
+	["lucide-fast-forward"] = "rbxassetid://10723354521",
+	["lucide-feather"] = "rbxassetid://10723354671",
+	["lucide-figma"] = "rbxassetid://10723354801",
+	["lucide-file"] = "rbxassetid://10723374641",
+	["lucide-file-archive"] = "rbxassetid://10723354921",
+	["lucide-file-audio"] = "rbxassetid://10723355148",
+	["lucide-file-audio-2"] = "rbxassetid://10723355026",
+	["lucide-file-axis-3d"] = "rbxassetid://10723355272",
+	["lucide-file-badge"] = "rbxassetid://10723355622",
+	["lucide-file-badge-2"] = "rbxassetid://10723355451",
+	["lucide-file-bar-chart"] = "rbxassetid://10723355887",
+	["lucide-file-bar-chart-2"] = "rbxassetid://10723355746",
+	["lucide-file-box"] = "rbxassetid://10723355989",
+	["lucide-file-check"] = "rbxassetid://10723356210",
+	["lucide-file-check-2"] = "rbxassetid://10723356100",
+	["lucide-file-clock"] = "rbxassetid://10723356329",
+	["lucide-file-code"] = "rbxassetid://10723356507",
+	["lucide-file-cog"] = "rbxassetid://10723356830",
+	["lucide-file-cog-2"] = "rbxassetid://10723356676",
+	["lucide-file-diff"] = "rbxassetid://10723357039",
+	["lucide-file-digit"] = "rbxassetid://10723357151",
+	["lucide-file-down"] = "rbxassetid://10723357322",
+	["lucide-file-edit"] = "rbxassetid://10723357495",
+	["lucide-file-heart"] = "rbxassetid://10723357637",
+	["lucide-file-image"] = "rbxassetid://10723357790",
+	["lucide-file-input"] = "rbxassetid://10723357933",
+	["lucide-file-json"] = "rbxassetid://10723364435",
+	["lucide-file-json-2"] = "rbxassetid://10723364361",
+	["lucide-file-key"] = "rbxassetid://10723364605",
+	["lucide-file-key-2"] = "rbxassetid://10723364515",
+	["lucide-file-line-chart"] = "rbxassetid://10723364725",
+	["lucide-file-lock"] = "rbxassetid://10723364957",
+	["lucide-file-lock-2"] = "rbxassetid://10723364861",
+	["lucide-file-minus"] = "rbxassetid://10723365254",
+	["lucide-file-minus-2"] = "rbxassetid://10723365086",
+	["lucide-file-output"] = "rbxassetid://10723365457",
+	["lucide-file-pie-chart"] = "rbxassetid://10723365598",
+	["lucide-file-plus"] = "rbxassetid://10723365877",
+	["lucide-file-plus-2"] = "rbxassetid://10723365766",
+	["lucide-file-question"] = "rbxassetid://10723365987",
+	["lucide-file-scan"] = "rbxassetid://10723366167",
+	["lucide-file-search"] = "rbxassetid://10723366550",
+	["lucide-file-search-2"] = "rbxassetid://10723366340",
+	["lucide-file-signature"] = "rbxassetid://10723366741",
+	["lucide-file-spreadsheet"] = "rbxassetid://10723366962",
+	["lucide-file-symlink"] = "rbxassetid://10723367098",
+	["lucide-file-terminal"] = "rbxassetid://10723367244",
+	["lucide-file-text"] = "rbxassetid://10723367380",
+	["lucide-file-type"] = "rbxassetid://10723367606",
+	["lucide-file-type-2"] = "rbxassetid://10723367509",
+	["lucide-file-up"] = "rbxassetid://10723367734",
+	["lucide-file-video"] = "rbxassetid://10723373884",
+	["lucide-file-video-2"] = "rbxassetid://10723367834",
+	["lucide-file-volume"] = "rbxassetid://10723374172",
+	["lucide-file-volume-2"] = "rbxassetid://10723374030",
+	["lucide-file-warning"] = "rbxassetid://10723374276",
+	["lucide-file-x"] = "rbxassetid://10723374544",
+	["lucide-file-x-2"] = "rbxassetid://10723374378",
+	["lucide-files"] = "rbxassetid://10723374759",
+	["lucide-film"] = "rbxassetid://10723374981",
+	["lucide-filter"] = "rbxassetid://10723375128",
+	["lucide-fingerprint"] = "rbxassetid://10723375250",
+	["lucide-flag"] = "rbxassetid://10723375890",
+	["lucide-flag-off"] = "rbxassetid://10723375443",
+	["lucide-flag-triangle-left"] = "rbxassetid://10723375608",
+	["lucide-flag-triangle-right"] = "rbxassetid://10723375727",
+	["lucide-flame"] = "rbxassetid://10723376114",
+	["lucide-flashlight"] = "rbxassetid://10723376471",
+	["lucide-flashlight-off"] = "rbxassetid://10723376365",
+	["lucide-flask-conical"] = "rbxassetid://10734883986",
+	["lucide-flask-round"] = "rbxassetid://10723376614",
+	["lucide-flip-horizontal"] = "rbxassetid://10723376884",
+	["lucide-flip-horizontal-2"] = "rbxassetid://10723376745",
+	["lucide-flip-vertical"] = "rbxassetid://10723377138",
+	["lucide-flip-vertical-2"] = "rbxassetid://10723377026",
+	["lucide-flower"] = "rbxassetid://10747830374",
+	["lucide-flower-2"] = "rbxassetid://10723377305",
+	["lucide-focus"] = "rbxassetid://10723377537",
+	["lucide-folder"] = "rbxassetid://10723387563",
+	["lucide-folder-archive"] = "rbxassetid://10723384478",
+	["lucide-folder-check"] = "rbxassetid://10723384605",
+	["lucide-folder-clock"] = "rbxassetid://10723384731",
+	["lucide-folder-closed"] = "rbxassetid://10723384893",
+	["lucide-folder-cog"] = "rbxassetid://10723385213",
+	["lucide-folder-cog-2"] = "rbxassetid://10723385036",
+	["lucide-folder-down"] = "rbxassetid://10723385338",
+	["lucide-folder-edit"] = "rbxassetid://10723385445",
+	["lucide-folder-heart"] = "rbxassetid://10723385545",
+	["lucide-folder-input"] = "rbxassetid://10723385721",
+	["lucide-folder-key"] = "rbxassetid://10723385848",
+	["lucide-folder-lock"] = "rbxassetid://10723386005",
+	["lucide-folder-minus"] = "rbxassetid://10723386127",
+	["lucide-folder-open"] = "rbxassetid://10723386277",
+	["lucide-folder-output"] = "rbxassetid://10723386386",
+	["lucide-folder-plus"] = "rbxassetid://10723386531",
+	["lucide-folder-search"] = "rbxassetid://10723386787",
+	["lucide-folder-search-2"] = "rbxassetid://10723386674",
+	["lucide-folder-symlink"] = "rbxassetid://10723386930",
+	["lucide-folder-tree"] = "rbxassetid://10723387085",
+	["lucide-folder-up"] = "rbxassetid://10723387265",
+	["lucide-folder-x"] = "rbxassetid://10723387448",
+	["lucide-folders"] = "rbxassetid://10723387721",
+	["lucide-form-input"] = "rbxassetid://10723387841",
+	["lucide-forward"] = "rbxassetid://10723388016",
+	["lucide-frame"] = "rbxassetid://10723394389",
+	["lucide-framer"] = "rbxassetid://10723394565",
+	["lucide-frown"] = "rbxassetid://10723394681",
+	["lucide-fuel"] = "rbxassetid://10723394846",
+	["lucide-function-square"] = "rbxassetid://10723395041",
+	["lucide-gamepad"] = "rbxassetid://10723395457",
+	["lucide-gamepad-2"] = "rbxassetid://10723395215",
+	["lucide-gauge"] = "rbxassetid://10723395708",
+	["lucide-gavel"] = "rbxassetid://10723395896",
+	["lucide-gem"] = "rbxassetid://10723396000",
+	["lucide-ghost"] = "rbxassetid://10723396107",
+	["lucide-gift"] = "rbxassetid://10723396402",
+	["lucide-gift-card"] = "rbxassetid://10723396225",
+	["lucide-git-branch"] = "rbxassetid://10723396676",
+	["lucide-git-branch-plus"] = "rbxassetid://10723396542",
+	["lucide-git-commit"] = "rbxassetid://10723396812",
+	["lucide-git-compare"] = "rbxassetid://10723396954",
+	["lucide-git-fork"] = "rbxassetid://10723397049",
+	["lucide-git-merge"] = "rbxassetid://10723397165",
+	["lucide-git-pull-request"] = "rbxassetid://10723397431",
+	["lucide-git-pull-request-closed"] = "rbxassetid://10723397268",
+	["lucide-git-pull-request-draft"] = "rbxassetid://10734884302",
+	["lucide-glass"] = "rbxassetid://10723397788",
+	["lucide-glass-2"] = "rbxassetid://10723397529",
+	["lucide-glass-water"] = "rbxassetid://10723397678",
+	["lucide-glasses"] = "rbxassetid://10723397895",
+	["lucide-globe"] = "rbxassetid://10723404337",
+	["lucide-globe-2"] = "rbxassetid://10723398002",
+	["lucide-grab"] = "rbxassetid://10723404472",
+	["lucide-graduation-cap"] = "rbxassetid://10723404691",
+	["lucide-grape"] = "rbxassetid://10723404822",
+	["lucide-grid"] = "rbxassetid://10723404936",
+	["lucide-grip-horizontal"] = "rbxassetid://10723405089",
+	["lucide-grip-vertical"] = "rbxassetid://10723405236",
+	["lucide-hammer"] = "rbxassetid://10723405360",
+	["lucide-hand"] = "rbxassetid://10723405649",
+	["lucide-hand-metal"] = "rbxassetid://10723405508",
+	["lucide-hard-drive"] = "rbxassetid://10723405749",
+	["lucide-hard-hat"] = "rbxassetid://10723405859",
+	["lucide-hash"] = "rbxassetid://10723405975",
+	["lucide-haze"] = "rbxassetid://10723406078",
+	["lucide-headphones"] = "rbxassetid://10723406165",
+	["lucide-heart"] = "rbxassetid://10723406885",
+	["lucide-heart-crack"] = "rbxassetid://10723406299",
+	["lucide-heart-handshake"] = "rbxassetid://10723406480",
+	["lucide-heart-off"] = "rbxassetid://10723406662",
+	["lucide-heart-pulse"] = "rbxassetid://10723406795",
+	["lucide-help-circle"] = "rbxassetid://10723406988",
+	["lucide-hexagon"] = "rbxassetid://10723407092",
+	["lucide-highlighter"] = "rbxassetid://10723407192",
+	["lucide-history"] = "rbxassetid://10723407335",
+	["lucide-home"] = "rbxassetid://10723407389",
+	["lucide-hourglass"] = "rbxassetid://10723407498",
+	["lucide-ice-cream"] = "rbxassetid://10723414308",
+	["lucide-image"] = "rbxassetid://10723415040",
+	["lucide-image-minus"] = "rbxassetid://10723414487",
+	["lucide-image-off"] = "rbxassetid://10723414677",
+	["lucide-image-plus"] = "rbxassetid://10723414827",
+	["lucide-import"] = "rbxassetid://10723415205",
+	["lucide-inbox"] = "rbxassetid://10723415335",
+	["lucide-indent"] = "rbxassetid://10723415494",
+	["lucide-indian-rupee"] = "rbxassetid://10723415642",
+	["lucide-infinity"] = "rbxassetid://10723415766",
+	["lucide-info"] = "rbxassetid://10723415903",
+	["lucide-inspect"] = "rbxassetid://10723416057",
+	["lucide-italic"] = "rbxassetid://10723416195",
+	["lucide-japanese-yen"] = "rbxassetid://10723416363",
+	["lucide-joystick"] = "rbxassetid://10723416527",
+	["lucide-key"] = "rbxassetid://10723416652",
+	["lucide-keyboard"] = "rbxassetid://10723416765",
+	["lucide-lamp"] = "rbxassetid://10723417513",
+	["lucide-lamp-ceiling"] = "rbxassetid://10723416922",
+	["lucide-lamp-desk"] = "rbxassetid://10723417016",
+	["lucide-lamp-floor"] = "rbxassetid://10723417131",
+	["lucide-lamp-wall-down"] = "rbxassetid://10723417240",
+	["lucide-lamp-wall-up"] = "rbxassetid://10723417356",
+	["lucide-landmark"] = "rbxassetid://10723417608",
+	["lucide-languages"] = "rbxassetid://10723417703",
+	["lucide-laptop"] = "rbxassetid://10723423881",
+	["lucide-laptop-2"] = "rbxassetid://10723417797",
+	["lucide-lasso"] = "rbxassetid://10723424235",
+	["lucide-lasso-select"] = "rbxassetid://10723424058",
+	["lucide-laugh"] = "rbxassetid://10723424372",
+	["lucide-layers"] = "rbxassetid://10723424505",
+	["lucide-layout"] = "rbxassetid://10723425376",
+	["lucide-layout-dashboard"] = "rbxassetid://10723424646",
+	["lucide-layout-grid"] = "rbxassetid://10723424838",
+	["lucide-layout-list"] = "rbxassetid://10723424963",
+	["lucide-layout-template"] = "rbxassetid://10723425187",
+	["lucide-leaf"] = "rbxassetid://10723425539",
+	["lucide-library"] = "rbxassetid://10723425615",
+	["lucide-life-buoy"] = "rbxassetid://10723425685",
+	["lucide-lightbulb"] = "rbxassetid://10723425852",
+	["lucide-lightbulb-off"] = "rbxassetid://10723425762",
+	["lucide-line-chart"] = "rbxassetid://10723426393",
+	["lucide-link"] = "rbxassetid://10723426722",
+	["lucide-link-2"] = "rbxassetid://10723426595",
+	["lucide-link-2-off"] = "rbxassetid://10723426513",
+	["lucide-list"] = "rbxassetid://10723433811",
+	["lucide-list-checks"] = "rbxassetid://10734884548",
+	["lucide-list-end"] = "rbxassetid://10723426886",
+	["lucide-list-minus"] = "rbxassetid://10723426986",
+	["lucide-list-music"] = "rbxassetid://10723427081",
+	["lucide-list-ordered"] = "rbxassetid://10723427199",
+	["lucide-list-plus"] = "rbxassetid://10723427334",
+	["lucide-list-start"] = "rbxassetid://10723427494",
+	["lucide-list-video"] = "rbxassetid://10723427619",
+	["lucide-list-todo"] = "rbxassetid://17376008003",
+	["lucide-list-x"] = "rbxassetid://10723433655",
+	["lucide-loader"] = "rbxassetid://10723434070",
+	["lucide-loader-2"] = "rbxassetid://10723433935",
+	["lucide-locate"] = "rbxassetid://10723434557",
+	["lucide-locate-fixed"] = "rbxassetid://10723434236",
+	["lucide-locate-off"] = "rbxassetid://10723434379",
+	["lucide-lock"] = "rbxassetid://10723434711",
+	["lucide-log-in"] = "rbxassetid://10723434830",
+	["lucide-log-out"] = "rbxassetid://10723434906",
+	["lucide-luggage"] = "rbxassetid://10723434993",
+	["lucide-magnet"] = "rbxassetid://10723435069",
+	["lucide-mail"] = "rbxassetid://10734885430",
+	["lucide-mail-check"] = "rbxassetid://10723435182",
+	["lucide-mail-minus"] = "rbxassetid://10723435261",
+	["lucide-mail-open"] = "rbxassetid://10723435342",
+	["lucide-mail-plus"] = "rbxassetid://10723435443",
+	["lucide-mail-question"] = "rbxassetid://10723435515",
+	["lucide-mail-search"] = "rbxassetid://10734884739",
+	["lucide-mail-warning"] = "rbxassetid://10734885015",
+	["lucide-mail-x"] = "rbxassetid://10734885247",
+	["lucide-mails"] = "rbxassetid://10734885614",
+	["lucide-map"] = "rbxassetid://10734886202",
+	["lucide-map-pin"] = "rbxassetid://10734886004",
+	["lucide-map-pin-off"] = "rbxassetid://10734885803",
+	["lucide-maximize"] = "rbxassetid://10734886735",
+	["lucide-maximize-2"] = "rbxassetid://10734886496",
+	["lucide-medal"] = "rbxassetid://10734887072",
+	["lucide-megaphone"] = "rbxassetid://10734887454",
+	["lucide-megaphone-off"] = "rbxassetid://10734887311",
+	["lucide-meh"] = "rbxassetid://10734887603",
+	["lucide-menu"] = "rbxassetid://10734887784",
+	["lucide-message-circle"] = "rbxassetid://10734888000",
+	["lucide-message-square"] = "rbxassetid://10734888228",
+	["lucide-mic"] = "rbxassetid://10734888864",
+	["lucide-mic-2"] = "rbxassetid://10734888430",
+	["lucide-mic-off"] = "rbxassetid://10734888646",
+	["lucide-microscope"] = "rbxassetid://10734889106",
+	["lucide-microwave"] = "rbxassetid://10734895076",
+	["lucide-milestone"] = "rbxassetid://10734895310",
+	["lucide-minimize"] = "rbxassetid://10734895698",
+	["lucide-minimize-2"] = "rbxassetid://10734895530",
+	["lucide-minus"] = "rbxassetid://10734896206",
+	["lucide-minus-circle"] = "rbxassetid://10734895856",
+	["lucide-minus-square"] = "rbxassetid://10734896029",
+	["lucide-monitor"] = "rbxassetid://10734896881",
+	["lucide-monitor-off"] = "rbxassetid://10734896360",
+	["lucide-monitor-speaker"] = "rbxassetid://10734896512",
+	["lucide-moon"] = "rbxassetid://10734897102",
+	["lucide-more-horizontal"] = "rbxassetid://10734897250",
+	["lucide-more-vertical"] = "rbxassetid://10734897387",
+	["lucide-mountain"] = "rbxassetid://10734897956",
+	["lucide-mountain-snow"] = "rbxassetid://10734897665",
+	["lucide-mouse"] = "rbxassetid://10734898592",
+	["lucide-mouse-pointer"] = "rbxassetid://10734898476",
+	["lucide-mouse-pointer-2"] = "rbxassetid://10734898194",
+	["lucide-mouse-pointer-click"] = "rbxassetid://10734898355",
+	["lucide-move"] = "rbxassetid://10734900011",
+	["lucide-move-3d"] = "rbxassetid://10734898756",
+	["lucide-move-diagonal"] = "rbxassetid://10734899164",
+	["lucide-move-diagonal-2"] = "rbxassetid://10734898934",
+	["lucide-move-horizontal"] = "rbxassetid://10734899414",
+	["lucide-move-vertical"] = "rbxassetid://10734899821",
+	["lucide-music"] = "rbxassetid://10734905958",
+	["lucide-music-2"] = "rbxassetid://10734900215",
+	["lucide-music-3"] = "rbxassetid://10734905665",
+	["lucide-music-4"] = "rbxassetid://10734905823",
+	["lucide-navigation"] = "rbxassetid://10734906744",
+	["lucide-navigation-2"] = "rbxassetid://10734906332",
+	["lucide-navigation-2-off"] = "rbxassetid://10734906144",
+	["lucide-navigation-off"] = "rbxassetid://10734906580",
+	["lucide-network"] = "rbxassetid://10734906975",
+	["lucide-newspaper"] = "rbxassetid://10734907168",
+	["lucide-octagon"] = "rbxassetid://10734907361",
+	["lucide-option"] = "rbxassetid://10734907649",
+	["lucide-outdent"] = "rbxassetid://10734907933",
+	["lucide-package"] = "rbxassetid://10734909540",
+	["lucide-package-2"] = "rbxassetid://10734908151",
+	["lucide-package-check"] = "rbxassetid://10734908384",
+	["lucide-package-minus"] = "rbxassetid://10734908626",
+	["lucide-package-open"] = "rbxassetid://10734908793",
+	["lucide-package-plus"] = "rbxassetid://10734909016",
+	["lucide-package-search"] = "rbxassetid://10734909196",
+	["lucide-package-x"] = "rbxassetid://10734909375",
+	["lucide-paint-bucket"] = "rbxassetid://10734909847",
+	["lucide-paintbrush"] = "rbxassetid://10734910187",
+	["lucide-paintbrush-2"] = "rbxassetid://10734910030",
+	["lucide-palette"] = "rbxassetid://10734910430",
+	["lucide-palmtree"] = "rbxassetid://10734910680",
+	["lucide-paperclip"] = "rbxassetid://10734910927",
+	["lucide-party-popper"] = "rbxassetid://10734918735",
+	["lucide-pause"] = "rbxassetid://10734919336",
+	["lucide-pause-circle"] = "rbxassetid://10735024209",
+	["lucide-pause-octagon"] = "rbxassetid://10734919143",
+	["lucide-pen-tool"] = "rbxassetid://10734919503",
+	["lucide-pencil"] = "rbxassetid://10734919691",
+	["lucide-percent"] = "rbxassetid://10734919919",
+	["lucide-person-standing"] = "rbxassetid://10734920149",
+	["lucide-phone"] = "rbxassetid://10734921524",
+	["lucide-phone-call"] = "rbxassetid://10734920305",
+	["lucide-phone-forwarded"] = "rbxassetid://10734920508",
+	["lucide-phone-incoming"] = "rbxassetid://10734920694",
+	["lucide-phone-missed"] = "rbxassetid://10734920845",
+	["lucide-phone-off"] = "rbxassetid://10734921077",
+	["lucide-phone-outgoing"] = "rbxassetid://10734921288",
+	["lucide-pie-chart"] = "rbxassetid://10734921727",
+	["lucide-piggy-bank"] = "rbxassetid://10734921935",
+	["lucide-pin"] = "rbxassetid://10734922324",
+	["lucide-pin-off"] = "rbxassetid://10734922180",
+	["lucide-pipette"] = "rbxassetid://10734922497",
+	["lucide-pizza"] = "rbxassetid://10734922774",
+	["lucide-plane"] = "rbxassetid://10734922971",
+	["lucide-plane-landing"] = "rbxassetid://17376029914",
+	["lucide-play"] = "rbxassetid://10734923549",
+	["lucide-play-circle"] = "rbxassetid://10734923214",
+	["lucide-plus"] = "rbxassetid://10734924532",
+	["lucide-plus-circle"] = "rbxassetid://10734923868",
+	["lucide-plus-square"] = "rbxassetid://10734924219",
+	["lucide-podcast"] = "rbxassetid://10734929553",
+	["lucide-pointer"] = "rbxassetid://10734929723",
+	["lucide-pound-sterling"] = "rbxassetid://10734929981",
+	["lucide-power"] = "rbxassetid://10734930466",
+	["lucide-power-off"] = "rbxassetid://10734930257",
+	["lucide-printer"] = "rbxassetid://10734930632",
+	["lucide-puzzle"] = "rbxassetid://10734930886",
+	["lucide-quote"] = "rbxassetid://10734931234",
+	["lucide-radio"] = "rbxassetid://10734931596",
+	["lucide-radio-receiver"] = "rbxassetid://10734931402",
+	["lucide-rectangle-horizontal"] = "rbxassetid://10734931777",
+	["lucide-rectangle-vertical"] = "rbxassetid://10734932081",
+	["lucide-recycle"] = "rbxassetid://10734932295",
+	["lucide-redo"] = "rbxassetid://10734932822",
+	["lucide-redo-2"] = "rbxassetid://10734932586",
+	["lucide-refresh-ccw"] = "rbxassetid://10734933056",
+	["lucide-refresh-cw"] = "rbxassetid://10734933222",
+	["lucide-refrigerator"] = "rbxassetid://10734933465",
+	["lucide-regex"] = "rbxassetid://10734933655",
+	["lucide-repeat"] = "rbxassetid://10734933966",
+	["lucide-repeat-1"] = "rbxassetid://10734933826",
+	["lucide-reply"] = "rbxassetid://10734934252",
+	["lucide-reply-all"] = "rbxassetid://10734934132",
+	["lucide-rewind"] = "rbxassetid://10734934347",
+	["lucide-rocket"] = "rbxassetid://10734934585",
+	["lucide-rocking-chair"] = "rbxassetid://10734939942",
+	["lucide-rotate-3d"] = "rbxassetid://10734940107",
+	["lucide-rotate-ccw"] = "rbxassetid://10734940376",
+	["lucide-rotate-cw"] = "rbxassetid://10734940654",
+	["lucide-rss"] = "rbxassetid://10734940825",
+	["lucide-ruler"] = "rbxassetid://10734941018",
+	["lucide-russian-ruble"] = "rbxassetid://10734941199",
+	["lucide-sailboat"] = "rbxassetid://10734941354",
+	["lucide-save"] = "rbxassetid://10734941499",
+	["lucide-scale"] = "rbxassetid://10734941912",
+	["lucide-scale-3d"] = "rbxassetid://10734941739",
+	["lucide-scaling"] = "rbxassetid://10734942072",
+	["lucide-scan"] = "rbxassetid://10734942565",
+	["lucide-scan-face"] = "rbxassetid://10734942198",
+	["lucide-scan-line"] = "rbxassetid://10734942351",
+	["lucide-scissors"] = "rbxassetid://10734942778",
+	["lucide-screen-share"] = "rbxassetid://10734943193",
+	["lucide-screen-share-off"] = "rbxassetid://10734942967",
+	["lucide-scroll"] = "rbxassetid://10734943448",
+	["lucide-search"] = "rbxassetid://10734943674",
+	["lucide-send"] = "rbxassetid://10734943902",
+	["lucide-separator-horizontal"] = "rbxassetid://10734944115",
+	["lucide-separator-vertical"] = "rbxassetid://10734944326",
+	["lucide-server"] = "rbxassetid://10734949856",
+	["lucide-server-cog"] = "rbxassetid://10734944444",
+	["lucide-server-crash"] = "rbxassetid://10734944554",
+	["lucide-server-off"] = "rbxassetid://10734944668",
+	["lucide-settings"] = "rbxassetid://10734950309",
+	["lucide-settings-2"] = "rbxassetid://10734950020",
+	["lucide-share"] = "rbxassetid://10734950813",
+	["lucide-share-2"] = "rbxassetid://10734950553",
+	["lucide-sheet"] = "rbxassetid://10734951038",
+	["lucide-shield"] = "rbxassetid://10734951847",
+	["lucide-shield-alert"] = "rbxassetid://10734951173",
+	["lucide-shield-check"] = "rbxassetid://10734951367",
+	["lucide-shield-close"] = "rbxassetid://10734951535",
+	["lucide-shield-off"] = "rbxassetid://10734951684",
+	["lucide-shirt"] = "rbxassetid://10734952036",
+	["lucide-shopping-bag"] = "rbxassetid://10734952273",
+	["lucide-shopping-cart"] = "rbxassetid://10734952479",
+	["lucide-shovel"] = "rbxassetid://10734952773",
+	["lucide-shower-head"] = "rbxassetid://10734952942",
+	["lucide-shrink"] = "rbxassetid://10734953073",
+	["lucide-shrub"] = "rbxassetid://10734953241",
+	["lucide-shuffle"] = "rbxassetid://10734953451",
+	["lucide-sidebar"] = "rbxassetid://10734954301",
+	["lucide-sidebar-close"] = "rbxassetid://10734953715",
+	["lucide-sidebar-open"] = "rbxassetid://10734954000",
+	["lucide-sigma"] = "rbxassetid://10734954538",
+	["lucide-signal"] = "rbxassetid://10734961133",
+	["lucide-signal-high"] = "rbxassetid://10734954807",
+	["lucide-signal-low"] = "rbxassetid://10734955080",
+	["lucide-signal-medium"] = "rbxassetid://10734955336",
+	["lucide-signal-zero"] = "rbxassetid://10734960878",
+	["lucide-siren"] = "rbxassetid://10734961284",
+	["lucide-skip-back"] = "rbxassetid://10734961526",
+	["lucide-skip-forward"] = "rbxassetid://10734961809",
+	["lucide-skull"] = "rbxassetid://10734962068",
+	["lucide-slack"] = "rbxassetid://10734962339",
+	["lucide-slash"] = "rbxassetid://10734962600",
+	["lucide-slice"] = "rbxassetid://10734963024",
+	["lucide-sliders"] = "rbxassetid://10734963400",
+	["lucide-sliders-horizontal"] = "rbxassetid://10734963191",
+	["lucide-smartphone"] = "rbxassetid://10734963940",
+	["lucide-smartphone-charging"] = "rbxassetid://10734963671",
+	["lucide-smile"] = "rbxassetid://10734964441",
+	["lucide-smile-plus"] = "rbxassetid://10734964188",
+	["lucide-snowflake"] = "rbxassetid://10734964600",
+	["lucide-sofa"] = "rbxassetid://10734964852",
+	["lucide-sort-asc"] = "rbxassetid://10734965115",
+	["lucide-sort-desc"] = "rbxassetid://10734965287",
+	["lucide-speaker"] = "rbxassetid://10734965419",
+	["lucide-sprout"] = "rbxassetid://10734965572",
+	["lucide-square"] = "rbxassetid://10734965702",
+	["lucide-star"] = "rbxassetid://10734966248",
+	["lucide-star-half"] = "rbxassetid://10734965897",
+	["lucide-star-off"] = "rbxassetid://10734966097",
+	["lucide-stethoscope"] = "rbxassetid://10734966384",
+	["lucide-sticker"] = "rbxassetid://10734972234",
+	["lucide-sticky-note"] = "rbxassetid://10734972463",
+	["lucide-stop-circle"] = "rbxassetid://10734972621",
+	["lucide-stretch-horizontal"] = "rbxassetid://10734972862",
+	["lucide-stretch-vertical"] = "rbxassetid://10734973130",
+	["lucide-strikethrough"] = "rbxassetid://10734973290",
+	["lucide-subscript"] = "rbxassetid://10734973457",
+	["lucide-sun"] = "rbxassetid://10734974297",
+	["lucide-sun-dim"] = "rbxassetid://10734973645",
+	["lucide-sun-medium"] = "rbxassetid://10734973778",
+	["lucide-sun-moon"] = "rbxassetid://10734973999",
+	["lucide-sun-snow"] = "rbxassetid://10734974130",
+	["lucide-sunrise"] = "rbxassetid://10734974522",
+	["lucide-sunset"] = "rbxassetid://10734974689",
+	["lucide-superscript"] = "rbxassetid://10734974850",
+	["lucide-swiss-franc"] = "rbxassetid://10734975024",
+	["lucide-switch-camera"] = "rbxassetid://10734975214",
+	["lucide-sword"] = "rbxassetid://10734975486",
+	["lucide-swords"] = "rbxassetid://10734975692",
+	["lucide-syringe"] = "rbxassetid://10734975932",
+	["lucide-table"] = "rbxassetid://10734976230",
+	["lucide-table-2"] = "rbxassetid://10734976097",
+	["lucide-tablet"] = "rbxassetid://10734976394",
+	["lucide-tag"] = "rbxassetid://10734976528",
+	["lucide-tags"] = "rbxassetid://10734976739",
+	["lucide-target"] = "rbxassetid://10734977012",
+	["lucide-tent"] = "rbxassetid://10734981750",
+	["lucide-terminal"] = "rbxassetid://10734982144",
+	["lucide-terminal-square"] = "rbxassetid://10734981995",
+	["lucide-text-cursor"] = "rbxassetid://10734982395",
+	["lucide-text-cursor-input"] = "rbxassetid://10734982297",
+	["lucide-thermometer"] = "rbxassetid://10734983134",
+	["lucide-thermometer-snowflake"] = "rbxassetid://10734982571",
+	["lucide-thermometer-sun"] = "rbxassetid://10734982771",
+	["lucide-thumbs-down"] = "rbxassetid://10734983359",
+	["lucide-thumbs-up"] = "rbxassetid://10734983629",
+	["lucide-ticket"] = "rbxassetid://10734983868",
+	["lucide-timer"] = "rbxassetid://10734984606",
+	["lucide-timer-off"] = "rbxassetid://10734984138",
+	["lucide-timer-reset"] = "rbxassetid://10734984355",
+	["lucide-toggle-left"] = "rbxassetid://10734984834",
+	["lucide-toggle-right"] = "rbxassetid://10734985040",
+	["lucide-tornado"] = "rbxassetid://10734985247",
+	["lucide-toy-brick"] = "rbxassetid://10747361919",
+	["lucide-train"] = "rbxassetid://10747362105",
+	["lucide-trash"] = "rbxassetid://10747362393",
+	["lucide-trash-2"] = "rbxassetid://10747362241",
+	["lucide-tree-deciduous"] = "rbxassetid://10747362534",
+	["lucide-tree-pine"] = "rbxassetid://10747362748",
+	["lucide-trees"] = "rbxassetid://10747363016",
+	["lucide-trending-down"] = "rbxassetid://10747363205",
+	["lucide-trending-up"] = "rbxassetid://10747363465",
+	["lucide-triangle"] = "rbxassetid://10747363621",
+	["lucide-trophy"] = "rbxassetid://10747363809",
+	["lucide-truck"] = "rbxassetid://10747364031",
+	["lucide-tv"] = "rbxassetid://10747364593",
+	["lucide-tv-2"] = "rbxassetid://10747364302",
+	["lucide-type"] = "rbxassetid://10747364761",
+	["lucide-umbrella"] = "rbxassetid://10747364971",
+	["lucide-underline"] = "rbxassetid://10747365191",
+	["lucide-undo"] = "rbxassetid://10747365484",
+	["lucide-undo-2"] = "rbxassetid://10747365359",
+	["lucide-unlink"] = "rbxassetid://10747365771",
+	["lucide-unlink-2"] = "rbxassetid://10747397871",
+	["lucide-unlock"] = "rbxassetid://10747366027",
+	["lucide-upload"] = "rbxassetid://10747366434",
+	["lucide-upload-cloud"] = "rbxassetid://10747366266",
+	["lucide-usb"] = "rbxassetid://10747366606",
+	["lucide-user"] = "rbxassetid://10747373176",
+	["lucide-user-check"] = "rbxassetid://10747371901",
+	["lucide-user-cog"] = "rbxassetid://10747372167",
+	["lucide-user-minus"] = "rbxassetid://10747372346",
+	["lucide-user-plus"] = "rbxassetid://10747372702",
+	["lucide-user-x"] = "rbxassetid://10747372992",
+	["lucide-users"] = "rbxassetid://10747373426",
+	["lucide-utensils"] = "rbxassetid://10747373821",
+	["lucide-utensils-crossed"] = "rbxassetid://10747373629",
+	["lucide-venetian-mask"] = "rbxassetid://10747374003",
+	["lucide-verified"] = "rbxassetid://10747374131",
+	["lucide-vibrate"] = "rbxassetid://10747374489",
+	["lucide-vibrate-off"] = "rbxassetid://10747374269",
+	["lucide-video"] = "rbxassetid://10747374938",
+	["lucide-video-off"] = "rbxassetid://10747374721",
+	["lucide-view"] = "rbxassetid://10747375132",
+	["lucide-voicemail"] = "rbxassetid://10747375281",
+	["lucide-volume"] = "rbxassetid://10747376008",
+	["lucide-volume-1"] = "rbxassetid://10747375450",
+	["lucide-volume-2"] = "rbxassetid://10747375679",
+	["lucide-volume-x"] = "rbxassetid://10747375880",
+	["lucide-wheat"] = "rbxassetid://80877624162595",
+	["lucide-wallet"] = "rbxassetid://10747376205",
+	["lucide-wand"] = "rbxassetid://10747376565",
+	["lucide-wand-2"] = "rbxassetid://10747376349",
+	["lucide-watch"] = "rbxassetid://10747376722",
+	["lucide-waves"] = "rbxassetid://10747376931",
+	["lucide-webcam"] = "rbxassetid://10747381992",
+	["lucide-wifi"] = "rbxassetid://10747382504",
+	["lucide-wifi-off"] = "rbxassetid://10747382268",
+	["lucide-wind"] = "rbxassetid://10747382750",
+	["lucide-wrap-text"] = "rbxassetid://10747383065",
+	["lucide-wrench"] = "rbxassetid://10747383470",
+	["lucide-x"] = "rbxassetid://10747384394",
+	["lucide-x-circle"] = "rbxassetid://10747383819",
+	["lucide-x-octagon"] = "rbxassetid://10747384037",
+	["lucide-x-square"] = "rbxassetid://10747384217",
+	["lucide-zoom-in"] = "rbxassetid://10747384552",
+	["lucide-zoom-out"] = "rbxassetid://10747384679",
+	["lucide-cat"] = "rbxassetid://16935650691",
+	["lucide-message-circle-question"] = "rbxassetid://16970049192",
+	["lucide-webhook"] = "rbxassetid://17320556264",
+	["lucide-dumbbell"] = "rbxassetid://18273453053"
+}
+
+DarkUI.IconAliases = {
+	Home = "home",
+	Settings = "settings",
+	Setting = "settings",
+	Search = "search",
+	Webhook = "webhook",
+	Macro = "terminal",
+	Combat = "swords",
+	Render = "eye",
+	Movement = "move",
+	Utility = "wrench",
+	World = "globe-2",
+	Farm = "sprout",
+	AutoFarm = "sprout",
+	Shop = "shopping-cart",
+	Teleport = "navigation",
+	Config = "save",
+}
+
+function DarkUI:GetIcon(name)
+	if name == nil then
+		return nil
+	end
+
+	local text = tostring(name)
+	text = string.gsub(text, "^%s+", "")
+	text = string.gsub(text, "%s+$", "")
+	if text == "" then
+		return nil
+	end
+
+	local directAsset = resolveContentId(text)
+	if directAsset and directAsset ~= text then
+		return directAsset
+	end
+
+	local alias = DarkUI.IconAliases[text] or DarkUI.IconAliases[string.gsub(text, "%s+", "")]
+	if alias then
+		text = alias
+	end
+
+	local lowered = string.lower(text)
+	local compact = string.gsub(lowered, "%s+", "-")
+	local candidates = {
+		text,
+		lowered,
+		compact,
+		"lucide-" .. text,
+		"lucide-" .. lowered,
+		"lucide-" .. compact,
+	}
+
+	for _, key in ipairs(candidates) do
+		local icon = DarkUI.Icons[key]
+		if icon then
+			return icon
+		end
+	end
+
+	return directAsset
+end
+
+local function resolveIcon(value)
+	return DarkUI:GetIcon(value) or resolveContentId(value)
+end
+
 DarkUI.Fonts = {
 	Title = getFont("GothamMedium", getFont("GothamSemibold", getFont("GothamBold", Enum.Font.SourceSansBold))),
 	Bold = getFont("GothamMedium", getFont("GothamSemibold", getFont("GothamBold", Enum.Font.SourceSansBold))),
@@ -94,26 +991,16 @@ DarkUI.TextStrokeTransparency = 1
 
 DarkUI.ThemePresets = {
 	Dark = {
-		Background = Color3.fromRGB(31, 31, 31),
-		Surface = Color3.fromRGB(39, 39, 39),
-		Panel = Color3.fromRGB(45, 45, 45),
-		PanelLight = Color3.fromRGB(54, 54, 54),
-		Tab = Color3.fromRGB(40, 40, 40),
-		TabActive = Color3.fromRGB(48, 48, 48),
-		Stroke = Color3.fromRGB(74, 74, 74),
-		Text = Color3.fromRGB(240, 240, 240),
-		Muted = Color3.fromRGB(170, 170, 170),
-		Accent = Color3.fromRGB(96, 205, 255),
-		Element = Color3.fromRGB(120, 120, 120),
-		ElementBorder = Color3.fromRGB(35, 35, 35),
-		InElementBorder = Color3.fromRGB(90, 90, 90),
-		Input = Color3.fromRGB(58, 58, 58),
-		InputFocused = Color3.fromRGB(26, 26, 26),
-		InputIndicator = Color3.fromRGB(150, 150, 150),
-		SliderRail = Color3.fromRGB(120, 120, 120),
-		DropdownHolder = Color3.fromRGB(45, 45, 45),
-		DropdownOption = Color3.fromRGB(120, 120, 120),
-		TitleBarLine = Color3.fromRGB(75, 75, 75),
+		Background = Color3.fromRGB(18, 18, 23),
+		Surface = Color3.fromRGB(22, 22, 28),
+		Panel = Color3.fromRGB(34, 34, 42),
+		PanelLight = Color3.fromRGB(43, 43, 52),
+		Tab = Color3.fromRGB(25, 35, 42),
+		TabActive = Color3.fromRGB(29, 42, 50),
+		Stroke = Color3.fromRGB(44, 44, 54),
+		Text = Color3.fromRGB(211, 211, 220),
+		Muted = Color3.fromRGB(132, 132, 145),
+		Accent = Color3.fromRGB(107, 211, 255),
 		Success = Color3.fromRGB(56, 219, 142),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -192,28 +1079,6 @@ local function copyTable(source)
 	return nextTable
 end
 
-local function completeTheme(theme)
-	local base = DarkUI.ThemePresets.Dark
-	for key, value in pairs(base) do
-		if theme[key] == nil then
-			theme[key] = value
-		end
-	end
-
-	theme.Element = theme.Element or theme.Panel
-	theme.ElementBorder = theme.ElementBorder or theme.Stroke
-	theme.InElementBorder = theme.InElementBorder or theme.Stroke
-	theme.Input = theme.Input or theme.Panel
-	theme.InputFocused = theme.InputFocused or theme.Surface
-	theme.InputIndicator = theme.InputIndicator or theme.Muted
-	theme.SliderRail = theme.SliderRail or theme.Element
-	theme.DropdownHolder = theme.DropdownHolder or theme.Panel
-	theme.DropdownOption = theme.DropdownOption or theme.Element
-	theme.TitleBarLine = theme.TitleBarLine or theme.Stroke
-
-	return theme
-end
-
 local function make(className, props, children)
 	local instance = Instance.new(className)
 
@@ -243,7 +1108,7 @@ local function stroke(color, transparency, thickness)
 end
 
 local function tween(instance, props, duration)
-	local tweenInfo = TweenInfo.new(duration or 0.16, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+	local tweenInfo = TweenInfo.new(duration or 0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	local activeTween = TweenService:Create(instance, tweenInfo, props)
 	activeTween:Play()
 	return activeTween
@@ -323,7 +1188,7 @@ function DarkUI:CreateWindow(config)
 	config = config or {}
 
 	local themeName = config.Theme or "Dark"
-	local theme = completeTheme(copyTable(DarkUI.ThemePresets[themeName] or DarkUI.ThemePresets.Dark))
+	local theme = copyTable(DarkUI.ThemePresets[themeName] or DarkUI.ThemePresets.Dark)
 	if typeof(config.Accent) == "Color3" then
 		theme.Accent = config.Accent
 	end
@@ -357,8 +1222,6 @@ function DarkUI:CreateWindow(config)
 		FooterRole = "Home",
 		FooterHomeTab = nil,
 		FooterSettingsTab = nil,
-		DropdownsOutsideWindow = config.DropdownsOutsideWindow == true,
-		Acrylic = config.Acrylic == true,
 		Destroyed = false,
 	}
 
@@ -383,13 +1246,13 @@ function DarkUI:CreateWindow(config)
 
 	local function styledBackground(instance, key)
 		instance:SetAttribute("DarkUIBackground", key)
-		instance.BackgroundColor3 = window.Theme[key] or window.Theme.Panel
+		instance.BackgroundColor3 = window.Theme[key]
 		return instance
 	end
 
 	local function styledText(instance, key)
 		instance:SetAttribute("DarkUIText", key)
-		instance.TextColor3 = window.Theme[key] or window.Theme.Text
+		instance.TextColor3 = window.Theme[key]
 
 		if instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox") then
 			if not instance:GetAttribute("DarkUITextScaled") then
@@ -406,7 +1269,7 @@ function DarkUI:CreateWindow(config)
 
 	local function styledStroke(instance, key)
 		instance:SetAttribute("DarkUIStroke", key)
-		instance.Color = window.Theme[key] or window.Theme.Stroke
+		instance.Color = window.Theme[key]
 		return instance
 	end
 
@@ -462,7 +1325,7 @@ function DarkUI:CreateWindow(config)
 
 			if normalKey and hoverKey then
 				tween(guiObject, {
-					BackgroundColor3 = window.Theme[hoverKey] or window.Theme.PanelLight,
+					BackgroundColor3 = window.Theme[hoverKey],
 				}, 0.12)
 			end
 
@@ -476,7 +1339,7 @@ function DarkUI:CreateWindow(config)
 		connect(guiObject.MouseLeave, function()
 			if normalKey then
 				tween(guiObject, {
-					BackgroundColor3 = window.Theme[normalKey] or window.Theme.Panel,
+					BackgroundColor3 = window.Theme[normalKey],
 				}, 0.12)
 			end
 
@@ -488,16 +1351,17 @@ function DarkUI:CreateWindow(config)
 		end)
 	end
 
-	local headerHeight = 44
-	local tabHeight = 42
-	local searchHeight = config.Search == true and 34 or 0
-	local footerHeight = config.Footer == true and 54 or 0
-	local navWidth = config.NavWidth or config.TabWidth or 168
-	local windowSize = config.Size or UDim2.fromOffset(660, 460)
+	local headerHeight = 50
+	local tabHeight = 44
+	local searchHeight = config.Search == true and 36 or 0
+	local showFooter = config.Footer == "legacy"
+	local footerHeight = showFooter and 54 or 0
+	local navWidth = config.NavWidth or 134
+	local windowSize = config.Size or UDim2.fromOffset(480, 400)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
-	local windowIcon = resolveContentId(config.Icon)
-	local minWindowSize = config.MinSize or Vector2.new(520, 360)
+	local windowIcon = resolveIcon(config.Icon)
+	local minWindowSize = config.MinSize or Vector2.new(430, 320)
 	local resizable = config.Resizable ~= false
 	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
 
@@ -508,22 +1372,22 @@ function DarkUI:CreateWindow(config)
 	local shadow = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-		BackgroundTransparency = 0.74,
+		BackgroundTransparency = 0.68,
 		BorderSizePixel = 0,
-		Position = UDim2.new(windowPosition.X.Scale, windowPosition.X.Offset + 5, windowPosition.Y.Scale, windowPosition.Y.Offset + 7),
+		Position = UDim2.new(windowPosition.X.Scale, windowPosition.X.Offset + 6, windowPosition.Y.Scale, windowPosition.Y.Offset + 6),
 		Size = windowSize,
 		Parent = screenGui,
 	}, {
 		corner(7),
 	})
 
-	local glowStroke = stroke(theme.Accent, 0.82, 1)
+	local glowStroke = stroke(theme.Accent, 0.72, 1)
 	glowStroke.Name = "DarkUIGlowStroke"
 	local glow = make("Frame", {
 		Name = "DarkUIGlow",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Accent,
-		BackgroundTransparency = 0.985,
+		BackgroundTransparency = 0.965,
 		BorderSizePixel = 0,
 		Position = windowPosition,
 		Size = glowSize(windowSize),
@@ -536,7 +1400,6 @@ function DarkUI:CreateWindow(config)
 	local root = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Background,
-		BackgroundTransparency = config.Acrylic and 0.06 or 0,
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
 		Position = windowPosition,
@@ -544,7 +1407,7 @@ function DarkUI:CreateWindow(config)
 		Parent = screenGui,
 	}, {
 		corner(7),
-		stroke(theme.Stroke, 0.18, 1),
+		stroke(theme.Stroke, 0.35, 1),
 	})
 	root:SetAttribute("DarkUIBackground", "Background")
 	root.UIStroke:SetAttribute("DarkUIStroke", "Stroke")
@@ -574,22 +1437,21 @@ function DarkUI:CreateWindow(config)
 		Parent = header,
 	}), "Background")
 
-	local titleBarLine = make("Frame", {
-		Name = "DarkUITitleBarLine",
+	make("Frame", {
+		Name = "DarkUIAccent",
 		BorderSizePixel = 0,
-		BackgroundColor3 = theme.TitleBarLine,
+		BackgroundColor3 = theme.Accent,
 		Position = UDim2.new(0, 0, 1, -1),
 		Size = UDim2.new(1, 0, 0, 1),
 		ZIndex = 51,
 		Parent = header,
 	})
-	titleBarLine:SetAttribute("DarkUIBackground", "TitleBarLine")
 
 	if windowIcon then
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
 			Image = windowIcon,
-			Position = UDim2.fromOffset(14, 12),
+			Position = UDim2.fromOffset(16, 14),
 			ScaleType = Enum.ScaleType.Fit,
 			Size = UDim2.fromOffset(20, 20),
 			ZIndex = 52,
@@ -597,25 +1459,25 @@ function DarkUI:CreateWindow(config)
 		})
 	end
 
-	local titleOffset = windowIcon and 40 or 15
+	local titleOffset = windowIcon and 42 or 16
 	local title = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Title,
 		FontFace = config.TitleFontFace or DarkUI.FontFaces.WindowTitle,
 		Parent = header,
-		Position = UDim2.fromOffset(titleOffset, 7),
+		Position = UDim2.fromOffset(titleOffset, 8),
 		RichText = true,
-		Size = UDim2.new(1, -142 - titleOffset, 0, 18),
-		Text = config.Title or "Vxizi Hub",
-		TextSize = 13,
+		Size = UDim2.new(1, -150 - titleOffset, 0, 19),
+		Text = config.Title or config.Name or "Vxizi Hub",
+		TextSize = 14,
 	}), "Text")
 	title.ZIndex = 52
 
 	local subtitle = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Body,
 		Parent = header,
-		Position = UDim2.fromOffset(titleOffset, 24),
-		Size = UDim2.new(1, -142 - titleOffset, 0, 14),
-		Text = config.Subtitle or "clean dark interface",
+		Position = UDim2.fromOffset(titleOffset, 27),
+		Size = UDim2.new(1, -150 - titleOffset, 0, 14),
+		Text = config.Subtitle or config.SubTitle or config.Description or "clean dark interface",
 		TextSize = 10,
 	}), "Muted")
 	subtitle.ZIndex = 52
@@ -624,8 +1486,8 @@ function DarkUI:CreateWindow(config)
 		AnchorPoint = Vector2.new(1, 0.5),
 		BorderSizePixel = 0,
 		Font = DarkUI.Fonts.Bold,
-		Position = UDim2.new(1, -91, 0.5, 0),
-		Size = UDim2.fromOffset(74, 24),
+		Position = UDim2.new(1, -96, 0.5, 0),
+		Size = UDim2.fromOffset(78, 26),
 		Text = "WORKING",
 		TextSize = 10,
 		Visible = config.Status == true,
@@ -641,17 +1503,17 @@ function DarkUI:CreateWindow(config)
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 		Font = DarkUI.Fonts.Bold,
-		Position = UDim2.new(1, -47, 0.5, 0),
-		Size = UDim2.fromOffset(24, 24),
+		Position = UDim2.new(1, -48, 0.5, 0),
+		Size = UDim2.fromOffset(26, 26),
 		Text = "-",
 		TextSize = 14,
 		ZIndex = 52,
 		Parent = header,
 	}, {
 		corner(6),
-	}), "Background")
+	}), "PanelLight")
 	styledText(minimizeButton, "Text")
-	attachHover(minimizeButton, "Background", "Panel", 1.04)
+	attachHover(minimizeButton, "PanelLight", "Panel", 1.04)
 	attachPress(minimizeButton, 0.88)
 
 	local closeButton = styledBackground(make("TextButton", {
@@ -660,16 +1522,16 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		Font = DarkUI.Fonts.Bold,
 		Position = UDim2.new(1, -16, 0.5, 0),
-		Size = UDim2.fromOffset(24, 24),
+		Size = UDim2.fromOffset(26, 26),
 		Text = "x",
 		TextSize = 13,
 		ZIndex = 52,
 		Parent = header,
 	}, {
 		corner(6),
-	}), "Background")
+	}), "PanelLight")
 	styledText(closeButton, "Text")
-	attachHover(closeButton, "Background", "Panel", 1.04)
+	attachHover(closeButton, "PanelLight", "Panel", 1.04)
 	attachPress(closeButton, 0.88)
 
 	local body = make("Frame", {
@@ -726,14 +1588,6 @@ function DarkUI:CreateWindow(config)
 	}, {
 		corner(0),
 	}), "Background")
-
-	styledBackground(make("Frame", {
-		AnchorPoint = Vector2.new(1, 0),
-		BorderSizePixel = 0,
-		Position = UDim2.new(1, 0, 0, 0),
-		Size = UDim2.new(0, 1, 1, 0),
-		Parent = navPanel,
-	}), "TitleBarLine")
 
 	local navBrandText = tostring(config.NavBrand or "")
 	local hasNavBrand = navBrandText ~= ""
@@ -801,7 +1655,7 @@ function DarkUI:CreateWindow(config)
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		}),
 		make("UIPadding", {
-			PaddingLeft = UDim.new(0, 10),
+			PaddingLeft = UDim.new(0, 12),
 			PaddingRight = UDim.new(0, 10),
 			PaddingTop = UDim.new(0, 6),
 			PaddingBottom = UDim.new(0, 4),
@@ -810,8 +1664,8 @@ function DarkUI:CreateWindow(config)
 
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, navWidth + 18, 0, 12),
-		Size = UDim2.new(1, -navWidth - 30, 1, -footerHeight - 24),
+		Position = UDim2.new(0, navWidth + 12, 0, 10),
+		Size = UDim2.new(1, -navWidth - 24, 1, -footerHeight - 18),
 		Parent = body,
 	})
 
@@ -822,10 +1676,10 @@ function DarkUI:CreateWindow(config)
 		local searchBar = styledBackground(make("Frame", {
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(0, 0),
-			Size = UDim2.new(1, 0, 0, 34),
+			Size = UDim2.new(1, 0, 0, 36),
 			Parent = contentPanel,
 		}, {
-			corner(5),
+			corner(7),
 			searchStroke,
 		}), "Panel")
 
@@ -833,7 +1687,7 @@ function DarkUI:CreateWindow(config)
 			Font = DarkUI.Fonts.Bold,
 			Parent = searchBar,
 			Position = UDim2.fromOffset(13, 0),
-			Size = UDim2.fromOffset(54, 34),
+			Size = UDim2.fromOffset(54, 36),
 			Text = "Search",
 			TextSize = 13,
 		}), "Muted")
@@ -849,7 +1703,7 @@ function DarkUI:CreateWindow(config)
 			Size = UDim2.new(1, -106, 1, 0),
 			Text = "",
 			TextColor3 = theme.Text,
-			TextSize = 13,
+			TextSize = 15,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Parent = searchBar,
 		})
@@ -868,8 +1722,7 @@ function DarkUI:CreateWindow(config)
 			Parent = searchBar,
 		}, {
 			corner(5),
-		}), "DropdownHolder")
-		note.BackgroundTransparency = 0.04
+		}), "Surface")
 		styledText(searchClear, "Muted")
 		attachHover(searchClear, "Surface", "PanelLight", 1.05)
 		attachPress(searchClear, 0.86)
@@ -1220,11 +2073,11 @@ function DarkUI:CreateWindow(config)
 			local strokeKey = descendant:GetAttribute("DarkUIStroke")
 
 			if backgroundKey and descendant:IsA("GuiObject") then
-				descendant.BackgroundColor3 = self.Theme[backgroundKey] or self.Theme.Panel
+				descendant.BackgroundColor3 = self.Theme[backgroundKey]
 			end
 
 			if textKey and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) then
-				descendant.TextColor3 = self.Theme[textKey] or self.Theme.Text
+				descendant.TextColor3 = self.Theme[textKey]
 				descendant.TextStrokeColor3 = DarkUI.TextStrokeColor
 				descendant.TextStrokeTransparency = 1
 				if descendant:IsA("TextBox") then
@@ -1233,16 +2086,16 @@ function DarkUI:CreateWindow(config)
 			end
 
 			if strokeKey and descendant:IsA("UIStroke") then
-				descendant.Color = self.Theme[strokeKey] or self.Theme.Stroke
+				descendant.Color = self.Theme[strokeKey]
 			end
 
 			if descendant.Name == "DarkUIAccent" and descendant:IsA("Frame") and not backgroundKey then
 				descendant.BackgroundColor3 = self.Theme.Accent
 			elseif descendant.Name == "DarkUIAccentGradient" and descendant:IsA("UIGradient") then
 				descendant.Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, self.Theme.TitleBarLine),
+					ColorSequenceKeypoint.new(0, Color3.fromRGB(58, 58, 58)),
 					ColorSequenceKeypoint.new(0.5, self.Theme.Accent),
-					ColorSequenceKeypoint.new(1, self.Theme.TitleBarLine),
+					ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
 				})
 			elseif descendant.Name == "DarkUITabActiveGlow" and descendant:IsA("Frame") then
 				descendant.BackgroundColor3 = self.Theme.Accent
@@ -1275,12 +2128,11 @@ function DarkUI:CreateWindow(config)
 	function window:SetTheme(nameOrTheme)
 		if type(nameOrTheme) == "string" and DarkUI.ThemePresets[nameOrTheme] then
 			self.ThemeName = nameOrTheme
-			self.Theme = completeTheme(copyTable(DarkUI.ThemePresets[nameOrTheme]))
+			self.Theme = copyTable(DarkUI.ThemePresets[nameOrTheme])
 		elseif type(nameOrTheme) == "table" then
 			for key, value in pairs(nameOrTheme) do
 				self.Theme[key] = value
 			end
-			completeTheme(self.Theme)
 		end
 
 		self:_applyTheme()
@@ -1482,7 +2334,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(15, 8),
 			Size = UDim2.new(1, -30, 0, 20),
 			Text = titleText or notifyType,
-			TextSize = 14,
+			TextSize = 15,
 		}), "Text")
 
 		styledText(DarkUI:Text({
@@ -1491,7 +2343,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(15, 31),
 			Size = UDim2.new(1, -30, 0, 34),
 			Text = message or "",
-			TextSize = 12,
+			TextSize = 13,
 			TextWrapped = true,
 			TextYAlignment = Enum.TextYAlignment.Top,
 		}), "Muted")
@@ -1533,8 +2385,7 @@ function DarkUI:CreateWindow(config)
 		}, {
 			corner(9),
 			styledStroke(stroke(theme.Stroke, 0.15, 1), "Stroke"),
-		}), "DropdownHolder")
-		dialog.BackgroundTransparency = 0.03
+		}), "Surface")
 		local dialogScale = make("UIScale", {
 			Scale = 0.92,
 			Parent = dialog,
@@ -1552,7 +2403,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(18, 14),
 			Size = UDim2.new(1, -36, 0, 24),
 			Text = options.Title or "Confirm",
-			TextSize = 16,
+			TextSize = 18,
 		}), "Text")
 		confirmTitle.ZIndex = 102
 
@@ -1562,7 +2413,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(18, 44),
 			Size = UDim2.new(1, -36, 0, 52),
 			Text = options.Text or options.Message or "Are you sure?",
-			TextSize = 13,
+			TextSize = 14,
 			TextWrapped = true,
 			TextYAlignment = Enum.TextYAlignment.Top,
 		}), "Muted")
@@ -1580,9 +2431,9 @@ function DarkUI:CreateWindow(config)
 			Parent = dialog,
 		}, {
 			corner(6),
-		}), "Input")
+		}), "PanelLight")
 		styledText(cancel, "Text")
-		attachHover(cancel, "Input", "Panel", 1.03)
+		attachHover(cancel, "PanelLight", "Panel", 1.03)
 		attachPress(cancel, 0.92)
 
 		local confirm = styledBackground(make("TextButton", {
@@ -1597,9 +2448,9 @@ function DarkUI:CreateWindow(config)
 			Parent = dialog,
 		}, {
 			corner(6),
-		}), "Input")
+		}), "PanelLight")
 		styledText(confirm, "Accent")
-		attachHover(confirm, "Input", "Panel", 1.03)
+		attachHover(confirm, "PanelLight", "Panel", 1.03)
 		attachPress(confirm, 0.92)
 
 		connect(cancel.MouseButton1Click, function()
@@ -1795,7 +2646,7 @@ function DarkUI:CreateWindow(config)
 
 		tabConfig = tabConfig or {}
 		local tabName = tabConfig.Name or ("Tab " .. tostring(#self.TabButtons + 1))
-		local tabIcon = resolveContentId(tabConfig.Icon)
+		local tabIcon = resolveIcon(tabConfig.Icon)
 
 		local tabDescription = tabConfig.Description or tabConfig.Subtitle
 		if not tabDescription or tabDescription == "" then
@@ -2048,7 +2899,7 @@ function DarkUI:CreateWindow(config)
 				Position = UDim2.fromOffset(0, 1),
 				Size = UDim2.new(1, -26, 0, 24),
 				Text = options.Title or "Section",
-				TextSize = 14,
+				TextSize = 20,
 				TextXAlignment = Enum.TextXAlignment.Left,
 			}), "Text")
 
@@ -2090,7 +2941,7 @@ function DarkUI:CreateWindow(config)
 				Name = "DarkUIAccent",
 				AnchorPoint = Vector2.new(0.5, 0),
 				BackgroundColor3 = window.Theme.Accent,
-				BackgroundTransparency = 0,
+				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
 				Position = UDim2.new(0.5, 0, 1, -1),
 				Size = UDim2.new(1, 0, 0, 1),
@@ -2099,9 +2950,9 @@ function DarkUI:CreateWindow(config)
 				make("UIGradient", {
 					Name = "DarkUIAccentGradient",
 					Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0, window.Theme.TitleBarLine),
+						ColorSequenceKeypoint.new(0, Color3.fromRGB(58, 58, 58)),
 						ColorSequenceKeypoint.new(0.5, window.Theme.Accent),
-						ColorSequenceKeypoint.new(1, window.Theme.TitleBarLine),
+						ColorSequenceKeypoint.new(1, Color3.fromRGB(58, 58, 58)),
 					}),
 					Transparency = NumberSequence.new({
 						NumberSequenceKeypoint.new(0, 0.86),
@@ -2121,7 +2972,7 @@ function DarkUI:CreateWindow(config)
 			}, {
 				make("UIListLayout", {
 					FillDirection = Enum.FillDirection.Vertical,
-					Padding = UDim.new(0, 6),
+					Padding = UDim.new(0, 5),
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
 			})
@@ -2198,11 +3049,10 @@ function DarkUI:CreateWindow(config)
 					Parent = bodyFrame,
 				}, {
 					corner(5),
-					styledStroke(stroke(window.Theme.ElementBorder, 0.46, 1), "ElementBorder"),
-				}), "Element")
+					styledStroke(stroke(window.Theme.Stroke, 0.82, 1), "Stroke"),
+				}), "PanelLight")
 
-				row.BackgroundTransparency = 0.86
-				attachHover(row, "Element", "Panel")
+				attachHover(row, "PanelLight", "Panel")
 				addSearchRow(row, (options.Title or "") .. " " .. (options.Description or "") .. " " .. (options.SearchText or ""))
 				return row
 			end
@@ -2239,9 +3089,8 @@ function DarkUI:CreateWindow(config)
 			function sectionApi:AddParagraph(options)
 				options = options or {}
 				local row = createRow(options, 72)
-				row:SetAttribute("DarkUIBackground", "Element")
-				row.BackgroundColor3 = window.Theme.Element
-				row.BackgroundTransparency = 0.88
+				row:SetAttribute("DarkUIBackground", "Surface")
+				row.BackgroundColor3 = window.Theme.Surface
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2274,7 +3123,7 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddButton(options)
 				options = options or {}
-				local buttonIcon = resolveContentId(options.Icon)
+				local buttonIcon = resolveIcon(options.Icon)
 				local row = createRow(options, 44)
 
 				local button = styledBackground(make("TextButton", {
@@ -2332,7 +3181,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, hasDescription and 8 or 0),
 					Size = UDim2.new(1, -72, 0, hasDescription and 17 or 48),
 					Text = options.Title or "Toggle",
-					TextSize = 12,
+					TextSize = 13,
 				}), "Text")
 
 				if hasDescription then
@@ -2360,7 +3209,7 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(999),
 					shellStroke,
-				}), "Element")
+				}), "Panel")
 
 				local innerStroke = stroke(window.Theme.Stroke, 0.22, 1)
 				local innerBox = make("Frame", {
@@ -2520,7 +3369,7 @@ function DarkUI:CreateWindow(config)
 				local decimals = options.Decimals or 0
 				local factor = 10 ^ decimals
 				local value = math.clamp(options.Default or minValue, minValue, maxValue)
-				local row = createRow(options, 58)
+				local row = createRow(options, 64)
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2548,10 +3397,9 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(6),
 					valueBoxStroke,
-				}), "Input")
+				}), "Panel")
 				styledText(valueBox, "Accent")
 				local valueBoxFocused = false
-				local sanitizingSliderText = false
 
 				local track = styledBackground(make("Frame", {
 					BorderSizePixel = 0,
@@ -2560,7 +3408,7 @@ function DarkUI:CreateWindow(config)
 					Parent = row,
 				}, {
 					corner(999),
-				}), "SliderRail")
+				}), "Surface")
 
 				local fill = make("Frame", {
 					Name = "DarkUIAccent",
@@ -2649,30 +3497,6 @@ function DarkUI:CreateWindow(config)
 					end
 				end)
 
-				connect(valueBox:GetPropertyChangedSignal("Text"), function()
-					if sanitizingSliderText then
-						return
-					end
-
-					local text = tostring(valueBox.Text or "")
-					local cleaned = text:gsub("[^%d%.%-]", "")
-					if cleaned:find("%-") and cleaned:find("%-") ~= 1 then
-						cleaned = cleaned:gsub("%-", "")
-					end
-
-					local dotCount = 0
-					cleaned = cleaned:gsub("%.", function()
-						dotCount += 1
-						return dotCount == 1 and "." or ""
-					end)
-
-					if cleaned ~= text then
-						sanitizingSliderText = true
-						valueBox.Text = cleaned
-						sanitizingSliderText = false
-					end
-				end)
-
 				connect(valueBox.FocusLost, function()
 					valueBoxFocused = false
 					tween(valueBoxStroke, {
@@ -2736,7 +3560,6 @@ function DarkUI:CreateWindow(config)
 				local listHeight = 0
 				local filteredCount = #items
 				local searchQuery = ""
-				local useOutsideDropdown = window.DropdownsOutsideWindow == true
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2744,7 +3567,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, 0),
 					Size = UDim2.new(0.42, -12, 0, 44),
 					Text = options.Title or "Dropdown",
-					TextSize = 13,
+					TextSize = 14,
 				}), "Text")
 
 				local button = styledBackground(make("TextButton", {
@@ -2759,7 +3582,7 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(6),
 					styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke"),
-				}), "Input")
+				}), "Surface")
 
 				local selectedText = styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
@@ -2797,41 +3620,23 @@ function DarkUI:CreateWindow(config)
 						corner(999),
 					}), "Accent"),
 				})
-				attachHover(button, "Input", "PanelLight", 1.01)
+				attachHover(button, "Surface", "PanelLight", 1.01)
 				attachPress(button, 0.96)
 
-				local list = styledBackground(make("ScrollingFrame", {
-					AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				local list = make("Frame", {
+					BackgroundTransparency = 1,
 					ClipsDescendants = true,
-					BorderSizePixel = 0,
-					CanvasSize = UDim2.new(),
 					Position = UDim2.fromOffset(12, 42),
 					Size = UDim2.new(1, -24, 0, 0),
-					ScrollBarImageColor3 = window.Theme.Accent,
-					ScrollBarImageTransparency = 0.45,
-					ScrollBarThickness = 2,
 					Visible = false,
-					ZIndex = useOutsideDropdown and 180 or 1,
 					Parent = row,
 				}, {
-					corner(6),
-					styledStroke(stroke(window.Theme.Stroke, 0.5, 1), "Stroke"),
 					make("UIListLayout", {
 						FillDirection = Enum.FillDirection.Vertical,
-						Padding = UDim.new(0, 3),
+						Padding = UDim.new(0, 5),
 						SortOrder = Enum.SortOrder.LayoutOrder,
 					}),
-					make("UIPadding", {
-						PaddingBottom = UDim.new(0, 5),
-						PaddingLeft = UDim.new(0, 5),
-						PaddingRight = UDim.new(0, 5),
-						PaddingTop = UDim.new(0, 5),
-					}),
-				}), "DropdownHolder")
-				list.BackgroundTransparency = 0.08
-				if useOutsideDropdown then
-					list.Parent = screenGui
-				end
+				})
 
 				local searchBox
 				if searchable then
@@ -2842,10 +3647,9 @@ function DarkUI:CreateWindow(config)
 						LayoutOrder = 0,
 						PlaceholderColor3 = window.Theme.Muted,
 						PlaceholderText = "Search...",
-						Size = UDim2.new(1, 0, 0, 28),
+						Size = UDim2.new(1, 0, 0, 30),
 						Text = "",
 						TextSize = 13,
-						ZIndex = useOutsideDropdown and 181 or 1,
 						Parent = list,
 					}, {
 						corner(5),
@@ -2854,7 +3658,7 @@ function DarkUI:CreateWindow(config)
 							PaddingLeft = UDim.new(0, 8),
 							PaddingRight = UDim.new(0, 8),
 						}),
-					}), "Input")
+					}), "Surface")
 					styledText(searchBox, "Text")
 				end
 
@@ -2882,8 +3686,7 @@ function DarkUI:CreateWindow(config)
 
 					for key, itemButton in pairs(itemButtons) do
 						local active = multi and selected[key] == true or tostring(selected) == key
-						itemButton.BackgroundColor3 = active and window.Theme.TabActive or window.Theme.DropdownOption
-						itemButton.BackgroundTransparency = active and 0.86 or 0.96
+						itemButton.BackgroundColor3 = active and window.Theme.TabActive or window.Theme.Surface
 						if itemChecks[key] then
 							itemChecks[key].Visible = active
 						end
@@ -2892,30 +3695,17 @@ function DarkUI:CreateWindow(config)
 
 				local function setOpen(nextOpen)
 					open = nextOpen == true
-					local searchHeight = searchable and 33 or 0
-					local fullHeight = searchHeight + (filteredCount * 35) + 10
-					listHeight = open and math.min(fullHeight, options.MaxDropdownHeight or 392) or 0
+					local searchHeight = searchable and 35 or 0
+					listHeight = open and (searchHeight + (filteredCount * 41)) or 0
 					if open then
 						list.Visible = true
 					end
-					if useOutsideDropdown then
-						local pos = button.AbsolutePosition
-						local size = button.AbsoluteSize
-						list.Position = UDim2.fromOffset(pos.X, pos.Y + size.Y + 5)
-						tween(row, {
-							Size = UDim2.new(1, 0, 0, 44),
-						}, 0.16)
-						tween(list, {
-							Size = UDim2.fromOffset(size.X, listHeight),
-						}, 0.16)
-					else
-						tween(row, {
-							Size = UDim2.new(1, 0, 0, 44 + listHeight),
-						}, 0.16)
-						tween(list, {
-							Size = UDim2.new(1, -24, 0, listHeight),
-						}, 0.16)
-					end
+					tween(row, {
+						Size = UDim2.new(1, 0, 0, 44 + listHeight),
+					}, 0.16)
+					tween(list, {
+						Size = UDim2.new(1, -24, 0, listHeight),
+					}, 0.16)
 					tween(arrow, {
 						Rotation = open and 0 or (discordCollapse and -90 or 0),
 					}, 0.16)
@@ -2948,52 +3738,63 @@ function DarkUI:CreateWindow(config)
 							BorderSizePixel = 0,
 							Font = DarkUI.Fonts.Bold,
 							LayoutOrder = searchable and (index + 1) or index,
-							Size = UDim2.new(1, 0, 0, 32),
+							Size = UDim2.new(1, 0, 0, 36),
 							Text = "",
 							TextSize = 10,
 							Visible = matches,
-							ZIndex = useOutsideDropdown and 181 or 1,
 							Parent = list,
 						}, {
 							corner(5),
-						}), "DropdownOption")
-						itemButton.BackgroundTransparency = 0.96
+						}), "Surface")
 
-						local itemLabel = styledText(DarkUI:Text({
+						styledText(DarkUI:Text({
 							Font = DarkUI.Fonts.Bold,
 							Parent = itemButton,
 							Position = UDim2.fromOffset(12, 0),
-							Size = UDim2.new(1, -20, 1, 0),
+							Size = UDim2.new(1, -48, 1, 0),
 							Text = itemKey,
-							TextSize = 13,
+							TextSize = 14,
 						}), "Text")
-						itemLabel.ZIndex = useOutsideDropdown and 182 or 1
 
 						local itemCheck = make("Frame", {
-							AnchorPoint = Vector2.new(0, 0.5),
-							BackgroundColor3 = window.Theme.Accent,
-							BorderSizePixel = 0,
-							Position = UDim2.new(0, -1, 0.5, 0),
-							Size = UDim2.fromOffset(4, 14),
+							AnchorPoint = Vector2.new(1, 0.5),
+							BackgroundTransparency = 1,
+							Position = UDim2.new(1, -9, 0.5, 0),
+							Size = UDim2.fromOffset(20, 20),
 							Visible = false,
-							ZIndex = useOutsideDropdown and 182 or 1,
 							Parent = itemButton,
 						}, {
-							corner(2),
+							styledBackground(make("Frame", {
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BorderSizePixel = 0,
+								Position = UDim2.fromOffset(7, 12),
+								Rotation = 45,
+								Size = UDim2.fromOffset(8, 3),
+							}, {
+								corner(999),
+							}), "Accent"),
+							styledBackground(make("Frame", {
+								AnchorPoint = Vector2.new(0.5, 0.5),
+								BorderSizePixel = 0,
+								Position = UDim2.fromOffset(13, 9),
+								Rotation = -45,
+								Size = UDim2.fromOffset(14, 3),
+							}, {
+								corner(999),
+							}), "Accent"),
 						})
-						itemCheck.Name = "DarkUIAccent"
 
 						itemButtons[itemKey] = itemButton
 						itemChecks[itemKey] = itemCheck
 						if matches then
 							filteredCount += 1
 						end
-						attachHover(itemButton, "DropdownOption", "PanelLight", 1.01)
+						attachHover(itemButton, "Surface", "PanelLight", 1.01)
 						attachPress(itemButton, 0.96)
 						connect(itemButton.MouseLeave, function()
 							local active = multi and selected[itemKey] == true or tostring(selected) == itemKey
 							tween(itemButton, {
-								BackgroundColor3 = active and window.Theme.TabActive or window.Theme.DropdownOption,
+								BackgroundColor3 = active and window.Theme.TabActive or window.Theme.Surface,
 							}, 0.1)
 						end)
 
@@ -3087,7 +3888,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, 0),
 					Size = UDim2.new(0.42, -12, 1, 0),
 					Text = options.Title or "Text",
-					TextSize = 13,
+					TextSize = 14,
 				}), "Text")
 
 				local boxStroke = styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke")
@@ -3110,7 +3911,7 @@ function DarkUI:CreateWindow(config)
 						PaddingRight = UDim.new(0, 8),
 					}),
 					boxStroke,
-				}), "Input")
+				}), "Surface")
 				styledText(box, "Text")
 
 				local control = buildControlApi(row)
@@ -3163,7 +3964,7 @@ function DarkUI:CreateWindow(config)
 					Position = UDim2.fromOffset(12, 0),
 					Size = UDim2.new(1, -120, 1, 0),
 					Text = options.Title or "Keybind",
-					TextSize = 13,
+					TextSize = 14,
 				}), "Text")
 
 				local keyButton = styledBackground(make("TextButton", {
@@ -3179,9 +3980,9 @@ function DarkUI:CreateWindow(config)
 				}, {
 					corner(6),
 					styledStroke(stroke(window.Theme.Stroke, 0.55, 1), "Stroke"),
-				}), "Input")
+				}), "Surface")
 				styledText(keyButton, "Text")
-				attachHover(keyButton, "Input", "PanelLight", 1.02)
+				attachHover(keyButton, "Surface", "PanelLight", 1.02)
 				attachPress(keyButton, 0.94)
 
 				local control = buildControlApi(row)
@@ -3362,7 +4163,7 @@ function DarkUI:CreateWindow(config)
 						Position = UDim2.fromOffset(10, 20),
 						Size = UDim2.new(1, -20, 0, 18),
 						Text = "--",
-					TextSize = 13,
+						TextSize = 15,
 					}), "Text")
 
 					stats[name] = {
