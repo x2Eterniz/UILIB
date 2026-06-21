@@ -2071,6 +2071,7 @@ function DarkUI:CreateWindow(config)
 			local backgroundKey = descendant:GetAttribute("DarkUIBackground")
 			local textKey = descendant:GetAttribute("DarkUIText")
 			local strokeKey = descendant:GetAttribute("DarkUIStroke")
+			local imageColorKey = descendant:GetAttribute("DarkUIImageColor")
 
 			if backgroundKey and descendant:IsA("GuiObject") then
 				descendant.BackgroundColor3 = self.Theme[backgroundKey]
@@ -2087,6 +2088,10 @@ function DarkUI:CreateWindow(config)
 
 			if strokeKey and descendant:IsA("UIStroke") then
 				descendant.Color = self.Theme[strokeKey]
+			end
+
+			if imageColorKey and descendant:IsA("ImageLabel") then
+				descendant.ImageColor3 = self.Theme[imageColorKey]
 			end
 
 			if descendant.Name == "DarkUIAccent" and descendant:IsA("Frame") and not backgroundKey then
@@ -3124,43 +3129,81 @@ function DarkUI:CreateWindow(config)
 			function sectionApi:AddButton(options)
 				options = options or {}
 				local buttonIcon = resolveIcon(options.Icon)
-				local row = createRow(options, 44)
+				local row = createRow(options, 48)
 
 				local button = styledBackground(make("TextButton", {
 					AutoButtonColor = false,
-					BackgroundTransparency = 1,
+					BackgroundTransparency = 0,
 					BorderSizePixel = 0,
 					Font = DarkUI.Fonts.Bold,
-					Size = UDim2.fromScale(1, 1),
+					Position = UDim2.fromOffset(8, 6),
+					Size = UDim2.new(1, -16, 1, -12),
 					Text = "",
 					Parent = row,
+				}, {
+					corner(6),
+					styledStroke(stroke(window.Theme.Stroke, 0.42, 1), "Stroke"),
 				}), "Panel")
+				button:SetAttribute("DarkUIButton", true)
+
+				local flash = make("Frame", {
+					BackgroundColor3 = window.Theme.Accent,
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+					Size = UDim2.fromScale(1, 1),
+					Parent = button,
+				}, {
+					corner(6),
+				})
+				flash:SetAttribute("DarkUIBackground", "Accent")
 
 				if buttonIcon then
-					make("ImageLabel", {
+					local iconImage = make("ImageLabel", {
 						BackgroundTransparency = 1,
 						Image = buttonIcon,
-						Position = UDim2.fromOffset(14, 12),
+						ImageColor3 = window.Theme.Text,
+						Position = UDim2.fromOffset(12, 9),
 						ScaleType = Enum.ScaleType.Fit,
-						Size = UDim2.fromOffset(20, 20),
+						Size = UDim2.fromOffset(18, 18),
 						Parent = button,
 					})
+					iconImage:SetAttribute("DarkUIImageColor", "Text")
 				end
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = button,
-					Position = UDim2.fromOffset(buttonIcon and 42 or 0, 0),
-					Size = UDim2.new(1, buttonIcon and -56 or 0, 1, 0),
+					Position = UDim2.fromOffset(buttonIcon and 38 or 0, 0),
+					Size = UDim2.new(1, buttonIcon and -50 or 0, 1, 0),
 					Text = options.Title or "Button",
-					TextSize = 15,
+					TextSize = 13,
 					TextXAlignment = buttonIcon and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center,
 				}), "Text")
 
 				local control = buildControlApi(row)
-				attachPress(row, 0.985)
+				connect(button.MouseEnter, function()
+					if not control.Disabled then
+						tween(button, {
+							BackgroundColor3 = window.Theme.InputFocused or window.Theme.Input or window.Theme.Panel,
+						}, 0.12)
+					end
+				end)
+
+				connect(button.MouseLeave, function()
+					if not control.Disabled then
+						tween(button, {
+							BackgroundColor3 = window.Theme.Panel,
+						}, 0.12)
+					end
+				end)
+
+				attachPress(button, 0.97)
 				connect(button.MouseButton1Click, function()
 					if not control.Disabled then
+						flash.BackgroundTransparency = 0.76
+						tween(flash, {
+							BackgroundTransparency = 1,
+						}, 0.22)
 						safe(options.Callback)
 					end
 				end)
