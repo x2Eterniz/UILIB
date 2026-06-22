@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.14"
+DarkUI.Version = "1.3.16"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -494,6 +494,7 @@ function DarkUI:CreateWindow(config)
 		DropdownsOutsideWindow = config.DropdownsOutsideWindow == true,
 		Acrylic = config.Acrylic ~= false,
 		Borderless = config.Borderless ~= false,
+		Shadow = config.Shadow == true,
 		Destroyed = false,
 	}
 
@@ -660,7 +661,7 @@ function DarkUI:CreateWindow(config)
 	end
 
 	local rootTransparency = window.Acrylic and (theme.BackgroundTransparency or 0.18) or 0
-	local shadowVisibleTransparency = window.Acrylic and 0.78 or 0.64
+	local shadowVisibleTransparency = window.Shadow and (window.Acrylic and 0.82 or 0.64) or 1
 	local glowVisibleTransparency = window.Borderless and 1 or (window.Acrylic and 0.995 or 0.975)
 	local glowStrokeTransparency = window.Borderless and 1 or 0.66
 	local rootStrokeTransparency = window.Borderless and 1 or 0.08
@@ -2719,6 +2720,7 @@ function DarkUI:CreateWindow(config)
 
 				local row = styledBackground(make("Frame", {
 					BorderSizePixel = 0,
+					ClipsDescendants = true,
 					LayoutOrder = sectionApi:NextOrder(),
 					Size = UDim2.new(1, 0, 0, height),
 					Parent = bodyFrame,
@@ -2803,7 +2805,7 @@ function DarkUI:CreateWindow(config)
 				local buttonIcon = resolveImageContent(options.Icon, "button_" .. (options.Title or options.Text or "icon"))
 				local row = createRow(options, 44)
 
-				local button = styledBackground(make("TextButton", {
+				local button = make("TextButton", {
 					AutoButtonColor = false,
 					BackgroundTransparency = 1,
 					BorderSizePixel = 0,
@@ -2811,7 +2813,9 @@ function DarkUI:CreateWindow(config)
 					Size = UDim2.fromScale(1, 1),
 					Text = "",
 					Parent = row,
-				}), "Panel")
+				}, {
+					corner(13),
+				})
 
 				if buttonIcon then
 					make("ImageLabel", {
