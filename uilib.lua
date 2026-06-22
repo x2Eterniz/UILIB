@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.32"
+DarkUI.Version = "1.3.33"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -1711,6 +1711,10 @@ function DarkUI:CreateWindow(config)
 				})
 			elseif descendant.Name == "DarkUITabButtonGradient" and descendant:IsA("UIGradient") then
 				descendant.Color = accentGradient(self.Theme.Accent)
+			elseif descendant.Name == "DarkUITabButtonGlow" and descendant:IsA("Frame") then
+				descendant.BackgroundColor3 = self.Theme.Accent
+			elseif descendant.Name == "DarkUITabButtonGlowGradient" and descendant:IsA("UIGradient") then
+				descendant.Color = accentGradient(self.Theme.Accent)
 			elseif descendant.Name == "DarkUITabActiveGlow" and descendant:IsA("Frame") then
 				descendant.BackgroundColor3 = self.Theme.Text
 			elseif descendant.Name == "DarkUIGlow" and descendant:IsA("Frame") then
@@ -2147,6 +2151,7 @@ function DarkUI:CreateWindow(config)
 			BackgroundTransparency = 1,
 			Position = UDim2.fromScale(0.5, 0.5),
 			Size = UDim2.fromOffset(28, 28),
+			ZIndex = 4,
 			Parent = parent,
 		})
 
@@ -2158,6 +2163,7 @@ function DarkUI:CreateWindow(config)
 				ImageColor3 = window.Theme.Muted,
 				ScaleType = Enum.ScaleType.Fit,
 				Size = UDim2.fromScale(1, 1),
+				ZIndex = 5,
 				Parent = host,
 			})
 			return host
@@ -2181,6 +2187,7 @@ function DarkUI:CreateWindow(config)
 			props.Name = "TabIconPart"
 			props.BorderSizePixel = 0
 			props.BackgroundColor3 = window.Theme.Muted
+			props.ZIndex = 5
 			props.Parent = host
 			return make("Frame", props, { corner(radius or 2) })
 		end
@@ -2188,6 +2195,7 @@ function DarkUI:CreateWindow(config)
 		local function outline(props, radius)
 			props.BackgroundTransparency = 1
 			props.BorderSizePixel = 0
+			props.ZIndex = 5
 			props.Parent = host
 			return make("Frame", props, {
 				corner(radius or 6),
@@ -2293,6 +2301,26 @@ function DarkUI:CreateWindow(config)
 				if tabGradient then
 					tabGradient.Color = accentGradient(self.Theme.Accent)
 					tabGradient.Transparency = flatTransparency(selected and iconOnlyTabs and 0 or 1)
+				end
+
+				local tabButtonGlow = tabButton:FindFirstChild("DarkUITabButtonGlow")
+				if tabButtonGlow then
+					tabButtonGlow.BackgroundColor3 = self.Theme.Accent
+					if selected and iconOnlyTabs then
+						tabButtonGlow.Visible = true
+					end
+					tween(tabButtonGlow, {
+						BackgroundTransparency = selected and iconOnlyTabs and 0.56 or 1,
+						Position = selected and iconOnlyTabs and UDim2.fromOffset(-10, -10) or UDim2.fromOffset(-4, -4),
+						Size = selected and iconOnlyTabs and UDim2.new(1, 20, 1, 20) or UDim2.new(1, 8, 1, 8),
+					}, 0.2)
+					if not selected then
+						task.delay(0.2, function()
+							if tabButtonGlow.Parent and self.SelectedTab ~= tabName then
+								tabButtonGlow.Visible = false
+							end
+						end)
+					end
 				end
 
 				local tabTitle = tabButton:FindFirstChild("TabTitle")
@@ -2467,6 +2495,30 @@ function DarkUI:CreateWindow(config)
 			tabButton.BackgroundTransparency = 1
 		end
 		attachPress(tabButton, 0.97)
+
+		local tabButtonGlow = make("Frame", {
+			Name = "DarkUITabButtonGlow",
+			BackgroundColor3 = self.Theme.Accent,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(-4, -4),
+			Size = UDim2.new(1, 8, 1, 8),
+			Visible = false,
+			ZIndex = 1,
+			Parent = tabButton,
+		}, {
+			corner(iconOnlyTabs and 21 or 12),
+			make("UIGradient", {
+				Name = "DarkUITabButtonGlowGradient",
+				Color = accentGradient(self.Theme.Accent),
+				Rotation = 35,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.62),
+					NumberSequenceKeypoint.new(0.42, 0.16),
+					NumberSequenceKeypoint.new(1, 0.82),
+				}),
+			}),
+		})
 
 		local tabGradient = make("UIGradient", {
 			Name = "DarkUITabButtonGradient",
