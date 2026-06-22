@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.25"
+DarkUI.Version = "1.3.26"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/click.png"
@@ -2245,7 +2245,7 @@ function DarkUI:CreateWindow(config)
 
 				tween(tabButton, {
 					BackgroundColor3 = selected and (iconOnlyTabs and self.Theme.Accent or self.Theme.TabActive) or self.Theme.Background,
-					BackgroundTransparency = iconOnlyTabs and (selected and 0.04 or 1) or (selected and (self.Acrylic and (self.Theme.TabActiveTransparency or 0.08) or 0) or (self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0)),
+					BackgroundTransparency = iconOnlyTabs and (selected and 0 or 1) or (selected and (self.Acrylic and (self.Theme.TabActiveTransparency or 0.08) or 0) or (self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0)),
 				}, 0.14)
 				paintTabIcon(tabButton, selected and self.Theme.Text or self.Theme.Muted, true)
 
@@ -2271,7 +2271,7 @@ function DarkUI:CreateWindow(config)
 				local activeGlow = tabButton:FindFirstChild("DarkUITabActiveGlow")
 				if activeGlow then
 					tween(activeGlow, {
-						BackgroundTransparency = selected and (iconOnlyTabs and 0.32 or 0) or 1,
+						BackgroundTransparency = selected and (iconOnlyTabs and 1 or 0) or 1,
 					}, 0.14)
 				end
 
@@ -2279,7 +2279,7 @@ function DarkUI:CreateWindow(config)
 				if tabStroke then
 					tabStroke.Color = selected and (iconOnlyTabs and self.Theme.Text or self.Theme.Accent) or self.Theme.Stroke
 					tween(tabStroke, {
-						Transparency = selected and (iconOnlyTabs and 0.58 or 0.35) or 1,
+						Transparency = selected and (iconOnlyTabs and 1 or 0.35) or 1,
 					}, 0.14)
 				end
 
