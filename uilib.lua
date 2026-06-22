@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.54"
+DarkUI.Version = "1.3.55"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -972,16 +972,59 @@ function DarkUI:CreateWindow(config)
 	if iconOnlyTabs and windowIcon then
 		railLogoHeight = 76
 
+		styledBackground(make("Frame", {
+			Name = "DarkUIRailLogoGlowOuter",
+			BorderSizePixel = 0,
+			BackgroundTransparency = 0.9,
+			Position = UDim2.fromOffset(math.floor((navWidth - 76) / 2), 5),
+			Size = UDim2.fromOffset(76, 76),
+			ZIndex = 1,
+			Parent = navPanel,
+		}, {
+			corner(28),
+			make("UIGradient", {
+				Rotation = 35,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.32, 0.58),
+					NumberSequenceKeypoint.new(0.62, 0.76),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		}), "Accent")
+
+		styledBackground(make("Frame", {
+			Name = "DarkUIRailLogoGlowMid",
+			BorderSizePixel = 0,
+			BackgroundTransparency = 0.76,
+			Position = UDim2.fromOffset(math.floor((navWidth - 62) / 2), 12),
+			Size = UDim2.fromOffset(62, 62),
+			ZIndex = 2,
+			Parent = navPanel,
+		}, {
+			corner(23),
+			make("UIGradient", {
+				Rotation = -35,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.92),
+					NumberSequenceKeypoint.new(0.42, 0.32),
+					NumberSequenceKeypoint.new(0.75, 0.72),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		}), "Accent")
+
 		local logoFrame = styledBackground(make("Frame", {
 			Name = "DarkUIRailLogo",
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(math.floor((navWidth - 58) / 2), 14),
 			Size = UDim2.fromOffset(58, 58),
+			ZIndex = 3,
 			Parent = navPanel,
 		}, {
 			corner(20),
-			styledStroke(stroke(theme.Accent, 0.54, 1), "Accent"),
 		}), "Panel")
+		logoFrame.BackgroundTransparency = window.Acrylic and 0.34 or 0.16
 
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
@@ -989,7 +1032,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(8, 8),
 			ScaleType = Enum.ScaleType.Fit,
 			Size = UDim2.fromOffset(42, 42),
-			ZIndex = 2,
+			ZIndex = 4,
 			Parent = logoFrame,
 		})
 	end
