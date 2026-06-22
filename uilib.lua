@@ -14,7 +14,8 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.3"
+DarkUI.Version = "1.3.4"
+DarkUI.DefaultLogo = "rbxassetid://84134406429567"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -517,7 +518,7 @@ function DarkUI:CreateWindow(config)
 	local windowSize = config.Size or UDim2.fromOffset(660, 460)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
-	local windowIcon = resolveContentId(config.Icon)
+	local windowIcon = resolveContentId(config.Icon or config.Logo or config.HubIcon or DarkUI.DefaultLogo)
 	local minWindowSize = config.MinSize or Vector2.new(520, 360)
 	local resizable = config.Resizable ~= false
 	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
@@ -783,6 +784,45 @@ function DarkUI:CreateWindow(config)
 		Parent = navPanel,
 	}), "TitleBarLine")
 
+	local railLogoHeight = 0
+	if iconOnlyTabs and windowIcon then
+		railLogoHeight = 76
+
+		local logoFrame = styledBackground(make("Frame", {
+			Name = "DarkUIRailLogo",
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(math.floor((navWidth - 58) / 2), 14),
+			Size = UDim2.fromOffset(58, 58),
+			Parent = navPanel,
+		}, {
+			corner(20),
+			styledStroke(stroke(theme.Accent, 0.54, 1), "Accent"),
+		}), "Panel")
+
+		make("Frame", {
+			Name = "DarkUIAccent",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = theme.Accent,
+			BackgroundTransparency = 0.88,
+			BorderSizePixel = 0,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(44, 44),
+			Parent = logoFrame,
+		}, {
+			corner(999),
+		})
+
+		make("ImageLabel", {
+			BackgroundTransparency = 1,
+			Image = windowIcon,
+			Position = UDim2.fromOffset(8, 8),
+			ScaleType = Enum.ScaleType.Fit,
+			Size = UDim2.fromOffset(42, 42),
+			ZIndex = 2,
+			Parent = logoFrame,
+		})
+	end
+
 	local navBrandText = tostring(config.NavBrand or "")
 	local hasNavBrand = (not iconOnlyTabs) and navBrandText ~= ""
 	local navHeaderHeight = hasNavBrand and 48 or 0
@@ -830,6 +870,7 @@ function DarkUI:CreateWindow(config)
 
 	local navTabsTopOffset = hasNavBrand and 6 or 0
 	local navTabsStartY = navHeaderHeight + navTabsTopOffset
+	local iconTabsStartY = railLogoHeight > 0 and railLogoHeight + 12 or 12
 	local tabs = make("ScrollingFrame", {
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
@@ -838,8 +879,8 @@ function DarkUI:CreateWindow(config)
 		ScrollBarImageColor3 = theme.Accent,
 		ScrollBarImageTransparency = 0.42,
 		ScrollBarThickness = 2,
-		Position = UDim2.fromOffset(0, iconOnlyTabs and 12 or navTabsStartY),
-		Size = UDim2.new(1, 0, 1, -((iconOnlyTabs and 24 or navTabsStartY + 6))),
+		Position = UDim2.fromOffset(0, iconOnlyTabs and iconTabsStartY or navTabsStartY),
+		Size = UDim2.new(1, 0, 1, -((iconOnlyTabs and (iconTabsStartY + 12) or navTabsStartY + 6))),
 		Parent = navPanel,
 	}, {
 		make("UIListLayout", {
