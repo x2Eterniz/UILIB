@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.47"
+DarkUI.Version = "1.3.49"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -686,7 +686,8 @@ function DarkUI:CreateWindow(config)
 	local iconOnlyTabs = config.IconOnlyTabs ~= false
 	local headerHeight = showTitleBar and 44 or 0
 	local tabHeight = config.TabHeight or (iconOnlyTabs and 56 or 42)
-	local searchHeight = config.Search == true and 34 or 0
+	local searchEnabled = false
+	local searchHeight = searchEnabled and 34 or 0
 	local footerHeight = (config.Footer == true and not iconOnlyTabs) and 54 or 0
 	local navWidth = config.NavWidth or config.TabWidth or (iconOnlyTabs and 82 or 168)
 	local windowSize = config.Size or UDim2.fromOffset(660, 460)
@@ -1141,7 +1142,7 @@ function DarkUI:CreateWindow(config)
 
 	local searchBox
 	local searchClear
-	if config.Search == true then
+	if searchEnabled then
 		local searchStroke = styledStroke(stroke(theme.Stroke, 0.35, 1), "Stroke")
 		local searchBar = styledBackground(make("Frame", {
 			BorderSizePixel = 0,
@@ -1213,7 +1214,7 @@ function DarkUI:CreateWindow(config)
 		end)
 	end
 
-	local contentTopOffset = (config.Search == true) and (searchHeight + 6) or 0
+	local contentTopOffset = searchEnabled and (searchHeight + 6) or 0
 	local pagesHolder = make("Frame", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, contentTopOffset),
@@ -4260,6 +4261,14 @@ function DarkUI:CreateWindow(config)
 
 		local holder = tab.Columns[1]
 		holder.ScrollBarThickness = 2
+		holder.LayoutOrder = 2
+		holder.Position = UDim2.fromOffset(0, 56)
+		holder.Size = UDim2.new(1, 0, 1, -56)
+
+		local pageLayout = tab.Page:FindFirstChildOfClass("UIListLayout")
+		if pageLayout then
+			pageLayout:Destroy()
+		end
 
 		local activeBuiltInSettingsPage = "General"
 		local settingsSubSections = {}
@@ -4268,9 +4277,10 @@ function DarkUI:CreateWindow(config)
 
 		local subNavHost = make("Frame", {
 			BackgroundTransparency = 1,
-			LayoutOrder = 0,
-			Size = UDim2.new(1, -2, 0, 50),
-			Parent = holder,
+			Position = UDim2.fromOffset(0, 0),
+			Size = UDim2.new(1, 0, 0, 50),
+			ZIndex = 30,
+			Parent = tab.Page,
 		})
 
 		local subNav = styledBackground(make("Frame", {
@@ -4278,6 +4288,7 @@ function DarkUI:CreateWindow(config)
 			BorderSizePixel = 0,
 			Position = UDim2.new(0.5, 0, 0, 2),
 			Size = UDim2.new(1, -96, 0, 42),
+			ZIndex = 31,
 			Parent = subNavHost,
 		}, {
 			corner(999),
@@ -4292,6 +4303,11 @@ function DarkUI:CreateWindow(config)
 				MinSize = Vector2.new(300, 42),
 			}),
 		}), "Surface")
+		local subNavStroke = subNav:FindFirstChildOfClass("UIStroke")
+		subNav.BackgroundTransparency = 1
+		if subNavStroke then
+			subNavStroke.Transparency = 1
+		end
 
 		local function setBuiltInSettingsPage(name)
 			activeBuiltInSettingsPage = name
@@ -4315,6 +4331,19 @@ function DarkUI:CreateWindow(config)
 				tween(refs.Line, {
 					BackgroundTransparency = selected and 0 or 1,
 					Size = selected and UDim2.new(0.62, 0, 0, 2) or UDim2.new(0, 0, 0, 2),
+				}, 0.14)
+			end
+		end
+
+		local function renderSettingsStickyHeader()
+			local scrolled = holder.CanvasPosition.Y > 4
+			tween(subNav, {
+				BackgroundTransparency = scrolled and (self.Acrylic and (self.Theme.SurfaceTransparency or 0.18) or 0.08) or 1,
+			}, 0.14)
+			if subNavStroke then
+				tween(subNavStroke, {
+					Color = self.Theme.Stroke,
+					Transparency = scrolled and 0.42 or 1,
 				}, 0.14)
 			end
 		end
@@ -4367,6 +4396,7 @@ function DarkUI:CreateWindow(config)
 		addSettingsSubTab("General")
 		addSettingsSubTab("Theme")
 		addSettingsSubTab("Snapshots")
+		connect(holder:GetPropertyChangedSignal("CanvasPosition"), renderSettingsStickyHeader)
 
 		local generalSection = tab:AddSection({
 			Title = "General",
@@ -4547,8 +4577,10 @@ function DarkUI:CreateWindow(config)
 		}
 		registerRenderer(function()
 			setBuiltInSettingsPage(activeBuiltInSettingsPage)
+			renderSettingsStickyHeader()
 		end)
 		setBuiltInSettingsPage("General")
+		renderSettingsStickyHeader()
 
 		if false then
 
