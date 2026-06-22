@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.12"
+DarkUI.Version = "1.3.13"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -891,14 +891,15 @@ function DarkUI:CreateWindow(config)
 		corner(iconOnlyTabs and 22 or 0),
 	}), "Background")
 
-	styledBackground(make("Frame", {
-		AnchorPoint = Vector2.new(1, 0),
-		BorderSizePixel = 0,
-		Position = UDim2.new(1, 0, 0, 0),
-		Size = UDim2.new(0, 1, 1, 0),
-		Visible = not iconOnlyTabs,
-		Parent = navPanel,
-	}), "TitleBarLine")
+	if not iconOnlyTabs then
+		styledBackground(make("Frame", {
+			AnchorPoint = Vector2.new(1, 0),
+			BorderSizePixel = 0,
+			Position = UDim2.new(1, 0, 0, 0),
+			Size = UDim2.new(0, 1, 1, 0),
+			Parent = navPanel,
+		}), "TitleBarLine")
+	end
 
 	local railLogoHeight = 0
 	if iconOnlyTabs and windowIcon then
