@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.28"
+DarkUI.Version = "1.3.29"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play%20%281%29.png"
@@ -106,6 +106,16 @@ local function safeFileName(text)
 	return text
 end
 
+local function hashText(text)
+	text = tostring(text or "")
+	local hash = 0
+	for index = 1, #text do
+		hash = (hash * 31 + string.byte(text, index)) % 1000000007
+	end
+
+	return tostring(hash)
+end
+
 local function resolveImageContent(value, cacheName, fallback)
 	local contentId = resolveContentId(value)
 	if not contentId then
@@ -129,7 +139,7 @@ local function resolveImageContent(value, cacheName, fallback)
 			extension = "png"
 		end
 
-		local fileName = safeFileName(("vxizi_ui_%s.%s"):format(cacheName or "image", extension))
+		local fileName = safeFileName(("vxizi_ui_%s_%s.%s"):format(cacheName or "image", hashText(rawUrl), extension))
 		local ok, response = pcall(function()
 			return game:HttpGet(rawUrl)
 		end)
