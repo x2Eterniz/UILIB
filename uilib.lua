@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.26"
+DarkUI.Version = "1.3.27"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/click.png"
@@ -407,6 +407,27 @@ local function normalizeColor(value, fallback)
 	end
 
 	return fallback
+end
+
+local function mixColor(fromColor, toColor, alpha)
+	alpha = math.clamp(alpha or 0, 0, 1)
+	return Color3.new(
+		fromColor.R + (toColor.R - fromColor.R) * alpha,
+		fromColor.G + (toColor.G - fromColor.G) * alpha,
+		fromColor.B + (toColor.B - fromColor.B) * alpha
+	)
+end
+
+local function accentGradient(accent)
+	return ColorSequence.new({
+		ColorSequenceKeypoint.new(0, mixColor(accent, Color3.new(1, 1, 1), 0.28)),
+		ColorSequenceKeypoint.new(0.48, accent),
+		ColorSequenceKeypoint.new(1, mixColor(accent, Color3.new(0, 0, 0), 0.2)),
+	})
+end
+
+local function flatTransparency(value)
+	return NumberSequence.new(value)
 end
 
 local function colorToTable(color)
@@ -1678,6 +1699,8 @@ function DarkUI:CreateWindow(config)
 					ColorSequenceKeypoint.new(0.5, self.Theme.Accent),
 					ColorSequenceKeypoint.new(1, self.Theme.TitleBarLine),
 				})
+			elseif descendant.Name == "DarkUITabButtonGradient" and descendant:IsA("UIGradient") then
+				descendant.Color = accentGradient(self.Theme.Accent)
 			elseif descendant.Name == "DarkUITabActiveGlow" and descendant:IsA("Frame") then
 				descendant.BackgroundColor3 = self.Theme.Text
 			elseif descendant.Name == "DarkUIGlow" and descendant:IsA("Frame") then
@@ -2249,6 +2272,12 @@ function DarkUI:CreateWindow(config)
 				}, 0.14)
 				paintTabIcon(tabButton, selected and self.Theme.Text or self.Theme.Muted, true)
 
+				local tabGradient = tabButton:FindFirstChild("DarkUITabButtonGradient")
+				if tabGradient then
+					tabGradient.Color = accentGradient(self.Theme.Accent)
+					tabGradient.Transparency = flatTransparency(selected and iconOnlyTabs and 0 or 1)
+				end
+
 				local tabTitle = tabButton:FindFirstChild("TabTitle")
 				if tabTitle then
 					tween(tabTitle, {
@@ -2422,6 +2451,14 @@ function DarkUI:CreateWindow(config)
 		end
 		attachPress(tabButton, 0.97)
 
+		local tabGradient = make("UIGradient", {
+			Name = "DarkUITabButtonGradient",
+			Color = accentGradient(self.Theme.Accent),
+			Rotation = 35,
+			Transparency = flatTransparency(1),
+			Parent = tabButton,
+		})
+
 		local tabStroke = stroke(self.Theme.Text, 1, 1)
 		tabStroke.Name = "DarkUITabStroke"
 		tabStroke.Parent = tabButton
@@ -2507,6 +2544,11 @@ function DarkUI:CreateWindow(config)
 					BackgroundColor3 = window.Theme.Tab,
 					BackgroundTransparency = iconOnlyTabs and 0.42 or (window.Acrylic and (window.Theme.TabTransparency or 0.16) or 0),
 				}, 0.12)
+				local hoverGradient = tabButton:FindFirstChild("DarkUITabButtonGradient")
+				if hoverGradient and iconOnlyTabs then
+					hoverGradient.Color = accentGradient(window.Theme.Accent)
+					hoverGradient.Transparency = flatTransparency(0.76)
+				end
 				tween(getScale(tabButton), {
 					Scale = iconOnlyTabs and 1.04 or 1.006,
 				}, 0.12)
@@ -2519,6 +2561,10 @@ function DarkUI:CreateWindow(config)
 					BackgroundColor3 = window.Theme.Background,
 					BackgroundTransparency = iconOnlyTabs and 1 or (window.Acrylic and (window.Theme.BackgroundTransparency or 0.18) or 0),
 				}, 0.12)
+				local hoverGradient = tabButton:FindFirstChild("DarkUITabButtonGradient")
+				if hoverGradient and iconOnlyTabs then
+					hoverGradient.Transparency = flatTransparency(1)
+				end
 			end
 			tween(getScale(tabButton), {
 				Scale = 1,
