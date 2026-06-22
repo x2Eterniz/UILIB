@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.50"
+DarkUI.Version = "1.3.51"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -4262,8 +4262,12 @@ function DarkUI:CreateWindow(config)
 		local holder = tab.Columns[1]
 		holder.ScrollBarThickness = 2
 		holder.LayoutOrder = 2
-		holder.Position = UDim2.fromOffset(0, 56)
-		holder.Size = UDim2.new(1, 0, 1, -56)
+		holder.Position = UDim2.fromOffset(0, 44)
+		holder.Size = UDim2.new(1, 0, 1, -44)
+		local holderPadding = holder:FindFirstChildOfClass("UIPadding")
+		if holderPadding then
+			holderPadding.PaddingTop = UDim.new(0, 0)
+		end
 
 		local pageLayout = tab.Page:FindFirstChildOfClass("UIListLayout")
 		if pageLayout then
@@ -4278,7 +4282,7 @@ function DarkUI:CreateWindow(config)
 		local subNavHost = make("Frame", {
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(0, 0),
-			Size = UDim2.new(1, 0, 0, 50),
+			Size = UDim2.new(1, 0, 0, 42),
 			ZIndex = 30,
 			Parent = tab.Page,
 		})
@@ -4286,8 +4290,8 @@ function DarkUI:CreateWindow(config)
 		local subNav = styledBackground(make("Frame", {
 			AnchorPoint = Vector2.new(0.5, 0),
 			BorderSizePixel = 0,
-			Position = UDim2.new(0.5, 0, 0, 2),
-			Size = UDim2.new(1, -96, 0, 42),
+			Position = UDim2.new(0.5, 0, 0, 0),
+			Size = UDim2.new(1, -96, 0, 38),
 			ZIndex = 31,
 			Parent = subNavHost,
 		}, {
@@ -4299,8 +4303,8 @@ function DarkUI:CreateWindow(config)
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 			make("UISizeConstraint", {
-				MaxSize = Vector2.new(430, 42),
-				MinSize = Vector2.new(300, 42),
+				MaxSize = Vector2.new(430, 38),
+				MinSize = Vector2.new(300, 38),
 			}),
 		}), "Surface")
 		local subNavStroke = subNav:FindFirstChildOfClass("UIStroke")
