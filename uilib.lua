@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.13"
+DarkUI.Version = "1.3.14"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -232,6 +232,16 @@ DarkUI.ThemePresets = {
 		DropdownHolder = Color3.fromRGB(18, 19, 18),
 		DropdownOption = Color3.fromRGB(34, 35, 32),
 		TitleBarLine = Color3.fromRGB(45, 50, 41),
+		BackgroundTransparency = 0.18,
+		SurfaceTransparency = 0.18,
+		PanelTransparency = 0.14,
+		PanelLightTransparency = 0.08,
+		TabTransparency = 0.16,
+		TabActiveTransparency = 0.08,
+		ElementTransparency = 0.12,
+		InputTransparency = 0.08,
+		DropdownHolderTransparency = 0.08,
+		DropdownOptionTransparency = 0.1,
 		Success = Color3.fromRGB(199, 226, 61),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -482,7 +492,8 @@ function DarkUI:CreateWindow(config)
 		FooterHomeTab = nil,
 		FooterSettingsTab = nil,
 		DropdownsOutsideWindow = config.DropdownsOutsideWindow == true,
-		Acrylic = config.Acrylic == true,
+		Acrylic = config.Acrylic ~= false,
+		Borderless = config.Borderless ~= false,
 		Destroyed = false,
 	}
 
@@ -508,6 +519,12 @@ function DarkUI:CreateWindow(config)
 	local function styledBackground(instance, key)
 		instance:SetAttribute("DarkUIBackground", key)
 		instance.BackgroundColor3 = window.Theme[key] or window.Theme.Panel
+		if window.Acrylic then
+			local transparency = window.Theme[key .. "Transparency"]
+			if transparency ~= nil then
+				instance.BackgroundTransparency = transparency
+			end
+		end
 		return instance
 	end
 
@@ -642,10 +659,16 @@ function DarkUI:CreateWindow(config)
 		return UDim2.new(size.X.Scale, size.X.Offset + 12, size.Y.Scale, size.Y.Offset + 12)
 	end
 
+	local rootTransparency = window.Acrylic and (theme.BackgroundTransparency or 0.18) or 0
+	local shadowVisibleTransparency = window.Acrylic and 0.78 or 0.64
+	local glowVisibleTransparency = window.Borderless and 1 or (window.Acrylic and 0.995 or 0.975)
+	local glowStrokeTransparency = window.Borderless and 1 or 0.66
+	local rootStrokeTransparency = window.Borderless and 1 or 0.08
+
 	local shadow = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-		BackgroundTransparency = 0.64,
+		BackgroundTransparency = shadowVisibleTransparency,
 		BorderSizePixel = 0,
 		Position = UDim2.new(windowPosition.X.Scale, windowPosition.X.Offset + 5, windowPosition.Y.Scale, windowPosition.Y.Offset + 7),
 		Size = windowSize,
@@ -654,7 +677,7 @@ function DarkUI:CreateWindow(config)
 		corner(18),
 	})
 
-	local glowStroke = stroke(theme.Accent, 0.66, 1)
+	local glowStroke = stroke(theme.Accent, glowStrokeTransparency, 1)
 	glowStroke.Name = "DarkUIGlowStroke"
 	local glowStrokeGradient = make("UIGradient", {
 		Name = "DarkUIWindowBorderGradient",
@@ -670,7 +693,7 @@ function DarkUI:CreateWindow(config)
 		Name = "DarkUIGlow",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Accent,
-		BackgroundTransparency = 0.975,
+		BackgroundTransparency = glowVisibleTransparency,
 		BorderSizePixel = 0,
 		Position = windowPosition,
 		Size = glowSize(windowSize),
@@ -680,7 +703,7 @@ function DarkUI:CreateWindow(config)
 		glowStroke,
 	})
 
-	local rootStroke = stroke(theme.Stroke, 0.08, 1)
+	local rootStroke = stroke(theme.Stroke, rootStrokeTransparency, 1)
 	rootStroke.Name = "DarkUIRootStroke"
 	make("UIGradient", {
 		Name = "DarkUIWindowBorderGradient",
@@ -696,7 +719,7 @@ function DarkUI:CreateWindow(config)
 	local root = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Background,
-		BackgroundTransparency = config.Acrylic and 0.06 or 0,
+		BackgroundTransparency = rootTransparency,
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
 		Position = windowPosition,
@@ -1414,8 +1437,8 @@ function DarkUI:CreateWindow(config)
 			if animated ~= false then
 				rootScale.Scale = 0.94
 				tween(rootScale, { Scale = 1 }, 0.18)
-				tween(shadow, { BackgroundTransparency = 0.64 }, 0.18)
-				tween(glow, { BackgroundTransparency = 0.975 }, 0.18)
+				tween(shadow, { BackgroundTransparency = shadowVisibleTransparency }, 0.18)
+				tween(glow, { BackgroundTransparency = glowVisibleTransparency }, 0.18)
 			end
 		else
 			if animated ~= false then
@@ -1579,6 +1602,12 @@ function DarkUI:CreateWindow(config)
 
 			if backgroundKey and descendant:IsA("GuiObject") then
 				descendant.BackgroundColor3 = self.Theme[backgroundKey] or self.Theme.Panel
+				if self.Acrylic then
+					local transparency = self.Theme[backgroundKey .. "Transparency"]
+					if transparency ~= nil then
+						descendant.BackgroundTransparency = transparency
+					end
+				end
 			end
 
 			if textKey and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) then
@@ -1614,6 +1643,7 @@ function DarkUI:CreateWindow(config)
 				descendant.BackgroundColor3 = self.Theme.Accent
 			elseif descendant.Name == "DarkUIGlowStroke" and descendant:IsA("UIStroke") then
 				descendant.Color = self.Theme.Accent
+				descendant.Transparency = self.Borderless and 1 or glowStrokeTransparency
 			elseif descendant.Name == "DarkUIFooterIcon" and descendant:IsA("ImageLabel") then
 				local mode = descendant:GetAttribute("DarkUIFooterIconState")
 				descendant.ImageColor3 = mode == "Active" and self.Theme.Accent or self.Theme.Muted
@@ -2697,7 +2727,7 @@ function DarkUI:CreateWindow(config)
 					styledStroke(stroke(window.Theme.ElementBorder, 0.16, 1), "ElementBorder"),
 				}), "Element")
 
-				row.BackgroundTransparency = 0.03
+				row.BackgroundTransparency = window.Acrylic and (window.Theme.ElementTransparency or 0.12) or 0.03
 				attachHover(row, "Element", "PanelLight")
 				addSearchRow(row, (options.Title or "") .. " " .. (options.Description or "") .. " " .. (options.SearchText or ""))
 				return row
@@ -2737,7 +2767,7 @@ function DarkUI:CreateWindow(config)
 				local row = createRow(options, 72)
 				row:SetAttribute("DarkUIBackground", "Element")
 				row.BackgroundColor3 = window.Theme.Element
-				row.BackgroundTransparency = 0.03
+				row.BackgroundTransparency = window.Acrylic and (window.Theme.ElementTransparency or 0.12) or 0.03
 
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
