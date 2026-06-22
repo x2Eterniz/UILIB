@@ -14,8 +14,10 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.4"
-DarkUI.DefaultLogo = "rbxassetid://84134406429567"
+DarkUI.Version = "1.3.5"
+DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
+DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
+DarkUI.ImageCache = {}
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -79,6 +81,71 @@ local function resolveContentId(value)
 	end
 
 	return text
+end
+
+local function toRawGithubUrl(url)
+	local owner, repo, branch, path = string.match(url, "^https://github%.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)$")
+	if owner and repo and branch and path then
+		return ("https://raw.githubusercontent.com/%s/%s/%s/%s"):format(owner, repo, branch, path)
+	end
+
+	return url
+end
+
+local function safeFileName(text)
+	text = tostring(text or "image")
+	text = string.gsub(text, "[^%w_%-%.]", "_")
+	text = string.gsub(text, "_+", "_")
+	return text
+end
+
+local function resolveImageContent(value, cacheName, fallback)
+	local contentId = resolveContentId(value)
+	if not contentId then
+		return fallback
+	end
+
+	local lowered = string.lower(contentId)
+	local isExternal = string.find(lowered, "http://", 1, true) == 1 or string.find(lowered, "https://", 1, true) == 1
+	if not isExternal then
+		return contentId
+	end
+
+	local rawUrl = toRawGithubUrl(contentId)
+	if DarkUI.ImageCache[rawUrl] then
+		return DarkUI.ImageCache[rawUrl]
+	end
+
+	if type(writefile) == "function" and type(getcustomasset) == "function" then
+		local extension = string.match(string.lower(rawUrl), "%.([%w]+)$") or string.match(string.lower(rawUrl), "%.([%w]+)%?") or "png"
+		if extension ~= "png" and extension ~= "jpg" and extension ~= "jpeg" and extension ~= "webp" then
+			extension = "png"
+		end
+
+		local fileName = safeFileName(("vxizi_ui_%s.%s"):format(cacheName or "image", extension))
+		local ok, response = pcall(function()
+			return game:HttpGet(rawUrl)
+		end)
+
+		if ok and type(response) == "string" and #response > 0 then
+			local wrote = pcall(function()
+				writefile(fileName, response)
+			end)
+
+			if wrote then
+				local assetOk, asset = pcall(function()
+					return getcustomasset(fileName)
+				end)
+
+				if assetOk and asset then
+					DarkUI.ImageCache[rawUrl] = asset
+					return asset
+				end
+			end
+		end
+	end
+
+	return fallback or contentId
 end
 
 DarkUI.Fonts = {
@@ -518,7 +585,8 @@ function DarkUI:CreateWindow(config)
 	local windowSize = config.Size or UDim2.fromOffset(660, 460)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
-	local windowIcon = resolveContentId(config.Icon or config.Logo or config.HubIcon or DarkUI.DefaultLogo)
+	local configuredLogo = config.Icon or config.Logo or config.HubIcon
+	local windowIcon = resolveImageContent(configuredLogo or DarkUI.DefaultLogo, "logo", configuredLogo and nil or DarkUI.DefaultLogoFallback)
 	local minWindowSize = config.MinSize or Vector2.new(520, 360)
 	local resizable = config.Resizable ~= false
 	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
@@ -2178,7 +2246,7 @@ function DarkUI:CreateWindow(config)
 
 		tabConfig = tabConfig or {}
 		local tabName = tabConfig.Name or ("Tab " .. tostring(#self.TabButtons + 1))
-		local tabIcon = resolveContentId(tabConfig.Icon)
+		local tabIcon = resolveImageContent(tabConfig.Icon, "tab_" .. tabName)
 
 		local tabDescription = tabConfig.Description or tabConfig.Subtitle
 		if not tabDescription or tabDescription == "" then
@@ -2665,7 +2733,7 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddButton(options)
 				options = options or {}
-				local buttonIcon = resolveContentId(options.Icon)
+				local buttonIcon = resolveImageContent(options.Icon, "button_" .. (options.Title or options.Text or "icon"))
 				local row = createRow(options, 44)
 
 				local button = styledBackground(make("TextButton", {
