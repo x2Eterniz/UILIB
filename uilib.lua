@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.35"
+DarkUI.Version = "1.3.36"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -1057,16 +1057,40 @@ function DarkUI:CreateWindow(config)
 		}),
 	})
 
+	local activeRailBloom = nil
 	local activeRailGlow = nil
 	local activeRailIndicator = nil
 	local activeRailIndicatorX = -1
 	if iconOnlyTabs then
+		activeRailBloom = styledBackground(make("Frame", {
+			Name = "DarkUITabRailBloom",
+			BackgroundTransparency = 0.68,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(activeRailIndicatorX - 15, iconTabsStartY - 15),
+			Size = UDim2.fromOffset(42, 58),
+			Visible = false,
+			ZIndex = 18,
+			Parent = navPanel,
+		}, {
+			corner(999),
+			make("UIGradient", {
+				Rotation = 0,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.24, 0.86),
+					NumberSequenceKeypoint.new(0.48, 0.46),
+					NumberSequenceKeypoint.new(0.68, 0.74),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		}), "Accent")
+
 		activeRailGlow = styledBackground(make("Frame", {
 			Name = "DarkUITabRailGlow",
-			BackgroundTransparency = 0.26,
+			BackgroundTransparency = 0.42,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX - 6, iconTabsStartY - 7),
-			Size = UDim2.fromOffset(18, 42),
+			Position = UDim2.fromOffset(activeRailIndicatorX - 9, iconTabsStartY - 10),
+			Size = UDim2.fromOffset(26, 48),
 			Visible = false,
 			ZIndex = 19,
 			Parent = navPanel,
@@ -1076,9 +1100,9 @@ function DarkUI:CreateWindow(config)
 				Rotation = 0,
 				Transparency = NumberSequence.new({
 					NumberSequenceKeypoint.new(0, 1),
-					NumberSequenceKeypoint.new(0.26, 0.26),
-					NumberSequenceKeypoint.new(0.5, 0.08),
-					NumberSequenceKeypoint.new(0.78, 0.48),
+					NumberSequenceKeypoint.new(0.28, 0.5),
+					NumberSequenceKeypoint.new(0.48, 0.2),
+					NumberSequenceKeypoint.new(0.74, 0.62),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
@@ -2258,16 +2282,29 @@ function DarkUI:CreateWindow(config)
 						end
 
 						local targetY = (tabButton.AbsolutePosition.Y - navPanel.AbsolutePosition.Y) + math.floor((tabButton.AbsoluteSize.Y - 28) / 2)
+						if activeRailBloom then
+							activeRailBloom.Visible = true
+							activeRailBloom.BackgroundColor3 = self.Theme.Accent
+							if flash then
+								activeRailBloom.BackgroundTransparency = 0.34
+							end
+							tween(activeRailBloom, {
+								Position = UDim2.fromOffset(activeRailIndicatorX - 15, targetY - 15),
+								Size = UDim2.fromOffset(42, 58),
+								BackgroundTransparency = 0.68,
+							}, 0.24)
+						end
+
 						if activeRailGlow then
 							activeRailGlow.Visible = true
 							activeRailGlow.BackgroundColor3 = self.Theme.Accent
 							if flash then
-								activeRailGlow.BackgroundTransparency = 0.05
+								activeRailGlow.BackgroundTransparency = 0.12
 							end
 							tween(activeRailGlow, {
-								Position = UDim2.fromOffset(activeRailIndicatorX - 6, targetY - 7),
-								Size = UDim2.fromOffset(18, 42),
-								BackgroundTransparency = 0.26,
+								Position = UDim2.fromOffset(activeRailIndicatorX - 9, targetY - 10),
+								Size = UDim2.fromOffset(26, 48),
+								BackgroundTransparency = 0.42,
 							}, 0.18)
 						end
 
