@@ -6,6 +6,7 @@
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -14,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.42"
+DarkUI.Version = "1.3.44"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -523,6 +524,15 @@ function DarkUI:CreateWindow(config)
 		FooterRole = "Home",
 		FooterHomeTab = nil,
 		FooterSettingsTab = nil,
+		BuiltInSettings = config.BuiltInSettings ~= false,
+		BuiltInSettingsCreated = false,
+		BuiltInSettingsTab = nil,
+		BuiltInSettingsTabName = config.SettingsTabName or config.BuiltInSettingsTabName or "Setting",
+		AutoSettingsTabName = nil,
+		UserTabCount = 0,
+		DragFPSCap = tonumber(config.DragFPSCap) or 60,
+		UseDragSkeleton = config.UseDragSkeleton == true,
+		FullVisibilityAnimation = config.FullVisibilityAnimation ~= false,
 		DropdownsOutsideWindow = config.DropdownsOutsideWindow == true,
 		Acrylic = config.Acrylic ~= false,
 		Borderless = config.Borderless ~= false,
@@ -1524,6 +1534,10 @@ function DarkUI:CreateWindow(config)
 
 	local function setUiVisible(visible, animated)
 		uiVisible = visible == true
+		if window.FullVisibilityAnimation == false then
+			animated = false
+		end
+
 		if floatingToggleText then
 			floatingToggleText.Text = uiVisible and "Close" or "Open"
 		end
@@ -2476,6 +2490,10 @@ function DarkUI:CreateWindow(config)
 
 		tabConfig = tabConfig or {}
 		local tabName = tabConfig.Name or ("Tab " .. tostring(#self.TabButtons + 1))
+		if self.BuiltInSettings and not tabConfig.Internal and isSettingsTabName(tabName) and type(self.CreateBuiltInSettingsTab) == "function" then
+			return self:CreateBuiltInSettingsTab()
+		end
+
 		local defaultTabIcon = getDefaultTabIcon(tabName)
 		local tabIcon = resolveImageContent(tabConfig.Icon or defaultTabIcon, "tab_" .. tabName, tabConfig.Icon and nil or false)
 
@@ -2494,6 +2512,7 @@ function DarkUI:CreateWindow(config)
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
 			Font = DarkUI.Fonts.Bold,
+			LayoutOrder = tabConfig.LayoutOrder or (tabConfig.Internal and 10000 or (#self.TabOrder + 1)),
 			Size = iconOnlyTabs and UDim2.fromOffset(54, 54) or UDim2.new(1, 0, 0, tabConfig.Height or tabHeight),
 			Text = "",
 			Parent = tabs,
@@ -2690,6 +2709,11 @@ function DarkUI:CreateWindow(config)
 		self.Pages[tabName] = page
 		self.TabButtons[tabName] = tabButton
 		table.insert(self.TabOrder, tabName)
+
+		local isInternalTab = tabConfig.Internal == true
+		if not isInternalTab then
+			self.UserTabCount += 1
+		end
 
 		if not self.FooterHomeTab then
 			self.FooterHomeTab = tabName
@@ -4185,6 +4209,14 @@ function DarkUI:CreateWindow(config)
 			self:SelectTab(tabName)
 		end
 
+		if self.BuiltInSettings and not isInternalTab and not self.BuiltInSettingsCreated and not isSettingsTabName(tabName) and type(self.CreateBuiltInSettingsTab) == "function" then
+			self:CreateBuiltInSettingsTab()
+		end
+
+		if not isInternalTab and self.AutoSettingsTabName and self.SelectedTab == self.AutoSettingsTabName and self.UserTabCount == 1 then
+			self:SelectTab(tabName)
+		end
+
 		return tab
 	end
 
@@ -4198,6 +4230,725 @@ function DarkUI:CreateWindow(config)
 		if section and section.AddConfigManager then
 			section:AddConfigManager()
 		end
+	end
+
+	function window:CreateBuiltInSettingsTab()
+		if self.BuiltInSettingsCreated and self.BuiltInSettingsTab then
+			return self.BuiltInSettingsTab
+		end
+
+		self.BuiltInSettingsCreated = true
+
+		local settingsName = self.BuiltInSettingsTabName or "Setting"
+		local tab = self:CreateTab({
+			Name = settingsName,
+			Icon = DarkUI.DefaultTabIcons.Setting,
+			Description = "UI settings and config",
+			Columns = 1,
+			Internal = true,
+			LayoutOrder = 10000,
+		})
+
+		self.BuiltInSettingsTab = tab
+		self.AutoSettingsTabName = settingsName
+		self.FooterSettingsTab = settingsName
+
+		local holder = tab.Columns[1]
+		holder.ScrollBarThickness = 2
+
+		local subNav = make("Frame", {
+			BackgroundTransparency = 1,
+			LayoutOrder = 0,
+			Size = UDim2.new(1, -2, 0, 48),
+			Parent = holder,
+		}, {
+			make("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				Padding = UDim.new(0, 30),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
+
+		local settingPages = {}
+		local settingTabs = {}
+		local settingTabOrder = 0
+		local settingOrder = 0
+		local activeSettingsPage = "General"
+
+		local function text(parent, content, size, font, colorKey, props)
+			props = props or {}
+			props.Parent = parent
+			props.Text = content
+			props.TextSize = size
+			props.Font = font or DarkUI.Fonts.Body
+			local label = styledText(DarkUI:Text(props), colorKey or "Text")
+			if props.Name then
+				label.Name = props.Name
+			end
+			return label
+		end
+
+		local function createSettingsPage(name)
+			local page = make("Frame", {
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 1,
+				LayoutOrder = 1,
+				Size = UDim2.new(1, -2, 0, 0),
+				Visible = false,
+				Parent = holder,
+			}, {
+				make("UIListLayout", {
+					FillDirection = Enum.FillDirection.Vertical,
+					Padding = UDim.new(0, 10),
+					SortOrder = Enum.SortOrder.LayoutOrder,
+				}),
+			})
+
+			settingPages[name] = page
+			return page
+		end
+
+		local function setSettingsPage(name)
+			activeSettingsPage = name
+			for pageName, page in pairs(settingPages) do
+				page.Visible = pageName == name
+			end
+
+			for pageName, button in pairs(settingTabs) do
+				local selected = pageName == name
+				local label = button:FindFirstChild("Label")
+				local line = button:FindFirstChild("Line")
+				if label then
+					tween(label, {
+						TextColor3 = selected and self.Theme.Accent or self.Theme.Muted,
+					}, 0.12)
+				end
+				if line then
+					line.Visible = true
+					tween(line, {
+						BackgroundTransparency = selected and 0 or 1,
+						Size = selected and UDim2.new(1, 0, 0, 2) or UDim2.new(0, 0, 0, 2),
+					}, 0.14)
+				end
+			end
+		end
+
+		local function createSettingsSubTab(name)
+			settingTabOrder += 1
+			local button = make("TextButton", {
+				AutoButtonColor = false,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				LayoutOrder = settingTabOrder,
+				Size = UDim2.fromOffset(108, 42),
+				Text = "",
+				Parent = subNav,
+			})
+
+			local label = text(button, name, 18, DarkUI.Fonts.Bold, "Muted", {
+				Name = "Label",
+				Position = UDim2.fromOffset(0, 3),
+				Size = UDim2.new(1, 0, 0, 26),
+				TextXAlignment = Enum.TextXAlignment.Center,
+			})
+
+			local line = styledBackground(make("Frame", {
+				Name = "Line",
+				AnchorPoint = Vector2.new(0.5, 1),
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.new(0.5, 0, 1, -3),
+				Size = UDim2.new(0, 0, 0, 2),
+				Parent = button,
+			}, {
+				corner(999),
+			}), "Accent")
+
+			settingTabs[name] = button
+			connect(button.MouseButton1Click, function()
+				setSettingsPage(name)
+			end)
+			attachPress(button, 0.94)
+
+			return button, label, line
+		end
+
+		local function createCategory(parent, title)
+			settingOrder += 1
+			return text(parent, string.upper(title), 12, DarkUI.Fonts.Bold, "Muted", {
+				BackgroundTransparency = 1,
+				LayoutOrder = settingOrder,
+				Size = UDim2.new(1, -4, 0, 18),
+				TextXAlignment = Enum.TextXAlignment.Left,
+			})
+		end
+
+		local function createGroup(parent)
+			settingOrder += 1
+			local group = styledBackground(make("Frame", {
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = self.Acrylic and 0.18 or 0.05,
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+				LayoutOrder = settingOrder,
+				Size = UDim2.new(1, -2, 0, 0),
+				Parent = parent,
+			}, {
+				corner(22),
+				styledStroke(stroke(self.Theme.Stroke, 0.42, 1), "Stroke"),
+				make("UIListLayout", {
+					FillDirection = Enum.FillDirection.Vertical,
+					SortOrder = Enum.SortOrder.LayoutOrder,
+				}),
+			}), "Surface")
+
+			group:SetAttribute("DarkUIRowCount", 0)
+			return group
+		end
+
+		local function createSettingRow(group, options)
+			options = options or {}
+			local rowCount = group:GetAttribute("DarkUIRowCount") or 0
+			rowCount += 1
+			group:SetAttribute("DarkUIRowCount", rowCount)
+
+			local row = styledBackground(make("Frame", {
+				BackgroundTransparency = 0.18,
+				BorderSizePixel = 0,
+				LayoutOrder = rowCount,
+				Size = UDim2.new(1, 0, 0, options.Height or 72),
+				Parent = group,
+			}), "Surface")
+
+			if rowCount > 1 then
+				styledBackground(make("Frame", {
+					BackgroundTransparency = 0.5,
+					BorderSizePixel = 0,
+					Position = UDim2.fromOffset(0, 0),
+					Size = UDim2.new(1, 0, 0, 1),
+					Parent = row,
+				}), "Stroke")
+			end
+
+			text(row, options.Title or "Setting", 15, DarkUI.Fonts.Bold, "Text", {
+				Position = UDim2.fromOffset(18, 11),
+				Size = UDim2.new(1, -230, 0, 24),
+				TextXAlignment = Enum.TextXAlignment.Left,
+			})
+
+			if options.Description and options.Description ~= "" then
+				text(row, options.Description, 13, DarkUI.Fonts.Body, "Muted", {
+					Position = UDim2.fromOffset(18, 34),
+					Size = UDim2.new(1, -230, 0, options.Height and options.Height - 38 or 34),
+					TextWrapped = true,
+					TextXAlignment = Enum.TextXAlignment.Left,
+					TextYAlignment = Enum.TextYAlignment.Top,
+				})
+			end
+
+			return row
+		end
+
+		local function createCycleDropdown(group, options)
+			local row = createSettingRow(group, options)
+			local items = options.Items or {}
+			local selectedIndex = 1
+			for index, item in ipairs(items) do
+				if tostring(item) == tostring(options.Default) then
+					selectedIndex = index
+					break
+				end
+			end
+
+			local button = styledBackground(make("TextButton", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				AutoButtonColor = false,
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -18, 0.5, 0),
+				Size = UDim2.fromOffset(options.Width or 172, 36),
+				Text = "",
+				Parent = row,
+			}, {
+				corner(13),
+				styledStroke(stroke(self.Theme.Stroke, 0.34, 1), "Stroke"),
+			}), "Panel")
+
+			local valueLabel = text(button, tostring(items[selectedIndex] or options.Default or ""), 14, DarkUI.Fonts.Bold, "Text", {
+				Position = UDim2.fromOffset(14, 0),
+				Size = UDim2.new(1, -42, 1, 0),
+				TextXAlignment = Enum.TextXAlignment.Left,
+			})
+
+			text(button, "v", 15, DarkUI.Fonts.Bold, "Muted", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, -13, 0.5, -1),
+				Size = UDim2.fromOffset(18, 18),
+				TextXAlignment = Enum.TextXAlignment.Center,
+			})
+
+			local function applyValue(value, silent)
+				valueLabel.Text = tostring(value)
+				if options.Callback and not silent then
+					options.Callback(value)
+				end
+			end
+
+			connect(button.MouseButton1Click, function()
+				if #items == 0 then
+					return
+				end
+
+				selectedIndex = (selectedIndex % #items) + 1
+				applyValue(items[selectedIndex])
+			end)
+			attachHover(button, "Panel", "PanelLight", 1.02)
+			attachPress(button, 0.96)
+			applyValue(items[selectedIndex] or options.Default or "", true)
+
+			return {
+				Set = function(_, value, silent)
+					for index, item in ipairs(items) do
+						if tostring(item) == tostring(value) then
+							selectedIndex = index
+							break
+						end
+					end
+					applyValue(value, silent)
+				end,
+				Get = function()
+					return items[selectedIndex]
+				end,
+			}
+		end
+
+		local function createSwitch(group, options)
+			local row = createSettingRow(group, options)
+			local value = options.Default == true
+
+			local switch = make("TextButton", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				AutoButtonColor = false,
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -20, 0.5, 0),
+				Size = UDim2.fromOffset(54, 28),
+				Text = "",
+				Parent = row,
+			}, {
+				corner(999),
+				styledStroke(stroke(self.Theme.Stroke, 0.32, 1), "Stroke"),
+			})
+
+			local knob = styledBackground(make("Frame", {
+				BorderSizePixel = 0,
+				Position = UDim2.fromOffset(4, 4),
+				Size = UDim2.fromOffset(20, 20),
+				Parent = switch,
+			}, {
+				corner(999),
+			}), "Text")
+
+			local function render()
+				switch.BackgroundColor3 = value and self.Theme.Accent or self.Theme.Panel
+				switch.BackgroundTransparency = value and 0 or 0.08
+				tween(knob, {
+					Position = value and UDim2.fromOffset(30, 4) or UDim2.fromOffset(4, 4),
+				}, 0.14)
+			end
+
+			local function setValue(nextValue, silent)
+				value = nextValue == true
+				render()
+				if options.Callback and not silent then
+					options.Callback(value)
+				end
+			end
+
+			connect(switch.MouseButton1Click, function()
+				setValue(not value)
+			end)
+			attachPress(switch, 0.96)
+			registerRenderer(render)
+			setValue(value, true)
+
+			return {
+				Set = function(_, nextValue, silent)
+					setValue(nextValue, silent)
+				end,
+				Get = function()
+					return value
+				end,
+			}
+		end
+
+		local function createSlider(group, options)
+			local row = createSettingRow(group, {
+				Title = options.Title,
+				Description = options.Description,
+				Height = options.Height or 86,
+			})
+
+			local min = tonumber(options.Min) or 0
+			local max = tonumber(options.Max) or 100
+			local value = math.clamp(tonumber(options.Default) or min, min, max)
+			local suffix = options.Suffix or ""
+
+			local valuePill = styledBackground(make("Frame", {
+				AnchorPoint = Vector2.new(1, 0),
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -18, 0, 14),
+				Size = UDim2.fromOffset(78, 30),
+				Parent = row,
+			}, {
+				corner(12),
+				styledStroke(stroke(self.Theme.Stroke, 0.2, 1), "Stroke"),
+			}), "Panel")
+
+			local valueText = text(valuePill, "", 14, DarkUI.Fonts.Bold, "Text", {
+				Size = UDim2.fromScale(1, 1),
+				TextXAlignment = Enum.TextXAlignment.Center,
+			})
+
+			local rail = styledBackground(make("Frame", {
+				AnchorPoint = Vector2.new(1, 1),
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -106, 1, -18),
+				Size = UDim2.new(0, 230, 0, 6),
+				Parent = row,
+			}, {
+				corner(999),
+			}), "Panel")
+
+			local fill = styledBackground(make("Frame", {
+				BorderSizePixel = 0,
+				Size = UDim2.new(0, 0, 1, 0),
+				Parent = rail,
+			}, {
+				corner(999),
+			}), "Accent")
+
+			local knob = styledBackground(make("Frame", {
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				BorderSizePixel = 0,
+				Position = UDim2.new(0, 0, 0.5, 0),
+				Size = UDim2.fromOffset(18, 18),
+				Parent = rail,
+			}, {
+				corner(999),
+				styledStroke(stroke(self.Theme.Text, 0.1, 1), "Text"),
+			}), "Accent")
+
+			local function formatValue(nextValue)
+				if options.Decimals and options.Decimals > 0 then
+					return string.format("%." .. tostring(options.Decimals) .. "f%s", nextValue, suffix)
+				end
+				return tostring(math.floor(nextValue + 0.5)) .. suffix
+			end
+
+			local function render()
+				local alpha = max == min and 0 or (value - min) / (max - min)
+				alpha = math.clamp(alpha, 0, 1)
+				valueText.Text = formatValue(value)
+				fill.Size = UDim2.new(alpha, 0, 1, 0)
+				knob.Position = UDim2.new(alpha, 0, 0.5, 0)
+			end
+
+			local function setValue(nextValue, silent)
+				value = math.clamp(tonumber(nextValue) or value, min, max)
+				if not options.Decimals or options.Decimals <= 0 then
+					value = math.floor(value + 0.5)
+				end
+				render()
+				if options.Callback and not silent then
+					options.Callback(value)
+				end
+			end
+
+			local draggingSlider = false
+			local function updateFromInput(input)
+				local width = math.max(1, rail.AbsoluteSize.X)
+				local alpha = math.clamp((input.Position.X - rail.AbsolutePosition.X) / width, 0, 1)
+				setValue(min + ((max - min) * alpha))
+			end
+
+			connect(rail.InputBegan, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					draggingSlider = true
+					updateFromInput(input)
+				end
+			end)
+
+			connect(UserInputService.InputChanged, function(input)
+				if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+					updateFromInput(input)
+				end
+			end)
+
+			connect(UserInputService.InputEnded, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					draggingSlider = false
+				end
+			end)
+
+			registerRenderer(render)
+			setValue(value, true)
+
+			return {
+				Set = function(_, nextValue, silent)
+					setValue(nextValue, silent)
+				end,
+				Get = function()
+					return value
+				end,
+			}
+		end
+
+		local function createTextInput(group, options)
+			local row = createSettingRow(group, options)
+			local box = styledBackground(make("TextBox", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				ClearTextOnFocus = false,
+				Font = DarkUI.Fonts.Bold,
+				PlaceholderColor3 = self.Theme.Muted,
+				PlaceholderText = options.Placeholder or "",
+				Position = UDim2.new(1, -18, 0.5, 0),
+				Size = UDim2.fromOffset(options.Width or 190, 36),
+				Text = options.Default or "",
+				TextColor3 = self.Theme.Text,
+				TextSize = 14,
+				Parent = row,
+			}, {
+				corner(12),
+				styledStroke(stroke(self.Theme.Stroke, 0.28, 1), "Stroke"),
+			}), "Panel")
+			box:SetAttribute("DarkUIText", "Text")
+
+			return box
+		end
+
+		local function createButtonRow(group, options)
+			local row = createSettingRow(group, options)
+			local button = styledBackground(make("TextButton", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				AutoButtonColor = false,
+				BorderSizePixel = 0,
+				Font = DarkUI.Fonts.Bold,
+				Position = UDim2.new(1, -18, 0.5, 0),
+				Size = UDim2.fromOffset(options.Width or 150, 36),
+				Text = options.ButtonText or "Run",
+				TextColor3 = self.Theme.Text,
+				TextSize = 14,
+				Parent = row,
+			}, {
+				corner(12),
+				styledStroke(stroke(self.Theme.Stroke, 0.25, 1), "Stroke"),
+			}), options.Accent and "Accent" or "Panel")
+			button:SetAttribute("DarkUIText", "Text")
+			connect(button.MouseButton1Click, function()
+				if options.Callback then
+					options.Callback()
+				end
+			end)
+			attachHover(button, options.Accent and "Accent" or "Panel", "PanelLight", 1.02)
+			attachPress(button, 0.95)
+			return button
+		end
+
+		createSettingsSubTab("General")
+		createSettingsSubTab("Theme")
+		createSettingsSubTab("Snapshots")
+
+		local generalPage = createSettingsPage("General")
+		local themePage = createSettingsPage("Theme")
+		local snapshotsPage = createSettingsPage("Snapshots")
+		registerRenderer(function()
+			setSettingsPage(activeSettingsPage)
+		end)
+
+		createCategory(generalPage, "Localization")
+		local localization = createGroup(generalPage)
+		createCycleDropdown(localization, {
+			Title = "Language",
+			Description = "Display language for the built-in interface.",
+			Items = { "English", "Vietnamese" },
+			Default = "English",
+			Callback = function(value)
+				self.Language = value
+			end,
+		})
+
+		createCategory(generalPage, "Performance")
+		local performance = createGroup(generalPage)
+		createCycleDropdown(performance, {
+			Title = "FPS Cap",
+			Description = "Global frame rate cap for this client. Requires executor support.",
+			Items = { "60 FPS", "120 FPS", "144 FPS", "240 FPS", "Uncapped" },
+			Default = "60 FPS",
+			Callback = function(value)
+				local cap = tonumber(string.match(tostring(value), "%d+")) or 0
+				if type(setfpscap) == "function" then
+					setfpscap(cap)
+				else
+					self:Notify("FPS Cap", "setfpscap is not available in this executor.", "Warning")
+				end
+			end,
+		})
+		createSwitch(performance, {
+			Title = "3D Rendering",
+			Description = "Disable 3D world rendering to save GPU. The UI remains visible.",
+			Default = true,
+			Callback = function(value)
+				pcall(function()
+					RunService:Set3dRenderingEnabled(value)
+				end)
+			end,
+		})
+
+		createCategory(generalPage, "Window")
+		local windowGroup = createGroup(generalPage)
+		createSlider(windowGroup, {
+			Title = "Drag FPS Cap",
+			Description = "0 = uncapped drag updates. Higher cap = smoother but more work.",
+			Min = 0,
+			Max = 120,
+			Default = self.DragFPSCap,
+			Suffix = "Hz",
+			Callback = function(value)
+				self.DragFPSCap = value
+			end,
+		})
+		createSwitch(windowGroup, {
+			Title = "Use Drag Skeleton",
+			Description = "Use lightweight drag mode setting for scripts that hook into it.",
+			Default = self.UseDragSkeleton,
+			Callback = function(value)
+				self.UseDragSkeleton = value
+			end,
+		})
+		createSwitch(windowGroup, {
+			Title = "Full UI Visibility Animation",
+			Description = "Use scale and fade animation when hiding or showing the window.",
+			Default = self.FullVisibilityAnimation,
+			Callback = function(value)
+				self.FullVisibilityAnimation = value
+			end,
+		})
+
+		createCategory(themePage, "Appearance")
+		local appearance = createGroup(themePage)
+		local themes = {}
+		for name in pairs(DarkUI.ThemePresets) do
+			table.insert(themes, name)
+		end
+		table.sort(themes)
+		createCycleDropdown(appearance, {
+			Title = "Theme Preset",
+			Description = "Switch the whole UI theme.",
+			Items = themes,
+			Default = self.ThemeName,
+			Callback = function(value)
+				self:SetTheme(value)
+			end,
+		})
+
+		local accentRow = createSettingRow(appearance, {
+			Title = "Accent Color",
+			Description = "Pick the highlight color used by toggles, sliders and active tabs.",
+			Height = 78,
+		})
+		local accentColors = {
+			Color3.fromRGB(198, 232, 52),
+			Color3.fromRGB(24, 179, 101),
+			Color3.fromRGB(96, 205, 255),
+			Color3.fromRGB(164, 94, 255),
+			Color3.fromRGB(255, 93, 101),
+			Color3.fromRGB(255, 203, 52),
+		}
+		for index, color in ipairs(accentColors) do
+			local swatch = make("TextButton", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				AutoButtonColor = false,
+				BackgroundColor3 = color,
+				BorderSizePixel = 0,
+				Position = UDim2.new(1, -18 - ((#accentColors - index) * 34), 0.5, 0),
+				Size = UDim2.fromOffset(24, 24),
+				Text = "",
+				Parent = accentRow,
+			}, {
+				corner(8),
+				stroke(self.Theme.Text, 0.72, 1),
+			})
+
+			connect(swatch.MouseButton1Click, function()
+				self:SetAccentColor(color)
+			end)
+			attachPress(swatch, 0.9)
+		end
+
+		createSwitch(appearance, {
+			Title = "Acrylic",
+			Description = "Use softer transparent dark surfaces.",
+			Default = self.Acrylic,
+			Callback = function(value)
+				self.Acrylic = value
+				self:_applyTheme()
+			end,
+		})
+		createSwitch(appearance, {
+			Title = "Borderless Theme",
+			Description = "Hide most theme borders for a cleaner glass look.",
+			Default = self.Borderless,
+			Callback = function(value)
+				self.Borderless = value
+				self:_applyTheme()
+			end,
+		})
+
+		createCategory(snapshotsPage, "Config")
+		local configGroup = createGroup(snapshotsPage)
+		local configNameBox = createTextInput(configGroup, {
+			Title = "Config Name",
+			Description = "Snapshot profile stored through executor file API.",
+			Default = string.gsub(self.ConfigName, "%.json$", ""),
+			Placeholder = "default",
+		})
+		createButtonRow(configGroup, {
+			Title = "Save Snapshot",
+			Description = "Save current control values, theme and accent color.",
+			ButtonText = "Save",
+			Accent = true,
+			Callback = function()
+				self:SaveConfig(configNameBox.Text)
+			end,
+		})
+		createButtonRow(configGroup, {
+			Title = "Load Snapshot",
+			Description = "Load values from the selected snapshot profile.",
+			ButtonText = "Load",
+			Callback = function()
+				self:LoadConfig(configNameBox.Text)
+			end,
+		})
+		createButtonRow(configGroup, {
+			Title = "Delete Snapshot",
+			Description = "Delete the selected snapshot profile from disk.",
+			ButtonText = "Delete",
+			Callback = function()
+				self:Confirm({
+					Title = "Delete Snapshot",
+					Text = "Delete this config profile?",
+					ConfirmText = "Delete",
+					Callback = function()
+						self:DeleteConfig(configNameBox.Text)
+					end,
+				})
+			end,
+		})
+
+		setSettingsPage("General")
+		return tab
 	end
 
 	function window:Destroy()
@@ -4252,6 +5003,7 @@ function DarkUI:CreateWindow(config)
 	local resizeStart
 	local resizeStartSize
 	local resizeStartPosition
+	local lastDragUpdate = 0
 
 	local function setWindowGeometry(size, position)
 		windowSize = size
@@ -4305,6 +5057,17 @@ function DarkUI:CreateWindow(config)
 			return
 		end
 
+		if dragging or resizing then
+			local dragCap = tonumber(window.DragFPSCap) or 0
+			if dragCap > 0 then
+				local now = os.clock()
+				if now - lastDragUpdate < (1 / dragCap) then
+					return
+				end
+				lastDragUpdate = now
+			end
+		end
+
 		if resizing then
 			local delta = input.Position - resizeStart
 			local nextWidth = math.max(minWindowSize.X, resizeStartSize.X.Offset + delta.X)
@@ -4345,6 +5108,10 @@ function DarkUI:CreateWindow(config)
 			setUiVisible(not uiVisible)
 		end
 	end)
+
+	if window.BuiltInSettings and not window.BuiltInSettingsCreated and #window.TabOrder == 0 then
+		window:CreateBuiltInSettingsTab()
+	end
 
 	window:_applyTheme()
 	return window
