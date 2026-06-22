@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.18"
+DarkUI.Version = "1.3.20"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -1026,13 +1026,14 @@ function DarkUI:CreateWindow(config)
 	})
 
 	local activeRailIndicator = nil
+	local activeRailIndicatorX = -1
 	if iconOnlyTabs then
 		activeRailIndicator = styledBackground(make("Frame", {
 			Name = "DarkUITabRailIndicator",
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(2, iconTabsStartY),
-			Size = UDim2.fromOffset(4, 28),
+			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY),
+			Size = UDim2.fromOffset(5, 28),
 			Visible = false,
 			ZIndex = 20,
 			Parent = navPanel,
@@ -2198,8 +2199,8 @@ function DarkUI:CreateWindow(config)
 						activeRailIndicator.Visible = true
 						activeRailIndicator.BackgroundColor3 = self.Theme.Accent
 						tween(activeRailIndicator, {
-							Position = UDim2.fromOffset(2, targetY),
-							Size = UDim2.fromOffset(4, 28),
+							Position = UDim2.fromOffset(activeRailIndicatorX, targetY),
+							Size = UDim2.fromOffset(5, 28),
 							BackgroundTransparency = 0,
 						}, 0.16)
 					end
