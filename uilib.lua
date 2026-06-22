@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.8"
+DarkUI.Version = "1.3.9"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -2323,7 +2323,7 @@ function DarkUI:CreateWindow(config)
 			AnchorPoint = Vector2.new(0, 0),
 			BackgroundColor3 = self.Theme.Accent,
 			BorderSizePixel = 0,
-			Position = iconOnlyTabs and UDim2.new(0, -10, 0.5, -14) or UDim2.new(0, 0, 0, 6),
+			Position = iconOnlyTabs and UDim2.new(0, -20, 0.5, -14) or UDim2.new(0, 0, 0, 6),
 			Size = UDim2.new(0, iconOnlyTabs and 4 or 3, 0, 0),
 			Visible = false,
 			Parent = tabButton,
