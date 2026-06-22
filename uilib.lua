@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.46"
+DarkUI.Version = "1.3.47"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -2878,6 +2878,11 @@ function DarkUI:CreateWindow(config)
 			}
 
 			function sectionApi:UpdateVisibility()
+				if self.Container:GetAttribute("BaseVisible") == false then
+					self.Container.Visible = false
+					return
+				end
+
 				local anyVisible = false
 				for _, child in ipairs(self.Body:GetChildren()) do
 					if child:IsA("GuiObject") and child.Visible then
@@ -4256,6 +4261,113 @@ function DarkUI:CreateWindow(config)
 		local holder = tab.Columns[1]
 		holder.ScrollBarThickness = 2
 
+		local activeBuiltInSettingsPage = "General"
+		local settingsSubSections = {}
+		local settingsSubButtons = {}
+		local settingsSubTabOrder = 0
+
+		local subNavHost = make("Frame", {
+			BackgroundTransparency = 1,
+			LayoutOrder = 0,
+			Size = UDim2.new(1, -2, 0, 50),
+			Parent = holder,
+		})
+
+		local subNav = styledBackground(make("Frame", {
+			AnchorPoint = Vector2.new(0.5, 0),
+			BorderSizePixel = 0,
+			Position = UDim2.new(0.5, 0, 0, 2),
+			Size = UDim2.new(1, -96, 0, 42),
+			Parent = subNavHost,
+		}, {
+			corner(999),
+			styledStroke(stroke(self.Theme.Stroke, 0.42, 1), "Stroke"),
+			make("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+			make("UISizeConstraint", {
+				MaxSize = Vector2.new(430, 42),
+				MinSize = Vector2.new(300, 42),
+			}),
+		}), "Surface")
+
+		local function setBuiltInSettingsPage(name)
+			activeBuiltInSettingsPage = name
+
+			for pageName, sections in pairs(settingsSubSections) do
+				local selected = pageName == name
+				for _, section in ipairs(sections) do
+					if section.Container then
+						section.Container:SetAttribute("BaseVisible", selected)
+						section.Container.Visible = selected
+						section:UpdateVisibility()
+					end
+				end
+			end
+
+			for pageName, refs in pairs(settingsSubButtons) do
+				local selected = pageName == name
+				tween(refs.Label, {
+					TextColor3 = selected and self.Theme.Accent or self.Theme.Muted,
+				}, 0.12)
+				tween(refs.Line, {
+					BackgroundTransparency = selected and 0 or 1,
+					Size = selected and UDim2.new(0.62, 0, 0, 2) or UDim2.new(0, 0, 0, 2),
+				}, 0.14)
+			end
+		end
+
+		local function addSettingsSubTab(name)
+			settingsSubTabOrder += 1
+			local button = make("TextButton", {
+				AutoButtonColor = false,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				LayoutOrder = settingsSubTabOrder,
+				Size = UDim2.new(1 / 3, 0, 1, 0),
+				Text = "",
+				Parent = subNav,
+			})
+
+			local label = styledText(DarkUI:Text({
+				Font = DarkUI.Fonts.Bold,
+				Parent = button,
+				Position = UDim2.fromOffset(0, 3),
+				Size = UDim2.new(1, 0, 0, 28),
+				Text = name,
+				TextSize = 17,
+				TextXAlignment = Enum.TextXAlignment.Center,
+			}), "Muted")
+
+			local line = styledBackground(make("Frame", {
+				AnchorPoint = Vector2.new(0.5, 1),
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				Position = UDim2.new(0.5, 0, 1, -7),
+				Size = UDim2.new(0, 0, 0, 2),
+				Parent = button,
+			}, {
+				corner(999),
+			}), "Accent")
+
+			settingsSubButtons[name] = {
+				Button = button,
+				Label = label,
+				Line = line,
+			}
+
+			connect(button.MouseButton1Click, function()
+				setBuiltInSettingsPage(name)
+			end)
+			attachPress(button, 0.94)
+		end
+
+		addSettingsSubTab("General")
+		addSettingsSubTab("Theme")
+		addSettingsSubTab("Snapshots")
+
 		local generalSection = tab:AddSection({
 			Title = "General",
 			Collapsible = false,
@@ -4427,6 +4539,16 @@ function DarkUI:CreateWindow(config)
 				})
 			end,
 		})
+
+		settingsSubSections = {
+			General = { generalSection, windowSection },
+			Theme = { themeSection },
+			Snapshots = { snapshotsSection },
+		}
+		registerRenderer(function()
+			setBuiltInSettingsPage(activeBuiltInSettingsPage)
+		end)
+		setBuiltInSettingsPage("General")
 
 		if false then
 
