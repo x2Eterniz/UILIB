@@ -14,9 +14,10 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.20"
+DarkUI.Version = "1.3.21"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
+DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/icons8-natural-user-interface-54.png"
 DarkUI.ImageCache = {}
 DarkUI.DefaultTabIcons = {
 	Home = "https://github.com/x2Eterniz/UILIB/blob/main/home_54x54.png",
@@ -2848,7 +2849,14 @@ function DarkUI:CreateWindow(config)
 
 			function sectionApi:AddButton(options)
 				options = options or {}
-				local buttonIcon = resolveImageContent(options.Icon, "button_" .. (options.Title or options.Text or "icon"))
+				local requestedButtonIcon = options.ActionIcon or options.ButtonIcon or options.Icon
+				local useDefaultButtonIcon = requestedButtonIcon == nil
+				if requestedButtonIcon == false then
+					useDefaultButtonIcon = false
+					requestedButtonIcon = nil
+				end
+
+				local buttonIcon = resolveImageContent(useDefaultButtonIcon and DarkUI.DefaultButtonIcon or requestedButtonIcon, "button_" .. (options.Title or options.Text or "icon"), useDefaultButtonIcon and false or nil)
 				local row = createRow(options, 44)
 
 				local button = make("TextButton", {
@@ -2865,9 +2873,10 @@ function DarkUI:CreateWindow(config)
 
 				if buttonIcon then
 					make("ImageLabel", {
+						AnchorPoint = Vector2.new(1, 0.5),
 						BackgroundTransparency = 1,
 						Image = buttonIcon,
-						Position = UDim2.fromOffset(14, 12),
+						Position = UDim2.new(1, -16, 0.5, 0),
 						ScaleType = Enum.ScaleType.Fit,
 						Size = UDim2.fromOffset(20, 20),
 						Parent = button,
@@ -2877,11 +2886,11 @@ function DarkUI:CreateWindow(config)
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = button,
-					Position = UDim2.fromOffset(12, 0),
-					Size = UDim2.new(1, -24, 1, 0),
+					Position = UDim2.fromOffset(14, 0),
+					Size = UDim2.new(1, buttonIcon and -54 or -28, 1, 0),
 					Text = options.Title or "Button",
 					TextSize = 15,
-					TextXAlignment = Enum.TextXAlignment.Center,
+					TextXAlignment = Enum.TextXAlignment.Left,
 				}), "Text")
 
 				local control = buildControlApi(row)
