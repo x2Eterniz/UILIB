@@ -2232,7 +2232,7 @@ function DarkUI:CreateWindow(config)
 				Parent = target,
 			}, {
 				corner(18),
-				styledStroke(stroke(window.Theme.Stroke, 0.14, 1), "Stroke"),
+				stroke(window.Theme.Stroke, 1, 1),
 				make("UIPadding", {
 					PaddingBottom = UDim.new(0, 10),
 					PaddingLeft = UDim.new(0, 10),
