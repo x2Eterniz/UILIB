@@ -14,10 +14,16 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.9"
+DarkUI.Version = "1.3.10"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
+DarkUI.DefaultTabIcons = {
+	Home = "https://github.com/x2Eterniz/UILIB/blob/main/home_54x54.png",
+	Location = "https://github.com/x2Eterniz/UILIB/blob/main/location_icon_54x54_transparent%20%281%29.png",
+	Player = "https://github.com/x2Eterniz/UILIB/blob/main/player_54x54.png",
+	Setting = "https://github.com/x2Eterniz/UILIB/blob/main/setting_icon_54x54_transparent.png",
+}
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -145,7 +151,48 @@ local function resolveImageContent(value, cacheName, fallback)
 		end
 	end
 
+	if fallback == false then
+		return nil
+	end
+
 	return fallback or contentId
+end
+
+local function getDefaultTabIcon(tabName)
+	local lowered = string.lower(tostring(tabName or ""))
+
+	if string.find(lowered, "setting", 1, true)
+		or string.find(lowered, "config", 1, true)
+		or string.find(lowered, "ui", 1, true) then
+		return DarkUI.DefaultTabIcons.Setting
+	end
+
+	if string.find(lowered, "player", 1, true)
+		or string.find(lowered, "profile", 1, true)
+		or string.find(lowered, "user", 1, true)
+		or string.find(lowered, "webhook", 1, true)
+		or string.find(lowered, "discord", 1, true) then
+		return DarkUI.DefaultTabIcons.Player
+	end
+
+	if string.find(lowered, "location", 1, true)
+		or string.find(lowered, "teleport", 1, true)
+		or string.find(lowered, "world", 1, true)
+		or string.find(lowered, "map", 1, true)
+		or string.find(lowered, "macro", 1, true)
+		or string.find(lowered, "movement", 1, true) then
+		return DarkUI.DefaultTabIcons.Location
+	end
+
+	if string.find(lowered, "home", 1, true)
+		or string.find(lowered, "main", 1, true)
+		or string.find(lowered, "auto", 1, true)
+		or string.find(lowered, "farm", 1, true)
+		or string.find(lowered, "lobby", 1, true) then
+		return DarkUI.DefaultTabIcons.Home
+	end
+
+	return nil
 end
 
 DarkUI.Fonts = {
@@ -2233,7 +2280,8 @@ function DarkUI:CreateWindow(config)
 
 		tabConfig = tabConfig or {}
 		local tabName = tabConfig.Name or ("Tab " .. tostring(#self.TabButtons + 1))
-		local tabIcon = resolveImageContent(tabConfig.Icon, "tab_" .. tabName)
+		local defaultTabIcon = getDefaultTabIcon(tabName)
+		local tabIcon = resolveImageContent(tabConfig.Icon or defaultTabIcon, "tab_" .. tabName, tabConfig.Icon and nil or false)
 
 		local tabDescription = tabConfig.Description or tabConfig.Subtitle
 		if not tabDescription or tabDescription == "" then
@@ -2323,7 +2371,7 @@ function DarkUI:CreateWindow(config)
 			AnchorPoint = Vector2.new(0, 0),
 			BackgroundColor3 = self.Theme.Accent,
 			BorderSizePixel = 0,
-			Position = iconOnlyTabs and UDim2.new(0, 20, 0.5, -14) or UDim2.new(0, 0, 0, 6),
+			Position = iconOnlyTabs and UDim2.new(0, -20, 0.5, -14) or UDim2.new(0, 0, 0, 6),
 			Size = UDim2.new(0, iconOnlyTabs and 4 or 3, 0, 0),
 			Visible = false,
 			Parent = tabButton,
