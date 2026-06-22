@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.5"
+DarkUI.Version = "1.3.7"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -866,19 +866,6 @@ function DarkUI:CreateWindow(config)
 			corner(20),
 			styledStroke(stroke(theme.Accent, 0.54, 1), "Accent"),
 		}), "Panel")
-
-		make("Frame", {
-			Name = "DarkUIAccent",
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundColor3 = theme.Accent,
-			BackgroundTransparency = 0.88,
-			BorderSizePixel = 0,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(44, 44),
-			Parent = logoFrame,
-		}, {
-			corner(999),
-		})
 
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
@@ -2760,24 +2747,12 @@ function DarkUI:CreateWindow(config)
 				styledText(DarkUI:Text({
 					Font = DarkUI.Fonts.Bold,
 					Parent = button,
-					Position = UDim2.fromOffset(buttonIcon and 42 or 14, 0),
-					Size = UDim2.new(1, buttonIcon and -86 or -58, 1, 0),
+					Position = UDim2.fromOffset(12, 0),
+					Size = UDim2.new(1, -24, 1, 0),
 					Text = options.Title or "Button",
 					TextSize = 15,
-					TextXAlignment = Enum.TextXAlignment.Left,
-				}), "Text")
-
-				local actionGlyph = styledText(DarkUI:Text({
-					AnchorPoint = Vector2.new(1, 0.5),
-					Font = DarkUI.Fonts.Bold,
-					Parent = button,
-					Position = UDim2.new(1, -17, 0.5, 0),
-					Size = UDim2.fromOffset(20, 24),
-					Text = ">",
-					TextSize = 18,
 					TextXAlignment = Enum.TextXAlignment.Center,
-				}), "Muted")
-				actionGlyph.TextTransparency = 0.12
+				}), "Text")
 
 				local control = buildControlApi(row)
 				attachPress(row, 0.985)
