@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.2"
+DarkUI.Version = "1.3.3"
 
 local function getFont(fontName, fallback)
 	local ok, font = pcall(function()
@@ -507,11 +507,13 @@ function DarkUI:CreateWindow(config)
 		end)
 	end
 
-	local headerHeight = 44
-	local tabHeight = 42
+	local showTitleBar = config.TitleBar == true or config.ShowTitleBar == true
+	local iconOnlyTabs = config.IconOnlyTabs ~= false
+	local headerHeight = showTitleBar and 44 or 0
+	local tabHeight = config.TabHeight or (iconOnlyTabs and 56 or 42)
 	local searchHeight = config.Search == true and 34 or 0
 	local footerHeight = config.Footer == true and 54 or 0
-	local navWidth = config.NavWidth or config.TabWidth or 168
+	local navWidth = config.NavWidth or config.TabWidth or (iconOnlyTabs and 82 or 168)
 	local windowSize = config.Size or UDim2.fromOffset(660, 460)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
@@ -602,6 +604,7 @@ function DarkUI:CreateWindow(config)
 		Name = "Header",
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, headerHeight),
+		Visible = showTitleBar,
 		ZIndex = 50,
 		Parent = root,
 	}, {
@@ -627,7 +630,7 @@ function DarkUI:CreateWindow(config)
 	})
 	titleBarLine:SetAttribute("DarkUIBackground", "TitleBarLine")
 
-	if windowIcon then
+	if showTitleBar and windowIcon then
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
 			Image = windowIcon,
@@ -651,6 +654,7 @@ function DarkUI:CreateWindow(config)
 		TextSize = 13,
 	}), "Text")
 	title.ZIndex = 52
+	title.Visible = showTitleBar
 
 	local subtitle = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Body,
@@ -661,6 +665,7 @@ function DarkUI:CreateWindow(config)
 		TextSize = 10,
 	}), "Muted")
 	subtitle.ZIndex = 52
+	subtitle.Visible = showTitleBar
 
 	local statusPill = styledBackground(make("TextLabel", {
 		AnchorPoint = Vector2.new(1, 0.5),
@@ -670,7 +675,7 @@ function DarkUI:CreateWindow(config)
 		Size = UDim2.fromOffset(74, 24),
 		Text = "WORKING",
 		TextSize = 10,
-		Visible = config.Status == true,
+		Visible = showTitleBar and config.Status == true,
 		ZIndex = 52,
 		Parent = header,
 	}, {
@@ -763,10 +768,11 @@ function DarkUI:CreateWindow(config)
 	local navPanel = styledBackground(make("Frame", {
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
-		Size = UDim2.new(0, navWidth, 1, -footerHeight),
+		Position = iconOnlyTabs and UDim2.fromOffset(12, 12) or UDim2.new(),
+		Size = iconOnlyTabs and UDim2.new(0, navWidth, 1, -footerHeight - 24) or UDim2.new(0, navWidth, 1, -footerHeight),
 		Parent = body,
 	}, {
-		corner(0),
+		corner(iconOnlyTabs and 22 or 0),
 	}), "Background")
 
 	styledBackground(make("Frame", {
@@ -778,7 +784,7 @@ function DarkUI:CreateWindow(config)
 	}), "TitleBarLine")
 
 	local navBrandText = tostring(config.NavBrand or "")
-	local hasNavBrand = navBrandText ~= ""
+	local hasNavBrand = (not iconOnlyTabs) and navBrandText ~= ""
 	local navHeaderHeight = hasNavBrand and 48 or 0
 	local navHeader = make("Frame", {
 		BackgroundTransparency = 1,
@@ -832,28 +838,28 @@ function DarkUI:CreateWindow(config)
 		ScrollBarImageColor3 = theme.Accent,
 		ScrollBarImageTransparency = 0.42,
 		ScrollBarThickness = 2,
-		Position = UDim2.fromOffset(0, navTabsStartY),
-		Size = UDim2.new(1, 0, 1, -(navTabsStartY + 6)),
+		Position = UDim2.fromOffset(0, iconOnlyTabs and 12 or navTabsStartY),
+		Size = UDim2.new(1, 0, 1, -((iconOnlyTabs and 24 or navTabsStartY + 6))),
 		Parent = navPanel,
 	}, {
 		make("UIListLayout", {
 			FillDirection = Enum.FillDirection.Vertical,
-			Padding = UDim.new(0, 4),
+			Padding = UDim.new(0, iconOnlyTabs and 10 or 4),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			HorizontalAlignment = iconOnlyTabs and Enum.HorizontalAlignment.Center or Enum.HorizontalAlignment.Left,
 		}),
 		make("UIPadding", {
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-			PaddingTop = UDim.new(0, 6),
+			PaddingLeft = UDim.new(0, iconOnlyTabs and 0 or 10),
+			PaddingRight = UDim.new(0, iconOnlyTabs and 0 or 10),
+			PaddingTop = UDim.new(0, iconOnlyTabs and 0 or 6),
 			PaddingBottom = UDim.new(0, 4),
 		}),
 	})
 
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, navWidth + 18, 0, 12),
-		Size = UDim2.new(1, -navWidth - 30, 1, -footerHeight - 24),
+		Position = iconOnlyTabs and UDim2.new(0, navWidth + 28, 0, 12) or UDim2.new(0, navWidth + 18, 0, 12),
+		Size = iconOnlyTabs and UDim2.new(1, -navWidth - 40, 1, -footerHeight - 24) or UDim2.new(1, -navWidth - 30, 1, -footerHeight - 24),
 		Parent = body,
 	})
 
@@ -1861,6 +1867,128 @@ function DarkUI:CreateWindow(config)
 		end)
 	end
 
+	local function paintTabIcon(tabButton, color, animated)
+		for _, descendant in ipairs(tabButton:GetDescendants()) do
+			if descendant.Name == "TabIconPart" and descendant:IsA("Frame") then
+				if animated then
+					tween(descendant, { BackgroundColor3 = color }, 0.14)
+				else
+					descendant.BackgroundColor3 = color
+				end
+			elseif descendant.Name == "TabIconImage" and descendant:IsA("ImageLabel") then
+				if animated then
+					tween(descendant, { ImageColor3 = color }, 0.14)
+				else
+					descendant.ImageColor3 = color
+				end
+			elseif descendant.Name == "TabIconStroke" and descendant:IsA("UIStroke") then
+				if animated then
+					tween(descendant, { Color = color }, 0.14)
+				else
+					descendant.Color = color
+				end
+			end
+		end
+	end
+
+	local function createTabGlyph(parent, tabName, iconId)
+		local host = make("Frame", {
+			Name = "TabIconHost",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(28, 28),
+			Parent = parent,
+		})
+
+		if iconId then
+			make("ImageLabel", {
+				Name = "TabIconImage",
+				BackgroundTransparency = 1,
+				Image = iconId,
+				ImageColor3 = window.Theme.Muted,
+				ScaleType = Enum.ScaleType.Fit,
+				Size = UDim2.fromScale(1, 1),
+				Parent = host,
+			})
+			return host
+		end
+
+		local lowered = string.lower(tostring(tabName or ""))
+		local kind = "misc"
+		if string.find(lowered, "setting", 1, true) or string.find(lowered, "config", 1, true) then
+			kind = "settings"
+		elseif string.find(lowered, "webhook", 1, true) or string.find(lowered, "discord", 1, true) then
+			kind = "webhook"
+		elseif string.find(lowered, "macro", 1, true) then
+			kind = "macro"
+		elseif string.find(lowered, "auto", 1, true) or string.find(lowered, "farm", 1, true) or string.find(lowered, "main", 1, true) then
+			kind = "home"
+		elseif string.find(lowered, "input", 1, true) then
+			kind = "input"
+		end
+
+		local function part(props, radius)
+			props.Name = "TabIconPart"
+			props.BorderSizePixel = 0
+			props.BackgroundColor3 = window.Theme.Muted
+			props.Parent = host
+			return make("Frame", props, { corner(radius or 2) })
+		end
+
+		local function outline(props, radius)
+			props.BackgroundTransparency = 1
+			props.BorderSizePixel = 0
+			props.Parent = host
+			return make("Frame", props, {
+				corner(radius or 6),
+				make("UIStroke", {
+					Name = "TabIconStroke",
+					Color = window.Theme.Muted,
+					Thickness = 2,
+					Transparency = 0.12,
+				}),
+			})
+		end
+
+		if kind == "settings" then
+			part({ Position = UDim2.fromOffset(12, 12), Size = UDim2.fromOffset(4, 4) }, 999)
+			part({ Position = UDim2.fromOffset(13, 3), Size = UDim2.fromOffset(2, 6) }, 1)
+			part({ Position = UDim2.fromOffset(13, 19), Size = UDim2.fromOffset(2, 6) }, 1)
+			part({ Position = UDim2.fromOffset(3, 13), Size = UDim2.fromOffset(6, 2) }, 1)
+			part({ Position = UDim2.fromOffset(19, 13), Size = UDim2.fromOffset(6, 2) }, 1)
+			part({ Position = UDim2.fromOffset(6, 6), Size = UDim2.fromOffset(5, 2), Rotation = 45 }, 1)
+			part({ Position = UDim2.fromOffset(17, 20), Size = UDim2.fromOffset(5, 2), Rotation = 45 }, 1)
+			part({ Position = UDim2.fromOffset(18, 6), Size = UDim2.fromOffset(5, 2), Rotation = -45 }, 1)
+			part({ Position = UDim2.fromOffset(6, 20), Size = UDim2.fromOffset(5, 2), Rotation = -45 }, 1)
+		elseif kind == "webhook" then
+			outline({ Position = UDim2.fromOffset(5, 6), Size = UDim2.fromOffset(18, 14) }, 5)
+			part({ Position = UDim2.fromOffset(9, 19), Size = UDim2.fromOffset(8, 2), Rotation = -28 }, 1)
+			part({ Position = UDim2.fromOffset(9, 11), Size = UDim2.fromOffset(10, 2) }, 1)
+			part({ Position = UDim2.fromOffset(9, 15), Size = UDim2.fromOffset(7, 2) }, 1)
+		elseif kind == "macro" then
+			part({ Position = UDim2.fromOffset(7, 7), Size = UDim2.fromOffset(3, 14), Rotation = -45 }, 2)
+			part({ Position = UDim2.fromOffset(7, 7), Size = UDim2.fromOffset(3, 14), Rotation = 45 }, 2)
+			part({ Position = UDim2.fromOffset(17, 7), Size = UDim2.fromOffset(3, 14), Rotation = -45 }, 2)
+			part({ Position = UDim2.fromOffset(17, 7), Size = UDim2.fromOffset(3, 14), Rotation = 45 }, 2)
+		elseif kind == "input" then
+			outline({ Position = UDim2.fromOffset(5, 6), Size = UDim2.fromOffset(18, 16) }, 4)
+			part({ Position = UDim2.fromOffset(9, 11), Size = UDim2.fromOffset(10, 2) }, 1)
+			part({ Position = UDim2.fromOffset(9, 16), Size = UDim2.fromOffset(7, 2) }, 1)
+		elseif kind == "home" then
+			part({ Position = UDim2.fromOffset(7, 13), Size = UDim2.fromOffset(14, 10) }, 2)
+			part({ Position = UDim2.fromOffset(6, 10), Size = UDim2.fromOffset(12, 3), Rotation = -35 }, 2)
+			part({ Position = UDim2.fromOffset(14, 10), Size = UDim2.fromOffset(12, 3), Rotation = 35 }, 2)
+			part({ Position = UDim2.fromOffset(13, 17), Size = UDim2.fromOffset(3, 6) }, 1)
+		else
+			part({ Position = UDim2.fromOffset(6, 7), Size = UDim2.fromOffset(3, 15), Rotation = 45 }, 2)
+			part({ Position = UDim2.fromOffset(19, 7), Size = UDim2.fromOffset(3, 15), Rotation = -45 }, 2)
+			part({ Position = UDim2.fromOffset(7, 13), Size = UDim2.fromOffset(14, 3) }, 2)
+		end
+
+		return host
+	end
+
 	function window:SelectTab(name)
 		for tabName, page in pairs(self.Pages) do
 			local selected = tabName == name
@@ -1869,8 +1997,9 @@ function DarkUI:CreateWindow(config)
 			local tabButton = self.TabButtons[tabName]
 			if tabButton then
 				tween(tabButton, {
-					BackgroundColor3 = selected and self.Theme.TabActive or self.Theme.Background,
+					BackgroundColor3 = selected and (iconOnlyTabs and self.Theme.Accent or self.Theme.TabActive) or self.Theme.Background,
 				}, 0.14)
+				paintTabIcon(tabButton, selected and (iconOnlyTabs and self.Theme.Background or self.Theme.Text) or self.Theme.Muted, true)
 
 				local tabTitle = tabButton:FindFirstChild("TabTitle")
 				if tabTitle then
@@ -2025,11 +2154,11 @@ function DarkUI:CreateWindow(config)
 			AutoButtonColor = false,
 			BorderSizePixel = 0,
 			Font = DarkUI.Fonts.Bold,
-			Size = UDim2.new(1, 0, 0, tabConfig.Height or tabHeight),
+			Size = iconOnlyTabs and UDim2.fromOffset(54, 54) or UDim2.new(1, 0, 0, tabConfig.Height or tabHeight),
 			Text = "",
 			Parent = tabs,
 		}, {
-			corner(7),
+			corner(iconOnlyTabs and 15 or 7),
 		}), "Background")
 		attachPress(tabButton, 0.97)
 
@@ -2041,7 +2170,7 @@ function DarkUI:CreateWindow(config)
 			Size = UDim2.fromScale(1, 1),
 			Parent = tabButton,
 		}, {
-			corner(7),
+			corner(iconOnlyTabs and 15 or 7),
 			make("UIGradient", {
 				Rotation = 0,
 				Transparency = NumberSequence.new({
@@ -2052,40 +2181,46 @@ function DarkUI:CreateWindow(config)
 			}),
 		})
 
-		local textOffset = tabIcon and 32 or 14
-		if tabIcon then
-			make("ImageLabel", {
-				BackgroundTransparency = 1,
-				Image = tabIcon,
-				Position = UDim2.fromOffset(10, 12),
-				ScaleType = Enum.ScaleType.Fit,
-				Size = UDim2.fromOffset(16, 16),
+		if iconOnlyTabs then
+			createTabGlyph(tabButton, tabName, tabIcon)
+		else
+			local textOffset = tabIcon and 32 or 14
+			if tabIcon then
+				make("ImageLabel", {
+					Name = "TabIconImage",
+					BackgroundTransparency = 1,
+					Image = tabIcon,
+					ImageColor3 = window.Theme.Muted,
+					Position = UDim2.fromOffset(10, 12),
+					ScaleType = Enum.ScaleType.Fit,
+					Size = UDim2.fromOffset(16, 16),
+					Parent = tabButton,
+				})
+			end
+
+			local titleLabel = styledText(DarkUI:Text({
+				Font = DarkUI.Fonts.Bold,
 				Parent = tabButton,
-			})
+				Position = UDim2.fromOffset(textOffset, 7),
+				Size = UDim2.new(1, -textOffset - 8, 0, 17),
+				Text = tabName,
+				TextSize = 12,
+				TextXAlignment = Enum.TextXAlignment.Left,
+			}), "Text")
+			titleLabel.Name = "TabTitle"
+
+			local descLabel = styledText(DarkUI:Text({
+				Font = DarkUI.Fonts.Body,
+				Parent = tabButton,
+				Position = UDim2.fromOffset(textOffset, 23),
+				Size = UDim2.new(1, -textOffset - 8, 0, 14),
+				Text = tabDescription,
+				TextSize = 9,
+				TextXAlignment = Enum.TextXAlignment.Left,
+			}), "Muted")
+			descLabel.Name = "TabDesc"
+			descLabel.TextTransparency = 0.42
 		end
-
-		local titleLabel = styledText(DarkUI:Text({
-			Font = DarkUI.Fonts.Bold,
-			Parent = tabButton,
-			Position = UDim2.fromOffset(textOffset, 7),
-			Size = UDim2.new(1, -textOffset - 8, 0, 17),
-			Text = tabName,
-			TextSize = 12,
-			TextXAlignment = Enum.TextXAlignment.Left,
-		}), "Text")
-		titleLabel.Name = "TabTitle"
-
-		local descLabel = styledText(DarkUI:Text({
-			Font = DarkUI.Fonts.Body,
-			Parent = tabButton,
-			Position = UDim2.fromOffset(textOffset, 23),
-			Size = UDim2.new(1, -textOffset - 8, 0, 14),
-			Text = tabDescription,
-			TextSize = 9,
-			TextXAlignment = Enum.TextXAlignment.Left,
-		}), "Muted")
-		descLabel.Name = "TabDesc"
-		descLabel.TextTransparency = 0.42
 
 		make("Frame", {
 			Name = "DarkUIAccent",
@@ -2106,7 +2241,7 @@ function DarkUI:CreateWindow(config)
 					BackgroundColor3 = window.Theme.Tab,
 				}, 0.12)
 				tween(getScale(tabButton), {
-					Scale = 1.006,
+					Scale = iconOnlyTabs and 1.04 or 1.006,
 				}, 0.12)
 			end
 		end)
@@ -3674,6 +3809,10 @@ function DarkUI:CreateWindow(config)
 			window:SelectTab(tabName)
 		end)
 
+		if iconOnlyTabs then
+			window:AttachTooltip(tabButton, tabName)
+		end
+
 		if not self.SelectedTab then
 			self:SelectTab(tabName)
 		end
@@ -3760,7 +3899,7 @@ function DarkUI:CreateWindow(config)
 		end
 	end
 
-	connect(header.InputBegan, function(input)
+	local function beginWindowDrag(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			if resizing then
 				return
@@ -3769,7 +3908,12 @@ function DarkUI:CreateWindow(config)
 			dragStart = input.Position
 			startPosition = root.Position
 		end
-	end)
+	end
+
+	connect(header.InputBegan, beginWindowDrag)
+	if not showTitleBar then
+		connect(navPanel.InputBegan, beginWindowDrag)
+	end
 
 	connect(resizeHandle.InputBegan, function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
