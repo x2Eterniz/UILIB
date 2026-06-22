@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.51"
+DarkUI.Version = "1.3.52"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -4262,11 +4262,11 @@ function DarkUI:CreateWindow(config)
 		local holder = tab.Columns[1]
 		holder.ScrollBarThickness = 2
 		holder.LayoutOrder = 2
-		holder.Position = UDim2.fromOffset(0, 44)
-		holder.Size = UDim2.new(1, 0, 1, -44)
+		holder.Position = UDim2.fromOffset(0, 0)
+		holder.Size = UDim2.fromScale(1, 1)
 		local holderPadding = holder:FindFirstChildOfClass("UIPadding")
 		if holderPadding then
-			holderPadding.PaddingTop = UDim.new(0, 0)
+			holderPadding.PaddingTop = UDim.new(0, 44)
 		end
 
 		local pageLayout = tab.Page:FindFirstChildOfClass("UIListLayout")
