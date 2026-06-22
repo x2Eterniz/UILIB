@@ -986,21 +986,21 @@ DarkUI.FontFaces = {
 	WindowTitle = getFontFace("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
 }
 DarkUI.TextScale = 1
-DarkUI.TextStrokeColor = Color3.fromRGB(27, 30, 35)
-DarkUI.TextStrokeTransparency = 1
+DarkUI.TextStrokeColor = Color3.fromRGB(18, 18, 22)
+DarkUI.TextStrokeTransparency = 0.62
 
 DarkUI.ThemePresets = {
 	Dark = {
-		Background = Color3.fromRGB(26, 26, 26),
-		Surface = Color3.fromRGB(24, 24, 24),
-		Panel = Color3.fromRGB(31, 31, 31),
-		PanelLight = Color3.fromRGB(16, 16, 16),
-		Tab = Color3.fromRGB(24, 24, 24),
-		TabActive = Color3.fromRGB(31, 31, 31),
-		Stroke = Color3.fromRGB(43, 43, 43),
-		Text = Color3.fromRGB(245, 245, 245),
-		Muted = Color3.fromRGB(160, 160, 160),
-		Accent = Color3.fromRGB(24, 179, 101),
+		Background = Color3.fromRGB(39, 39, 39),
+		Surface = Color3.fromRGB(30, 30, 30),
+		Panel = Color3.fromRGB(42, 42, 42),
+		PanelLight = Color3.fromRGB(18, 18, 18),
+		Tab = Color3.fromRGB(36, 36, 36),
+		TabActive = Color3.fromRGB(48, 62, 82),
+		Stroke = Color3.fromRGB(58, 58, 64),
+		Text = Color3.fromRGB(246, 248, 255),
+		Muted = Color3.fromRGB(174, 178, 188),
+		Accent = Color3.fromRGB(139, 188, 255),
 		Success = Color3.fromRGB(56, 219, 142),
 		Warning = Color3.fromRGB(250, 204, 21),
 		Error = Color3.fromRGB(248, 93, 106),
@@ -1261,7 +1261,7 @@ function DarkUI:CreateWindow(config)
 			end
 
 			instance.TextStrokeColor3 = DarkUI.TextStrokeColor
-			instance.TextStrokeTransparency = 1
+			instance.TextStrokeTransparency = DarkUI.TextStrokeTransparency
 		end
 
 		return instance
@@ -1351,17 +1351,17 @@ function DarkUI:CreateWindow(config)
 		end)
 	end
 
-	local headerHeight = 50
-	local tabHeight = 44
-	local searchHeight = config.Search == true and 36 or 0
+	local headerHeight = 58
+	local tabHeight = 48
+	local searchHeight = config.Search == true and 42 or 0
 	local showFooter = config.Footer == "legacy"
 	local footerHeight = showFooter and 54 or 0
-	local navWidth = config.NavWidth or 134
-	local windowSize = config.Size or UDim2.fromOffset(480, 400)
+	local navWidth = config.NavWidth or 210
+	local windowSize = config.Size or UDim2.fromOffset(945, 540)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
 	local windowIcon = resolveIcon(config.Icon)
-	local minWindowSize = config.MinSize or Vector2.new(430, 320)
+	local minWindowSize = config.MinSize or Vector2.new(650, 400)
 	local resizable = config.Resizable ~= false
 	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
 
@@ -1451,34 +1451,34 @@ function DarkUI:CreateWindow(config)
 		make("ImageLabel", {
 			BackgroundTransparency = 1,
 			Image = windowIcon,
-			Position = UDim2.fromOffset(16, 14),
+			Position = UDim2.fromOffset(18, 14),
 			ScaleType = Enum.ScaleType.Fit,
-			Size = UDim2.fromOffset(20, 20),
+			Size = UDim2.fromOffset(28, 28),
 			ZIndex = 52,
 			Parent = header,
 		})
 	end
 
-	local titleOffset = windowIcon and 42 or 16
+	local titleOffset = windowIcon and 56 or 22
 	local title = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Title,
 		FontFace = config.TitleFontFace or DarkUI.FontFaces.WindowTitle,
 		Parent = header,
 		Position = UDim2.fromOffset(titleOffset, 8),
 		RichText = true,
-		Size = UDim2.new(1, -150 - titleOffset, 0, 19),
+		Size = UDim2.new(1, -170 - titleOffset, 0, 25),
 		Text = config.Title or config.Name or "Vxizi Hub",
-		TextSize = 14,
+		TextSize = 20,
 	}), "Text")
 	title.ZIndex = 52
 
 	local subtitle = styledText(DarkUI:Text({
 		Font = DarkUI.Fonts.Body,
 		Parent = header,
-		Position = UDim2.fromOffset(titleOffset, 27),
-		Size = UDim2.new(1, -150 - titleOffset, 0, 14),
+		Position = UDim2.fromOffset(titleOffset, 34),
+		Size = UDim2.new(1, -170 - titleOffset, 0, 16),
 		Text = config.Subtitle or config.SubTitle or config.Description or "clean dark interface",
-		TextSize = 10,
+		TextSize = 12,
 	}), "Muted")
 	subtitle.ZIndex = 52
 
@@ -2080,7 +2080,7 @@ function DarkUI:CreateWindow(config)
 			if textKey and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) then
 				descendant.TextColor3 = self.Theme[textKey]
 				descendant.TextStrokeColor3 = DarkUI.TextStrokeColor
-				descendant.TextStrokeTransparency = 1
+				descendant.TextStrokeTransparency = DarkUI.TextStrokeTransparency
 				if descendant:IsA("TextBox") then
 					descendant.PlaceholderColor3 = self.Theme.Muted
 				end
@@ -2511,9 +2511,9 @@ function DarkUI:CreateWindow(config)
 
 			local tabButton = self.TabButtons[tabName]
 			if tabButton then
-				tween(tabButton, {
-					BackgroundColor3 = selected and self.Theme.TabActive or self.Theme.Background,
-				}, 0.14)
+					tween(tabButton, {
+						BackgroundColor3 = selected and self.Theme.TabActive or self.Theme.Surface,
+					}, 0.14)
 
 				local tabTitle = tabButton:FindFirstChild("TabTitle")
 				if tabTitle then
@@ -2547,7 +2547,7 @@ function DarkUI:CreateWindow(config)
 						accent.Visible = true
 					end
 					tween(accent, {
-						Size = selected and UDim2.new(0, 3, 1, -14) or UDim2.new(0, 3, 0, 0),
+						Size = selected and UDim2.new(0, 5, 1, -14) or UDim2.new(0, 5, 0, 0),
 						BackgroundTransparency = selected and 0 or 0.4,
 					}, 0.16)
 					if not selected then
@@ -2673,7 +2673,7 @@ function DarkUI:CreateWindow(config)
 			Parent = tabs,
 		}, {
 			corner(7),
-		}), "Background")
+		}), "Surface")
 		attachPress(tabButton, 0.97)
 
 		local activeGlow = make("Frame", {
@@ -2695,14 +2695,15 @@ function DarkUI:CreateWindow(config)
 			}),
 		})
 
-		local textOffset = tabIcon and 32 or 14
+		local textOffset = tabIcon and 38 or 20
 		if tabIcon then
 			make("ImageLabel", {
 				BackgroundTransparency = 1,
 				Image = tabIcon,
-				Position = UDim2.fromOffset(10, 12),
+				ImageColor3 = window.Theme.Text,
+				Position = UDim2.fromOffset(14, 14),
 				ScaleType = Enum.ScaleType.Fit,
-				Size = UDim2.fromOffset(16, 16),
+				Size = UDim2.fromOffset(18, 18),
 				Parent = tabButton,
 			})
 		end
@@ -2710,10 +2711,10 @@ function DarkUI:CreateWindow(config)
 		local titleLabel = styledText(DarkUI:Text({
 			Font = DarkUI.Fonts.Bold,
 			Parent = tabButton,
-			Position = UDim2.fromOffset(textOffset, 7),
-			Size = UDim2.new(1, -textOffset - 8, 0, 17),
+			Position = UDim2.fromOffset(textOffset, 8),
+			Size = UDim2.new(1, -textOffset - 10, 0, 20),
 			Text = tabName,
-			TextSize = 12,
+			TextSize = 16,
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Text")
 		titleLabel.Name = "TabTitle"
@@ -2721,10 +2722,10 @@ function DarkUI:CreateWindow(config)
 		local descLabel = styledText(DarkUI:Text({
 			Font = DarkUI.Fonts.Body,
 			Parent = tabButton,
-			Position = UDim2.fromOffset(textOffset, 23),
-			Size = UDim2.new(1, -textOffset - 8, 0, 14),
+			Position = UDim2.fromOffset(textOffset, 29),
+			Size = UDim2.new(1, -textOffset - 10, 0, 15),
 			Text = tabDescription,
-			TextSize = 9,
+			TextSize = 11,
 			TextXAlignment = Enum.TextXAlignment.Left,
 		}), "Muted")
 		descLabel.Name = "TabDesc"
@@ -2735,8 +2736,8 @@ function DarkUI:CreateWindow(config)
 			AnchorPoint = Vector2.new(0, 0),
 			BackgroundColor3 = self.Theme.Accent,
 			BorderSizePixel = 0,
-			Position = UDim2.new(0, 0, 0, 6),
-			Size = UDim2.new(0, 3, 0, 0),
+			Position = UDim2.new(0, 0, 0, 7),
+			Size = UDim2.new(0, 5, 0, 0),
 			Visible = false,
 			Parent = tabButton,
 		}, {
@@ -2757,7 +2758,7 @@ function DarkUI:CreateWindow(config)
 		connect(tabButton.MouseLeave, function()
 			if window.SelectedTab ~= tabName then
 				tween(tabButton, {
-					BackgroundColor3 = window.Theme.Background,
+					BackgroundColor3 = window.Theme.Surface,
 				}, 0.12)
 			end
 			tween(getScale(tabButton), {
@@ -2765,7 +2766,7 @@ function DarkUI:CreateWindow(config)
 			}, 0.12)
 		end)
 
-		local columnCount = tabConfig.Columns or config.Columns or 1
+		local columnCount = tabConfig.Columns or config.Columns or 2
 		local useTwoColumns = columnCount ~= 1
 		local page = make("Frame", {
 			BackgroundTransparency = 1,
@@ -2874,12 +2875,12 @@ function DarkUI:CreateWindow(config)
 				Size = UDim2.new(1, -8, 0, 0),
 				Parent = target,
 			}, {
-				corner(6),
-				styledStroke(stroke(Color3.fromRGB(38, 38, 38), 0.08, 1), "Stroke"),
+				corner(4),
+				styledStroke(stroke(Color3.fromRGB(62, 66, 74), 0.28, 1), "Stroke"),
 				make("UIPadding", {
-					PaddingBottom = UDim.new(0, 14),
-					PaddingLeft = UDim.new(0, 14),
-					PaddingRight = UDim.new(0, 14),
+					PaddingBottom = UDim.new(0, 12),
+					PaddingLeft = UDim.new(0, 12),
+					PaddingRight = UDim.new(0, 12),
 					PaddingTop = UDim.new(0, 0),
 				}),
 				make("UIListLayout", {
@@ -2893,7 +2894,7 @@ function DarkUI:CreateWindow(config)
 				AutoButtonColor = false,
 				BackgroundTransparency = 1,
 				LayoutOrder = 0,
-				Size = UDim2.new(1, 0, 0, 38),
+				Size = UDim2.new(1, 0, 0, 42),
 				Text = "",
 				Parent = section,
 			})
@@ -2943,16 +2944,16 @@ function DarkUI:CreateWindow(config)
 				Parent = headerButton,
 				Position = UDim2.fromOffset(hasSectionToggle and 42 or 0, 0),
 				Size = UDim2.new(1, (hasSectionToggle and -70 or -28), 1, 0),
-				Text = string.upper(options.Title or "SECTION"),
-				TextSize = 13,
-				TextXAlignment = Enum.TextXAlignment.Left,
-			}), "Text")
+				Text = options.Title or "Section",
+				TextSize = 18,
+				TextXAlignment = hasSectionToggle and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center,
+			}), "Accent")
 
 			local isCollapsible = options.Collapsible ~= false
 			local foldIcon = make("Frame", {
 				AnchorPoint = Vector2.new(1, 0),
 				BackgroundTransparency = 1,
-				Position = UDim2.new(1, -2, 0, 10),
+				Position = UDim2.new(1, -2, 0, 14),
 				Rotation = options.DefaultOpen == false and -90 or 0,
 				Size = UDim2.fromOffset(14, 14),
 				Visible = isCollapsible,
@@ -2989,6 +2990,14 @@ function DarkUI:CreateWindow(config)
 				Size = UDim2.new(1, 0, 0, 1),
 				Parent = headerButton,
 			})
+
+			styledBackground(make("Frame", {
+				BorderSizePixel = 0,
+				BackgroundTransparency = 0.35,
+				Position = UDim2.new(0, 0, 1, -7),
+				Size = UDim2.new(1, 0, 0, 1),
+				Parent = headerButton,
+			}), "Stroke")
 
 			local bodyFrame = make("Frame", {
 				AutomaticSize = Enum.AutomaticSize.Y,
