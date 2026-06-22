@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.31"
+DarkUI.Version = "1.3.32"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -1057,17 +1057,16 @@ function DarkUI:CreateWindow(config)
 		}),
 	})
 
-	local activeRailPulse = nil
 	local activeRailGlow = nil
 	local activeRailIndicator = nil
 	local activeRailIndicatorX = -1
 	if iconOnlyTabs then
 		activeRailGlow = styledBackground(make("Frame", {
 			Name = "DarkUITabRailGlow",
-			BackgroundTransparency = 0.9,
+			BackgroundTransparency = 0.46,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX - 4, iconTabsStartY - 4),
-			Size = UDim2.fromOffset(13, 36),
+			Position = UDim2.fromOffset(activeRailIndicatorX - 3, iconTabsStartY - 3),
+			Size = UDim2.fromOffset(11, 34),
 			Visible = false,
 			ZIndex = 19,
 			Parent = navPanel,
@@ -1076,29 +1075,8 @@ function DarkUI:CreateWindow(config)
 			make("UIGradient", {
 				Rotation = 0,
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0, 0.62),
-					NumberSequenceKeypoint.new(0.42, 0.18),
-					NumberSequenceKeypoint.new(1, 1),
-				}),
-			}),
-		}), "Accent")
-
-		activeRailPulse = styledBackground(make("Frame", {
-			Name = "DarkUITabRailPulse",
-			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX - 8, iconTabsStartY - 10),
-			Size = UDim2.fromOffset(23, 48),
-			Visible = false,
-			ZIndex = 20,
-			Parent = navPanel,
-		}, {
-			corner(999),
-			make("UIGradient", {
-				Rotation = 0,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0, 0.72),
-					NumberSequenceKeypoint.new(0.36, 0.08),
+					NumberSequenceKeypoint.new(0, 0.86),
+					NumberSequenceKeypoint.new(0.35, 0.18),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
@@ -2277,29 +2255,14 @@ function DarkUI:CreateWindow(config)
 						if activeRailGlow then
 							activeRailGlow.Visible = true
 							activeRailGlow.BackgroundColor3 = self.Theme.Accent
+							if flash then
+								activeRailGlow.BackgroundTransparency = 0.18
+							end
 							tween(activeRailGlow, {
-								Position = UDim2.fromOffset(activeRailIndicatorX - 4, targetY - 4),
-								Size = UDim2.fromOffset(13, 36),
-								BackgroundTransparency = 0.9,
+								Position = UDim2.fromOffset(activeRailIndicatorX - 3, targetY - 3),
+								Size = UDim2.fromOffset(11, 34),
+								BackgroundTransparency = 0.46,
 							}, 0.18)
-						end
-
-						if activeRailPulse and flash then
-							activeRailPulse.Visible = true
-							activeRailPulse.BackgroundColor3 = self.Theme.Accent
-							activeRailPulse.Position = UDim2.fromOffset(activeRailIndicatorX - 6, targetY - 8)
-							activeRailPulse.Size = UDim2.fromOffset(19, 44)
-							activeRailPulse.BackgroundTransparency = 0.42
-							tween(activeRailPulse, {
-								Position = UDim2.fromOffset(activeRailIndicatorX - 12, targetY - 15),
-								Size = UDim2.fromOffset(31, 58),
-								BackgroundTransparency = 1,
-							}, 0.28)
-							task.delay(0.3, function()
-								if activeRailPulse and activeRailPulse.Parent then
-									activeRailPulse.Visible = false
-								end
-							end)
 						end
 
 						activeRailIndicator.Visible = true
