@@ -15,10 +15,11 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.55"
+DarkUI.Version = "1.3.56"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
+DarkUI.DefaultDropdownArrow = "https://github.com/x2Eterniz/UILIB/blob/main/angle-right.png"
 DarkUI.ImageCache = {}
 DarkUI.DefaultTabIcons = {
 	Home = "https://github.com/x2Eterniz/UILIB/blob/main/home_54x54.png",
@@ -695,6 +696,7 @@ function DarkUI:CreateWindow(config)
 	local windowPosition = config.Position or UDim2.fromScale(0.5, 0.5)
 	local configuredLogo = config.Icon or config.Logo or config.HubIcon
 	local windowIcon = resolveImageContent(configuredLogo or DarkUI.DefaultLogo, "logo", configuredLogo and nil or DarkUI.DefaultLogoFallback)
+	local dropdownArrowIcon = resolveImageContent(config.DropdownArrowIcon or config.DropdownArrow or DarkUI.DefaultDropdownArrow, "dropdown_arrow", false)
 	local minWindowSize = config.MinSize or Vector2.new(520, 360)
 	local resizable = config.Resizable ~= false
 	local gripSize = math.max(30, tonumber(config.ResizeGripSize) or 44)
@@ -1805,6 +1807,8 @@ function DarkUI:CreateWindow(config)
 			elseif descendant.Name == "DarkUIFooterIcon" and descendant:IsA("ImageLabel") then
 				local mode = descendant:GetAttribute("DarkUIFooterIconState")
 				descendant.ImageColor3 = mode == "Active" and self.Theme.Accent or self.Theme.Muted
+			elseif descendant.Name == "DarkUIAccentImage" and descendant:IsA("ImageLabel") then
+				descendant.ImageColor3 = self.Theme.Accent
 			elseif descendant:IsA("ScrollingFrame") then
 				descendant.ScrollBarImageColor3 = self.Theme.Accent
 			end
@@ -3578,33 +3582,53 @@ function DarkUI:CreateWindow(config)
 					TextSize = 13,
 				}), "Text")
 
-				local arrow = make("Frame", {
-					AnchorPoint = Vector2.new(1, 0.5),
-					BackgroundTransparency = 1,
-					Position = UDim2.new(1, -9, 0.5, 0),
-					Rotation = discordCollapse and -90 or 0,
-					Size = UDim2.fromOffset(20, 18),
-					Parent = button,
-				}, {
-					styledBackground(make("Frame", {
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						BorderSizePixel = 0,
-						Position = UDim2.fromOffset(7, 9),
-						Rotation = 45,
-						Size = UDim2.fromOffset(11, 3),
+				local arrowClosedRotation = discordCollapse and 0 or 90
+				local arrowOpenRotation = 90
+				local arrow
+				if dropdownArrowIcon then
+					arrow = make("ImageLabel", {
+						Name = "DarkUIAccentImage",
+						AnchorPoint = Vector2.new(1, 0.5),
+						BackgroundTransparency = 1,
+						Image = dropdownArrowIcon,
+						ImageColor3 = window.Theme.Accent,
+						Position = UDim2.new(1, -9, 0.5, 0),
+						Rotation = arrowClosedRotation,
+						ScaleType = Enum.ScaleType.Fit,
+						Size = UDim2.fromOffset(18, 18),
+						Parent = button,
+					})
+				else
+					arrowOpenRotation = 0
+					arrowClosedRotation = discordCollapse and -90 or 0
+					arrow = make("Frame", {
+						AnchorPoint = Vector2.new(1, 0.5),
+						BackgroundTransparency = 1,
+						Position = UDim2.new(1, -9, 0.5, 0),
+						Rotation = arrowClosedRotation,
+						Size = UDim2.fromOffset(20, 18),
+						Parent = button,
 					}, {
-						corner(999),
-					}), "Accent"),
-					styledBackground(make("Frame", {
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						BorderSizePixel = 0,
-						Position = UDim2.fromOffset(13, 9),
-						Rotation = -45,
-						Size = UDim2.fromOffset(11, 3),
-					}, {
-						corner(999),
-					}), "Accent"),
-				})
+						styledBackground(make("Frame", {
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							BorderSizePixel = 0,
+							Position = UDim2.fromOffset(7, 9),
+							Rotation = 45,
+							Size = UDim2.fromOffset(11, 3),
+						}, {
+							corner(999),
+						}), "Accent"),
+						styledBackground(make("Frame", {
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							BorderSizePixel = 0,
+							Position = UDim2.fromOffset(13, 9),
+							Rotation = -45,
+							Size = UDim2.fromOffset(11, 3),
+						}, {
+							corner(999),
+						}), "Accent"),
+					})
+				end
 				attachHover(button, "Input", "PanelLight", 1.01)
 				attachPress(button, 0.96)
 
@@ -3726,7 +3750,7 @@ function DarkUI:CreateWindow(config)
 						}, 0.16)
 					end
 					tween(arrow, {
-						Rotation = open and 0 or (discordCollapse and -90 or 0),
+						Rotation = open and arrowOpenRotation or arrowClosedRotation,
 					}, 0.16)
 					if not open then
 						task.delay(0.16, function()
