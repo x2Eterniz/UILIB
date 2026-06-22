@@ -589,7 +589,7 @@ function DarkUI:CreateWindow(config)
 		rootStroke,
 	})
 	root:SetAttribute("DarkUIBackground", "Background")
-	root.UIStroke:SetAttribute("DarkUIStroke", "Stroke")
+	rootStroke:SetAttribute("DarkUIStroke", "Stroke")
 
 	local rootScale = make("UIScale", {
 		Scale = 0.96,
