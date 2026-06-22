@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.22"
+DarkUI.Version = "1.3.23"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/icons8-natural-user-interface-54.png"
@@ -2856,7 +2856,8 @@ function DarkUI:CreateWindow(config)
 					requestedButtonIcon = nil
 				end
 
-				local buttonIcon = resolveImageContent(useDefaultButtonIcon and DarkUI.DefaultButtonIcon or requestedButtonIcon, "button_" .. (options.Title or options.Text or "icon"), useDefaultButtonIcon and false or nil)
+				local buttonIcon = useDefaultButtonIcon and nil or resolveImageContent(requestedButtonIcon, "button_" .. (options.Title or options.Text or "icon"))
+				local hasActionIcon = useDefaultButtonIcon or buttonIcon ~= nil
 				local row = createRow(options, 44)
 
 				local button = make("TextButton", {
@@ -2871,7 +2872,33 @@ function DarkUI:CreateWindow(config)
 					corner(13),
 				})
 
-				if buttonIcon then
+				if useDefaultButtonIcon then
+					local iconHost = make("Frame", {
+						AnchorPoint = Vector2.new(1, 0.5),
+						BackgroundTransparency = 1,
+						Position = UDim2.new(1, -16, 0.5, 0),
+						Size = UDim2.fromOffset(20, 20),
+						Parent = button,
+					})
+
+					local function iconPart(props, radius)
+						props.BorderSizePixel = 0
+						props.Parent = iconHost
+						return styledBackground(make("Frame", props, {
+							corner(radius or 999),
+						}), "Text")
+					end
+
+					iconPart({ Position = UDim2.fromOffset(8, 8), Size = UDim2.fromOffset(4, 4) })
+					iconPart({ Position = UDim2.fromOffset(9, 1), Size = UDim2.fromOffset(2, 5) }, 1)
+					iconPart({ Position = UDim2.fromOffset(9, 14), Size = UDim2.fromOffset(2, 5) }, 1)
+					iconPart({ Position = UDim2.fromOffset(1, 9), Size = UDim2.fromOffset(5, 2) }, 1)
+					iconPart({ Position = UDim2.fromOffset(14, 9), Size = UDim2.fromOffset(5, 2) }, 1)
+					iconPart({ Position = UDim2.fromOffset(3, 4), Rotation = 45, Size = UDim2.fromOffset(5, 2) }, 1)
+					iconPart({ Position = UDim2.fromOffset(12, 4), Rotation = -45, Size = UDim2.fromOffset(5, 2) }, 1)
+					iconPart({ Position = UDim2.fromOffset(3, 15), Rotation = -45, Size = UDim2.fromOffset(5, 2) }, 1)
+					iconPart({ Position = UDim2.fromOffset(12, 15), Rotation = 45, Size = UDim2.fromOffset(5, 2) }, 1)
+				elseif buttonIcon then
 					make("ImageLabel", {
 						AnchorPoint = Vector2.new(1, 0.5),
 						BackgroundTransparency = 1,
@@ -2888,7 +2915,7 @@ function DarkUI:CreateWindow(config)
 					Font = DarkUI.Fonts.Bold,
 					Parent = button,
 					Position = UDim2.fromOffset(14, 0),
-					Size = UDim2.new(1, buttonIcon and -54 or -28, 1, 0),
+					Size = UDim2.new(1, hasActionIcon and -54 or -28, 1, 0),
 					Text = options.Title or "Button",
 					TextSize = 15,
 					TextXAlignment = Enum.TextXAlignment.Left,
