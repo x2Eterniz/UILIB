@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.52"
+DarkUI.Version = "1.3.53"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -4486,7 +4486,7 @@ function DarkUI:CreateWindow(config)
 		})
 
 		local themeSection = tab:AddSection({
-			Title = "Theme",
+			Title = "Theme Manager",
 			Collapsible = false,
 		})
 
@@ -4543,27 +4543,37 @@ function DarkUI:CreateWindow(config)
 			Collapsible = false,
 		})
 
-		local configName = snapshotsSection:AddTextBox({
+		snapshotsSection:AddParagraph({
+			Title = "Snapshot Profiles",
+			Text = "Save, load, or delete UI states from the Config Manager section.",
+		})
+
+		local configManagerSection = tab:AddSection({
+			Title = "Config Manager",
+			Collapsible = false,
+		})
+
+		local configName = configManagerSection:AddTextBox({
 			Title = "Config Name",
 			Default = string.gsub(self.ConfigName, "%.json$", ""),
 			Placeholder = "default",
 		})
 
-		snapshotsSection:AddButton({
+		configManagerSection:AddButton({
 			Title = "Save Snapshot",
 			Callback = function()
 				self:SaveConfig(configName:Get())
 			end,
 		})
 
-		snapshotsSection:AddButton({
+		configManagerSection:AddButton({
 			Title = "Load Snapshot",
 			Callback = function()
 				self:LoadConfig(configName:Get())
 			end,
 		})
 
-		snapshotsSection:AddButton({
+		configManagerSection:AddButton({
 			Title = "Delete Snapshot",
 			Callback = function()
 				self:Confirm({
@@ -4580,7 +4590,7 @@ function DarkUI:CreateWindow(config)
 		settingsSubSections = {
 			General = { generalSection, windowSection },
 			Theme = { themeSection },
-			Snapshots = { snapshotsSection },
+			Snapshots = { snapshotsSection, configManagerSection },
 		}
 		registerRenderer(function()
 			setBuiltInSettingsPage(activeBuiltInSettingsPage)
