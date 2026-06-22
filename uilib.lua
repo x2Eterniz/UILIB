@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.49"
+DarkUI.Version = "1.3.50"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -4357,6 +4357,7 @@ function DarkUI:CreateWindow(config)
 				LayoutOrder = settingsSubTabOrder,
 				Size = UDim2.new(1 / 3, 0, 1, 0),
 				Text = "",
+				ZIndex = 32,
 				Parent = subNav,
 			})
 
@@ -4369,6 +4370,7 @@ function DarkUI:CreateWindow(config)
 				TextSize = 17,
 				TextXAlignment = Enum.TextXAlignment.Center,
 			}), "Muted")
+			label.ZIndex = 33
 
 			local line = styledBackground(make("Frame", {
 				AnchorPoint = Vector2.new(0.5, 1),
@@ -4376,6 +4378,7 @@ function DarkUI:CreateWindow(config)
 				BorderSizePixel = 0,
 				Position = UDim2.new(0.5, 0, 1, -7),
 				Size = UDim2.new(0, 0, 0, 2),
+				ZIndex = 33,
 				Parent = button,
 			}, {
 				corner(999),
