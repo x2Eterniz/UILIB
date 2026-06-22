@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.21"
+DarkUI.Version = "1.3.22"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/icons8-natural-user-interface-54.png"
@@ -2876,6 +2876,7 @@ function DarkUI:CreateWindow(config)
 						AnchorPoint = Vector2.new(1, 0.5),
 						BackgroundTransparency = 1,
 						Image = buttonIcon,
+						ImageColor3 = window.Theme.Text,
 						Position = UDim2.new(1, -16, 0.5, 0),
 						ScaleType = Enum.ScaleType.Fit,
 						Size = UDim2.fromOffset(20, 20),
