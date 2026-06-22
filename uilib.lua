@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.17"
+DarkUI.Version = "1.3.18"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -1024,6 +1024,22 @@ function DarkUI:CreateWindow(config)
 			PaddingBottom = UDim.new(0, 4),
 		}),
 	})
+
+	local activeRailIndicator = nil
+	if iconOnlyTabs then
+		activeRailIndicator = styledBackground(make("Frame", {
+			Name = "DarkUITabRailIndicator",
+			BackgroundTransparency = 0,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(8, iconTabsStartY),
+			Size = UDim2.fromOffset(4, 28),
+			Visible = false,
+			ZIndex = 20,
+			Parent = navPanel,
+		}, {
+			corner(999),
+		}), "Accent")
+	end
 
 	local contentPanel = make("Frame", {
 		BackgroundTransparency = 1,
@@ -2172,6 +2188,27 @@ function DarkUI:CreateWindow(config)
 
 			local tabButton = self.TabButtons[tabName]
 			if tabButton then
+				if iconOnlyTabs and activeRailIndicator and selected then
+					local function syncRailIndicator()
+						if not activeRailIndicator.Parent or not tabButton.Parent or tabButton.AbsoluteSize.Y <= 0 then
+							return
+						end
+
+						local targetY = (tabButton.AbsolutePosition.Y - navPanel.AbsolutePosition.Y) + math.floor((tabButton.AbsoluteSize.Y - 28) / 2)
+						activeRailIndicator.Visible = true
+						activeRailIndicator.BackgroundColor3 = self.Theme.Accent
+						tween(activeRailIndicator, {
+							Position = UDim2.fromOffset(8, targetY),
+							Size = UDim2.fromOffset(4, 28),
+							BackgroundTransparency = 0,
+						}, 0.16)
+					end
+
+					syncRailIndicator()
+					task.defer(syncRailIndicator)
+					task.delay(0.03, syncRailIndicator)
+				end
+
 				tween(tabButton, {
 					BackgroundColor3 = selected and (iconOnlyTabs and self.Theme.Accent or self.Theme.TabActive) or self.Theme.Background,
 					BackgroundTransparency = iconOnlyTabs and (selected and 0 or 1) or (selected and (self.Acrylic and (self.Theme.TabActiveTransparency or 0.08) or 0) or (self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0)),
@@ -2403,18 +2440,20 @@ function DarkUI:CreateWindow(config)
 			descLabel.TextTransparency = 0.42
 		end
 
-		make("Frame", {
-			Name = "DarkUIAccent",
-			AnchorPoint = Vector2.new(0, 0),
-			BackgroundColor3 = self.Theme.Accent,
-			BorderSizePixel = 0,
-			Position = iconOnlyTabs and UDim2.new(0, -20, 0.5, -14) or UDim2.new(0, 0, 0, 6),
-			Size = UDim2.new(0, iconOnlyTabs and 4 or 3, 0, 0),
-			Visible = false,
-			Parent = tabButton,
-		}, {
-			corner(999),
-		})
+		if not iconOnlyTabs then
+			make("Frame", {
+				Name = "DarkUIAccent",
+				AnchorPoint = Vector2.new(0, 0),
+				BackgroundColor3 = self.Theme.Accent,
+				BorderSizePixel = 0,
+				Position = UDim2.new(0, 0, 0, 6),
+				Size = UDim2.new(0, 3, 0, 0),
+				Visible = false,
+				Parent = tabButton,
+			}, {
+				corner(999),
+			})
+		end
 
 		connect(tabButton.MouseEnter, function()
 			if window.SelectedTab ~= tabName then
