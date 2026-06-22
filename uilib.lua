@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.24"
+DarkUI.Version = "1.3.25"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/click.png"
@@ -1026,9 +1026,31 @@ function DarkUI:CreateWindow(config)
 		}),
 	})
 
+	local activeRailGlow = nil
 	local activeRailIndicator = nil
 	local activeRailIndicatorX = -1
 	if iconOnlyTabs then
+		activeRailGlow = styledBackground(make("Frame", {
+			Name = "DarkUITabRailGlow",
+			BackgroundTransparency = 0.78,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(activeRailIndicatorX - 5, iconTabsStartY - 6),
+			Size = UDim2.fromOffset(15, 40),
+			Visible = false,
+			ZIndex = 19,
+			Parent = navPanel,
+		}, {
+			corner(999),
+			make("UIGradient", {
+				Rotation = 0,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.62),
+					NumberSequenceKeypoint.new(0.42, 0.18),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		}), "Accent")
+
 		activeRailIndicator = styledBackground(make("Frame", {
 			Name = "DarkUITabRailIndicator",
 			BackgroundTransparency = 0,
@@ -1036,7 +1058,7 @@ function DarkUI:CreateWindow(config)
 			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY),
 			Size = UDim2.fromOffset(5, 28),
 			Visible = false,
-			ZIndex = 20,
+			ZIndex = 21,
 			Parent = navPanel,
 		}, {
 			corner(999),
@@ -1657,7 +1679,7 @@ function DarkUI:CreateWindow(config)
 					ColorSequenceKeypoint.new(1, self.Theme.TitleBarLine),
 				})
 			elseif descendant.Name == "DarkUITabActiveGlow" and descendant:IsA("Frame") then
-				descendant.BackgroundColor3 = self.Theme.Accent
+				descendant.BackgroundColor3 = self.Theme.Text
 			elseif descendant.Name == "DarkUIGlow" and descendant:IsA("Frame") then
 				descendant.BackgroundColor3 = self.Theme.Accent
 			elseif descendant.Name == "DarkUIGlowStroke" and descendant:IsA("UIStroke") then
@@ -2197,6 +2219,16 @@ function DarkUI:CreateWindow(config)
 						end
 
 						local targetY = (tabButton.AbsolutePosition.Y - navPanel.AbsolutePosition.Y) + math.floor((tabButton.AbsoluteSize.Y - 28) / 2)
+						if activeRailGlow then
+							activeRailGlow.Visible = true
+							activeRailGlow.BackgroundColor3 = self.Theme.Accent
+							tween(activeRailGlow, {
+								Position = UDim2.fromOffset(activeRailIndicatorX - 5, targetY - 6),
+								Size = UDim2.fromOffset(15, 40),
+								BackgroundTransparency = 0.78,
+							}, 0.18)
+						end
+
 						activeRailIndicator.Visible = true
 						activeRailIndicator.BackgroundColor3 = self.Theme.Accent
 						tween(activeRailIndicator, {
@@ -2213,7 +2245,7 @@ function DarkUI:CreateWindow(config)
 
 				tween(tabButton, {
 					BackgroundColor3 = selected and (iconOnlyTabs and self.Theme.Accent or self.Theme.TabActive) or self.Theme.Background,
-					BackgroundTransparency = iconOnlyTabs and (selected and 0 or 1) or (selected and (self.Acrylic and (self.Theme.TabActiveTransparency or 0.08) or 0) or (self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0)),
+					BackgroundTransparency = iconOnlyTabs and (selected and 0.04 or 1) or (selected and (self.Acrylic and (self.Theme.TabActiveTransparency or 0.08) or 0) or (self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0)),
 				}, 0.14)
 				paintTabIcon(tabButton, selected and self.Theme.Text or self.Theme.Muted, true)
 
@@ -2239,7 +2271,15 @@ function DarkUI:CreateWindow(config)
 				local activeGlow = tabButton:FindFirstChild("DarkUITabActiveGlow")
 				if activeGlow then
 					tween(activeGlow, {
-						BackgroundTransparency = selected and 0 or 1,
+						BackgroundTransparency = selected and (iconOnlyTabs and 0.32 or 0) or 1,
+					}, 0.14)
+				end
+
+				local tabStroke = tabButton:FindFirstChild("DarkUITabStroke")
+				if tabStroke then
+					tabStroke.Color = selected and (iconOnlyTabs and self.Theme.Text or self.Theme.Accent) or self.Theme.Stroke
+					tween(tabStroke, {
+						Transparency = selected and (iconOnlyTabs and 0.58 or 0.35) or 1,
 					}, 0.14)
 				end
 
@@ -2382,9 +2422,13 @@ function DarkUI:CreateWindow(config)
 		end
 		attachPress(tabButton, 0.97)
 
+		local tabStroke = stroke(self.Theme.Text, 1, 1)
+		tabStroke.Name = "DarkUITabStroke"
+		tabStroke.Parent = tabButton
+
 		local activeGlow = make("Frame", {
 			Name = "DarkUITabActiveGlow",
-			BackgroundColor3 = self.Theme.Accent,
+			BackgroundColor3 = self.Theme.Text,
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			Size = UDim2.fromScale(1, 1),
@@ -2392,10 +2436,10 @@ function DarkUI:CreateWindow(config)
 		}, {
 			corner(iconOnlyTabs and 15 or 7),
 			make("UIGradient", {
-				Rotation = 0,
+				Rotation = 35,
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0, 0.86),
-					NumberSequenceKeypoint.new(0.45, 0.92),
+					NumberSequenceKeypoint.new(0, 0.72),
+					NumberSequenceKeypoint.new(0.35, 0.9),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
