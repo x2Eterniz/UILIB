@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.40"
+DarkUI.Version = "1.3.41"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -1065,22 +1065,22 @@ function DarkUI:CreateWindow(config)
 	if iconOnlyTabs then
 		activeRailGlowOuter = styledBackground(make("Frame", {
 			Name = "DarkUITabRailGlowOuter",
-			BackgroundTransparency = 0.84,
+			BackgroundTransparency = 0.78,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX - 1, iconTabsStartY - 7),
-			Size = UDim2.fromOffset(14, 44),
+			Position = UDim2.fromOffset(activeRailIndicatorX - 3, iconTabsStartY - 9),
+			Size = UDim2.fromOffset(20, 48),
 			Visible = false,
 			ZIndex = 18,
 			Parent = navPanel,
 		}, {
 			corner(999),
 			make("UIGradient", {
-				Rotation = 0,
+				Rotation = 90,
 				Transparency = NumberSequence.new({
 					NumberSequenceKeypoint.new(0, 1),
-					NumberSequenceKeypoint.new(0.22, 0.86),
-					NumberSequenceKeypoint.new(0.5, 0.5),
-					NumberSequenceKeypoint.new(0.78, 0.86),
+					NumberSequenceKeypoint.new(0.22, 0.84),
+					NumberSequenceKeypoint.new(0.5, 0.48),
+					NumberSequenceKeypoint.new(0.78, 0.84),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
@@ -1088,22 +1088,22 @@ function DarkUI:CreateWindow(config)
 
 		activeRailGlowMid = styledBackground(make("Frame", {
 			Name = "DarkUITabRailGlowMid",
-			BackgroundTransparency = 0.68,
+			BackgroundTransparency = 0.55,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY - 4),
-			Size = UDim2.fromOffset(10, 38),
+			Position = UDim2.fromOffset(activeRailIndicatorX - 1, iconTabsStartY - 5),
+			Size = UDim2.fromOffset(14, 40),
 			Visible = false,
 			ZIndex = 19,
 			Parent = navPanel,
 		}, {
 			corner(999),
 			make("UIGradient", {
-				Rotation = 0,
+				Rotation = 90,
 				Transparency = NumberSequence.new({
 					NumberSequenceKeypoint.new(0, 1),
-					NumberSequenceKeypoint.new(0.24, 0.72),
-					NumberSequenceKeypoint.new(0.5, 0.24),
-					NumberSequenceKeypoint.new(0.76, 0.72),
+					NumberSequenceKeypoint.new(0.24, 0.66),
+					NumberSequenceKeypoint.new(0.5, 0.16),
+					NumberSequenceKeypoint.new(0.76, 0.66),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
@@ -1111,22 +1111,22 @@ function DarkUI:CreateWindow(config)
 
 		activeRailGlowInner = styledBackground(make("Frame", {
 			Name = "DarkUITabRailGlowInner",
-			BackgroundTransparency = 0.46,
+			BackgroundTransparency = 0.26,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY - 2),
-			Size = UDim2.fromOffset(7, 34),
+			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY - 1),
+			Size = UDim2.fromOffset(8, 32),
 			Visible = false,
 			ZIndex = 20,
 			Parent = navPanel,
 		}, {
 			corner(999),
 			make("UIGradient", {
-				Rotation = 0,
+				Rotation = 90,
 				Transparency = NumberSequence.new({
 					NumberSequenceKeypoint.new(0, 1),
-					NumberSequenceKeypoint.new(0.22, 0.44),
-					NumberSequenceKeypoint.new(0.5, 0.08),
-					NumberSequenceKeypoint.new(0.78, 0.44),
+					NumberSequenceKeypoint.new(0.2, 0.34),
+					NumberSequenceKeypoint.new(0.5, 0.02),
+					NumberSequenceKeypoint.new(0.8, 0.34),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
@@ -1137,7 +1137,7 @@ function DarkUI:CreateWindow(config)
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY),
-			Size = UDim2.fromOffset(5, 30),
+			Size = UDim2.fromOffset(4, 30),
 			Visible = false,
 			ZIndex = 21,
 			Parent = navPanel,
@@ -2323,15 +2323,15 @@ function DarkUI:CreateWindow(config)
 							}, duration)
 						end
 
-						moveRailGlow(activeRailGlowOuter, -1, -7, 14, 44, 0.58, 0.84, 0.24)
-						moveRailGlow(activeRailGlowMid, 0, -4, 10, 38, 0.38, 0.68, 0.2)
-						moveRailGlow(activeRailGlowInner, 0, -2, 7, 34, 0.16, 0.46, 0.16)
+						moveRailGlow(activeRailGlowOuter, -3, -9, 20, 48, 0.5, 0.78, 0.26)
+						moveRailGlow(activeRailGlowMid, -1, -5, 14, 40, 0.3, 0.55, 0.2)
+						moveRailGlow(activeRailGlowInner, 0, -1, 8, 32, 0.08, 0.26, 0.16)
 
 						activeRailIndicator.Visible = true
 						activeRailIndicator.BackgroundColor3 = self.Theme.Accent
 						tween(activeRailIndicator, {
 							Position = UDim2.fromOffset(activeRailIndicatorX, targetY),
-							Size = UDim2.fromOffset(5, 30),
+							Size = UDim2.fromOffset(4, 30),
 							BackgroundTransparency = 0,
 						}, 0.16)
 					end
