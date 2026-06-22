@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.45"
+DarkUI.Version = "1.3.46"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -4256,6 +4256,180 @@ function DarkUI:CreateWindow(config)
 		local holder = tab.Columns[1]
 		holder.ScrollBarThickness = 2
 
+		local generalSection = tab:AddSection({
+			Title = "General",
+			Collapsible = false,
+		})
+
+		generalSection:AddDropdown({
+			Title = "Language",
+			Description = "Display language for the built-in interface.",
+			Items = { "English", "Vietnamese" },
+			Default = "English",
+			Flag = "ui_language",
+			Callback = function(value)
+				self.Language = value
+			end,
+		})
+
+		generalSection:AddDropdown({
+			Title = "FPS Cap",
+			Description = "Global frame rate cap for this client. Requires executor support.",
+			Items = { "60 FPS", "120 FPS", "144 FPS", "240 FPS", "Uncapped" },
+			Default = "60 FPS",
+			Flag = "ui_fps_cap",
+			Callback = function(value)
+				local cap = tonumber(string.match(tostring(value), "%d+")) or 0
+				if type(setfpscap) == "function" then
+					setfpscap(cap)
+				else
+					self:Notify("FPS Cap", "setfpscap is not available in this executor.", "Warning")
+				end
+			end,
+		})
+
+		generalSection:AddToggle({
+			Title = "3D Rendering",
+			Description = "Disable 3D world rendering to save GPU. The UI remains visible.",
+			Default = true,
+			Flag = "ui_3d_rendering",
+			Callback = function(value)
+				pcall(function()
+					RunService:Set3dRenderingEnabled(value)
+				end)
+			end,
+		})
+
+		local windowSection = tab:AddSection({
+			Title = "Window",
+			Collapsible = false,
+		})
+
+		windowSection:AddSlider({
+			Title = "Drag FPS Cap",
+			Min = 0,
+			Max = 120,
+			Default = self.DragFPSCap,
+			Flag = "ui_drag_fps_cap",
+			Callback = function(value)
+				self.DragFPSCap = value
+			end,
+		})
+
+		windowSection:AddToggle({
+			Title = "Use Drag Skeleton",
+			Description = "Use lightweight drag mode setting for scripts that hook into it.",
+			Default = self.UseDragSkeleton,
+			Flag = "ui_drag_skeleton",
+			Callback = function(value)
+				self.UseDragSkeleton = value
+			end,
+		})
+
+		windowSection:AddToggle({
+			Title = "Full UI Visibility Animation",
+			Description = "Use scale and fade animation when hiding or showing the window.",
+			Default = self.FullVisibilityAnimation,
+			Flag = "ui_visibility_animation",
+			Callback = function(value)
+				self.FullVisibilityAnimation = value
+			end,
+		})
+
+		local themeSection = tab:AddSection({
+			Title = "Theme",
+			Collapsible = false,
+		})
+
+		local themes = {}
+		for name in pairs(DarkUI.ThemePresets) do
+			table.insert(themes, name)
+		end
+		table.sort(themes)
+
+		themeSection:AddDropdown({
+			Title = "Theme Preset",
+			Description = "Switch the whole UI theme.",
+			Items = themes,
+			Default = self.ThemeName,
+			Flag = "ui_theme",
+			Callback = function(value)
+				self:SetTheme(value)
+			end,
+		})
+
+		themeSection:AddColorPicker({
+			Title = "Accent Color",
+			Default = self.Theme.Accent,
+			Flag = "ui_accent_color",
+			Callback = function(color)
+				self:SetAccentColor(color)
+			end,
+		})
+
+		themeSection:AddToggle({
+			Title = "Acrylic",
+			Description = "Use softer transparent dark surfaces.",
+			Default = self.Acrylic,
+			Flag = "ui_acrylic",
+			Callback = function(value)
+				self.Acrylic = value
+				self:_applyTheme()
+			end,
+		})
+
+		themeSection:AddToggle({
+			Title = "Borderless Theme",
+			Description = "Hide most theme borders for a cleaner glass look.",
+			Default = self.Borderless,
+			Flag = "ui_borderless",
+			Callback = function(value)
+				self.Borderless = value
+				self:_applyTheme()
+			end,
+		})
+
+		local snapshotsSection = tab:AddSection({
+			Title = "Snapshots",
+			Collapsible = false,
+		})
+
+		local configName = snapshotsSection:AddTextBox({
+			Title = "Config Name",
+			Default = string.gsub(self.ConfigName, "%.json$", ""),
+			Placeholder = "default",
+		})
+
+		snapshotsSection:AddButton({
+			Title = "Save Snapshot",
+			Callback = function()
+				self:SaveConfig(configName:Get())
+			end,
+		})
+
+		snapshotsSection:AddButton({
+			Title = "Load Snapshot",
+			Callback = function()
+				self:LoadConfig(configName:Get())
+			end,
+		})
+
+		snapshotsSection:AddButton({
+			Title = "Delete Snapshot",
+			Callback = function()
+				self:Confirm({
+					Title = "Delete Snapshot",
+					Text = "Delete this config profile?",
+					ConfirmText = "Delete",
+					Callback = function()
+						self:DeleteConfig(configName:Get())
+					end,
+				})
+			end,
+		})
+
+		if false then
+
 		local subNav = make("Frame", {
 			BackgroundTransparency = 1,
 			LayoutOrder = 0,
@@ -4949,6 +5123,9 @@ function DarkUI:CreateWindow(config)
 		})
 
 		setSettingsPage("General")
+		return tab
+		end
+
 		return tab
 	end
 
