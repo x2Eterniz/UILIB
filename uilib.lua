@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.44"
+DarkUI.Version = "1.3.45"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -4465,14 +4465,15 @@ function DarkUI:CreateWindow(config)
 				AnchorPoint = Vector2.new(1, 0.5),
 				AutoButtonColor = false,
 				BorderSizePixel = 0,
+				ClipsDescendants = true,
 				Position = UDim2.new(1, -18, 0.5, 0),
 				Size = UDim2.fromOffset(options.Width or 172, 36),
 				Text = "",
 				Parent = row,
 			}, {
-				corner(13),
-				styledStroke(stroke(self.Theme.Stroke, 0.34, 1), "Stroke"),
-			}), "Panel")
+				corner(999),
+				styledStroke(stroke(self.Theme.InElementBorder, 0.28, 1), "InElementBorder"),
+			}), "Input")
 
 			local valueLabel = text(button, tostring(items[selectedIndex] or options.Default or ""), 14, DarkUI.Fonts.Bold, "Text", {
 				Position = UDim2.fromOffset(14, 0),
@@ -4502,7 +4503,7 @@ function DarkUI:CreateWindow(config)
 				selectedIndex = (selectedIndex % #items) + 1
 				applyValue(items[selectedIndex])
 			end)
-			attachHover(button, "Panel", "PanelLight", 1.02)
+			attachHover(button, "Input", "InputFocused", 1.02)
 			attachPress(button, 0.96)
 			applyValue(items[selectedIndex] or options.Default or "", true)
 
