@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.16"
+DarkUI.Version = "1.3.17"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -2174,8 +2174,9 @@ function DarkUI:CreateWindow(config)
 			if tabButton then
 				tween(tabButton, {
 					BackgroundColor3 = selected and (iconOnlyTabs and self.Theme.Accent or self.Theme.TabActive) or self.Theme.Background,
+					BackgroundTransparency = iconOnlyTabs and (selected and 0 or 1) or (selected and (self.Acrylic and (self.Theme.TabActiveTransparency or 0.08) or 0) or (self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0)),
 				}, 0.14)
-				paintTabIcon(tabButton, selected and (iconOnlyTabs and self.Theme.Background or self.Theme.Text) or self.Theme.Muted, true)
+				paintTabIcon(tabButton, selected and self.Theme.Text or self.Theme.Muted, true)
 
 				local tabTitle = tabButton:FindFirstChild("TabTitle")
 				if tabTitle then
@@ -2337,6 +2338,9 @@ function DarkUI:CreateWindow(config)
 		}, {
 			corner(iconOnlyTabs and 15 or 7),
 		}), "Background")
+		if iconOnlyTabs then
+			tabButton.BackgroundTransparency = 1
+		end
 		attachPress(tabButton, 0.97)
 
 		local activeGlow = make("Frame", {
@@ -2416,6 +2420,7 @@ function DarkUI:CreateWindow(config)
 			if window.SelectedTab ~= tabName then
 				tween(tabButton, {
 					BackgroundColor3 = window.Theme.Tab,
+					BackgroundTransparency = iconOnlyTabs and 0.42 or (window.Acrylic and (window.Theme.TabTransparency or 0.16) or 0),
 				}, 0.12)
 				tween(getScale(tabButton), {
 					Scale = iconOnlyTabs and 1.04 or 1.006,
@@ -2427,6 +2432,7 @@ function DarkUI:CreateWindow(config)
 			if window.SelectedTab ~= tabName then
 				tween(tabButton, {
 					BackgroundColor3 = window.Theme.Background,
+					BackgroundTransparency = iconOnlyTabs and 1 or (window.Acrylic and (window.Theme.BackgroundTransparency or 0.18) or 0),
 				}, 0.12)
 			end
 			tween(getScale(tabButton), {
