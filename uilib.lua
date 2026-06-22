@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.11"
+DarkUI.Version = "1.3.12"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -896,6 +896,7 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		Position = UDim2.new(1, 0, 0, 0),
 		Size = UDim2.new(0, 1, 1, 0),
+		Visible = not iconOnlyTabs,
 		Parent = navPanel,
 	}), "TitleBarLine")
 
@@ -979,8 +980,8 @@ function DarkUI:CreateWindow(config)
 		BorderSizePixel = 0,
 		CanvasSize = UDim2.new(),
 		ScrollBarImageColor3 = theme.Accent,
-		ScrollBarImageTransparency = 0.42,
-		ScrollBarThickness = 2,
+		ScrollBarImageTransparency = iconOnlyTabs and 1 or 0.42,
+		ScrollBarThickness = iconOnlyTabs and 0 or 2,
 		Position = UDim2.fromOffset(0, iconOnlyTabs and iconTabsStartY or navTabsStartY),
 		Size = UDim2.new(1, 0, 1, -((iconOnlyTabs and (iconTabsStartY + 12) or navTabsStartY + 6))),
 		Parent = navPanel,
