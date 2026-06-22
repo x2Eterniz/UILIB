@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.10"
+DarkUI.Version = "1.3.11"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.ImageCache = {}
@@ -627,7 +627,7 @@ function DarkUI:CreateWindow(config)
 	local headerHeight = showTitleBar and 44 or 0
 	local tabHeight = config.TabHeight or (iconOnlyTabs and 56 or 42)
 	local searchHeight = config.Search == true and 34 or 0
-	local footerHeight = config.Footer == true and 54 or 0
+	local footerHeight = (config.Footer == true and not iconOnlyTabs) and 54 or 0
 	local navWidth = config.NavWidth or config.TabWidth or (iconOnlyTabs and 82 or 168)
 	local windowSize = config.Size or UDim2.fromOffset(660, 460)
 	local collapsedSize = UDim2.fromOffset(windowSize.X.Offset, headerHeight)
