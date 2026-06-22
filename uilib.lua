@@ -14,7 +14,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.41"
+DarkUI.Version = "1.3.42"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -1059,7 +1059,6 @@ function DarkUI:CreateWindow(config)
 
 	local activeRailGlowOuter = nil
 	local activeRailGlowMid = nil
-	local activeRailGlowInner = nil
 	local activeRailIndicator = nil
 	local activeRailIndicatorX = 0
 	if iconOnlyTabs then
@@ -1104,29 +1103,6 @@ function DarkUI:CreateWindow(config)
 					NumberSequenceKeypoint.new(0.24, 0.66),
 					NumberSequenceKeypoint.new(0.5, 0.16),
 					NumberSequenceKeypoint.new(0.76, 0.66),
-					NumberSequenceKeypoint.new(1, 1),
-				}),
-			}),
-		}), "Accent")
-
-		activeRailGlowInner = styledBackground(make("Frame", {
-			Name = "DarkUITabRailGlowInner",
-			BackgroundTransparency = 0.26,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(activeRailIndicatorX, iconTabsStartY - 1),
-			Size = UDim2.fromOffset(8, 32),
-			Visible = false,
-			ZIndex = 20,
-			Parent = navPanel,
-		}, {
-			corner(999),
-			make("UIGradient", {
-				Rotation = 90,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0, 1),
-					NumberSequenceKeypoint.new(0.2, 0.34),
-					NumberSequenceKeypoint.new(0.5, 0.02),
-					NumberSequenceKeypoint.new(0.8, 0.34),
 					NumberSequenceKeypoint.new(1, 1),
 				}),
 			}),
@@ -2325,7 +2301,6 @@ function DarkUI:CreateWindow(config)
 
 						moveRailGlow(activeRailGlowOuter, -3, -9, 20, 48, 0.5, 0.78, 0.26)
 						moveRailGlow(activeRailGlowMid, -1, -5, 14, 40, 0.3, 0.55, 0.2)
-						moveRailGlow(activeRailGlowInner, 0, -1, 8, 32, 0.08, 0.26, 0.16)
 
 						activeRailIndicator.Visible = true
 						activeRailIndicator.BackgroundColor3 = self.Theme.Accent
