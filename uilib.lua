@@ -14,10 +14,10 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.27"
+DarkUI.Version = "1.3.28"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
-DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/click.png"
+DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play%20%281%29.png"
 DarkUI.ImageCache = {}
 DarkUI.DefaultTabIcons = {
 	Home = "https://github.com/x2Eterniz/UILIB/blob/main/home_54x54.png",
