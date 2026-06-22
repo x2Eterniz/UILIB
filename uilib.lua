@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.53"
+DarkUI.Version = "1.3.54"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -2741,6 +2741,7 @@ function DarkUI:CreateWindow(config)
 
 			options = options or {}
 			self.SectionOrder += 1
+			local sectionTitle = options.Title or "Section"
 
 			local target
 			if options.Side == "Right" and self.Columns[2] then
@@ -2773,6 +2774,8 @@ function DarkUI:CreateWindow(config)
 					SortOrder = Enum.SortOrder.LayoutOrder,
 				}),
 			}), "Panel")
+			section:SetAttribute("DarkUITabName", tabName)
+			section:SetAttribute("DarkUISectionTitle", sectionTitle)
 
 			local headerButton = make("TextButton", {
 				AutoButtonColor = false,
@@ -2788,7 +2791,7 @@ function DarkUI:CreateWindow(config)
 				Parent = headerButton,
 				Position = UDim2.fromOffset(2, 1),
 				Size = UDim2.new(1, -26, 0, 24),
-				Text = options.Title or "Section",
+				Text = sectionTitle,
 				TextSize = 14,
 				TextXAlignment = Enum.TextXAlignment.Left,
 			}), "Text")
@@ -2873,6 +2876,8 @@ function DarkUI:CreateWindow(config)
 				Container = section,
 				Body = bodyFrame,
 				Header = headerButton,
+				Title = sectionTitle,
+				TabName = tabName,
 				Window = window,
 				ItemOrder = 0,
 				Collapsed = options.DefaultOpen == false,
@@ -4278,6 +4283,30 @@ function DarkUI:CreateWindow(config)
 		local settingsSubSections = {}
 		local settingsSubButtons = {}
 		local settingsSubTabOrder = 0
+		local settingsSectionStorage = make("Folder", {
+			Name = "DarkUISettingsSectionStorage",
+			Parent = tab.Page,
+		})
+
+		local function resolveBuiltInSettingsSectionPage(section)
+			local pageName = section.SettingsPage or section.Container:GetAttribute("DarkUISettingsPage")
+			if pageName then
+				return pageName
+			end
+
+			local title = string.lower(tostring(section.Title or section.Container:GetAttribute("DarkUISectionTitle") or ""))
+			if string.find(title, "theme", 1, true) then
+				pageName = "Theme"
+			elseif string.find(title, "snapshot", 1, true) or string.find(title, "config", 1, true) then
+				pageName = "Snapshots"
+			else
+				pageName = "General"
+			end
+
+			section.SettingsPage = pageName
+			section.Container:SetAttribute("DarkUISettingsPage", pageName)
+			return pageName
+		end
 
 		local subNavHost = make("Frame", {
 			BackgroundTransparency = 1,
@@ -4316,14 +4345,15 @@ function DarkUI:CreateWindow(config)
 		local function setBuiltInSettingsPage(name)
 			activeBuiltInSettingsPage = name
 
-			for pageName, sections in pairs(settingsSubSections) do
-				local selected = pageName == name
-				for _, section in ipairs(sections) do
-					if section.Container then
-						section.Container:SetAttribute("BaseVisible", selected)
-						section.Container.Visible = selected
-						section:UpdateVisibility()
-					end
+			for _, section in ipairs(self.Sections) do
+				if section.TabName == settingsName and section.Container then
+					local pageName = resolveBuiltInSettingsSectionPage(section)
+
+					local selected = pageName == name
+					section.Container:SetAttribute("BaseVisible", selected)
+					section.Container.Visible = selected
+					section.Container.Parent = selected and holder or settingsSectionStorage
+					section:UpdateVisibility()
 				end
 			end
 
@@ -4404,6 +4434,16 @@ function DarkUI:CreateWindow(config)
 		addSettingsSubTab("Theme")
 		addSettingsSubTab("Snapshots")
 		connect(holder:GetPropertyChangedSignal("CanvasPosition"), renderSettingsStickyHeader)
+
+		local rawAddSettingsSection = tab.AddSection
+		function tab:AddSection(options)
+			local section = rawAddSettingsSection(self, options)
+			if section and section.Container then
+				resolveBuiltInSettingsSectionPage(section)
+				setBuiltInSettingsPage(activeBuiltInSettingsPage)
+			end
+			return section
+		end
 
 		local generalSection = tab:AddSection({
 			Title = "General",
