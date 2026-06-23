@@ -15,7 +15,7 @@ local playerGui = player and player:WaitForChild("PlayerGui")
 
 local DarkUI = {}
 DarkUI.__index = DarkUI
-DarkUI.Version = "1.3.56"
+DarkUI.Version = "1.3.58"
 DarkUI.DefaultLogo = "https://github.com/x2Eterniz/UILIB/blob/main/logo_512_transparent.png"
 DarkUI.DefaultLogoFallback = "rbxassetid://84134406429567"
 DarkUI.DefaultButtonIcon = "https://github.com/x2Eterniz/UILIB/blob/main/play.png"
@@ -513,6 +513,13 @@ function DarkUI:CreateWindow(config)
 		ConfigFolder = config.ConfigFolder or "VxiziUI",
 		ConfigName = config.ConfigName or "default.json",
 		ConfigValues = {},
+		AutoSave = config.AutoSave == true,
+		AutoLoad = config.AutoLoad == true or config.AutoLoadConfig == true,
+		AutoSaveDelay = tonumber(config.AutoSaveDelay) or 1,
+		AutoSaveToken = 0,
+		AutoLoadToken = 0,
+		LoadingConfig = false,
+		SavingConfig = false,
 		Connections = {},
 		Renderers = {},
 		Pages = {},
@@ -1881,6 +1888,10 @@ function DarkUI:CreateWindow(config)
 		return window.ConfigFolder .. "/" .. window.ConfigName
 	end
 
+	local function managerPath()
+		return window.ConfigFolder .. "/_manager.json"
+	end
+
 	local function setConfigName(name)
 		if name and name ~= "" then
 			name = tostring(name)
@@ -1891,10 +1902,158 @@ function DarkUI:CreateWindow(config)
 		end
 	end
 
+	local function ensureConfigFolder()
+		if type(isfolder) == "function" and type(makefolder) == "function" and not isfolder(window.ConfigFolder) then
+			return pcall(function()
+				makefolder(window.ConfigFolder)
+			end)
+		end
+
+		return true
+	end
+
+	local function saveManagerState()
+		if not getFileApi() then
+			return false
+		end
+
+		if not ensureConfigFolder() then
+			return false
+		end
+
+		return pcall(function()
+			writefile(managerPath(), HttpService:JSONEncode({
+				ConfigName = window.ConfigName,
+				AutoSave = window.AutoSave == true,
+				AutoLoad = window.AutoLoad == true,
+				AutoSaveDelay = window.AutoSaveDelay,
+			}))
+		end)
+	end
+
+	local function loadManagerState()
+		if not getFileApi() or not isfile(managerPath()) then
+			return
+		end
+
+		local ok, data = pcall(function()
+			return HttpService:JSONDecode(readfile(managerPath()))
+		end)
+		if not ok or type(data) ~= "table" then
+			return
+		end
+
+		if not config.ConfigName then
+			setConfigName(data.ConfigName or data.configName)
+		end
+		if config.AutoSave == nil and data.AutoSave ~= nil then
+			window.AutoSave = data.AutoSave == true
+		end
+		if config.AutoLoad == nil and config.AutoLoadConfig == nil and data.AutoLoad ~= nil then
+			window.AutoLoad = data.AutoLoad == true
+		end
+		if config.AutoSaveDelay == nil and data.AutoSaveDelay ~= nil then
+			window.AutoSaveDelay = math.clamp(tonumber(data.AutoSaveDelay) or window.AutoSaveDelay or 1, 0.2, 10)
+		end
+	end
+
+	function window:SetConfigName(name)
+		setConfigName(name)
+		saveManagerState()
+		return self.ConfigName
+	end
+
+	local function scheduleAutoLoad()
+		if not window.AutoLoad or window.Destroyed then
+			return false
+		end
+
+		window.AutoLoadToken += 1
+		local token = window.AutoLoadToken
+		task.delay(0.25, function()
+			if window.Destroyed or not window.AutoLoad or token ~= window.AutoLoadToken then
+				return
+			end
+
+			window:LoadConfig(nil, true)
+		end)
+
+		return true
+	end
+
+	loadManagerState()
+
 	function window:RegisterConfig(flag, control)
 		if flag then
 			self.ConfigValues[flag] = control
+			if control and type(control.OnChanged) == "function" then
+				control:OnChanged(function()
+					self:ScheduleAutoSave(flag)
+				end)
+			end
+			scheduleAutoLoad()
 		end
+	end
+
+	function window:SetAutoSave(enabled)
+		self.AutoSave = enabled == true
+		if self.AutoSave then
+			self:ScheduleAutoSave("auto_save_enabled")
+		else
+			self.AutoSaveToken += 1
+			task.defer(function()
+				if not self.Destroyed and not self.LoadingConfig and not self.SavingConfig then
+					self:SaveConfig(nil, true)
+				end
+			end)
+		end
+		return self.AutoSave
+	end
+
+	function window:SetAutoLoad(enabled)
+		self.AutoLoad = enabled == true
+		if self.AutoLoad then
+			scheduleAutoLoad()
+		end
+		if self.AutoSave then
+			self:ScheduleAutoSave("auto_load")
+		else
+			saveManagerState()
+		end
+		return self.AutoLoad
+	end
+
+	function window:SetAutoSaveDelay(delay)
+		self.AutoSaveDelay = math.clamp(tonumber(delay) or self.AutoSaveDelay or 1, 0.2, 10)
+		if self.AutoSave then
+			self:ScheduleAutoSave("auto_save_delay")
+		else
+			task.defer(function()
+				if not self.Destroyed and not self.LoadingConfig and not self.SavingConfig then
+					saveManagerState()
+				end
+			end)
+		end
+		return self.AutoSaveDelay
+	end
+
+	function window:ScheduleAutoSave(_reason)
+		if self.Destroyed or not self.AutoSave or self.LoadingConfig or self.SavingConfig then
+			return false
+		end
+
+		self.AutoSaveToken += 1
+		local token = self.AutoSaveToken
+		local delay = math.clamp(tonumber(self.AutoSaveDelay) or 1, 0.2, 10)
+		task.delay(delay, function()
+			if self.Destroyed or token ~= self.AutoSaveToken or not self.AutoSave or self.LoadingConfig or self.SavingConfig then
+				return
+			end
+
+			self:SaveConfig(nil, true)
+		end)
+
+		return true
 	end
 
 	function window:GetConfig()
@@ -1908,6 +2067,9 @@ function DarkUI:CreateWindow(config)
 
 		data.__theme = self.ThemeName
 		data.__accent = colorToTable(self.Theme.Accent)
+		data.__autoSave = self.AutoSave == true
+		data.__autoLoad = self.AutoLoad == true
+		data.__autoSaveDelay = self.AutoSaveDelay
 		return data
 	end
 
@@ -1916,29 +2078,46 @@ function DarkUI:CreateWindow(config)
 			return false
 		end
 
-		if data.__theme then
-			self:SetTheme(data.__theme)
-		end
-
-		if data.__accent then
-			self:SetAccentColor(normalizeColor(data.__accent, self.Theme.Accent))
-		end
-
-		for flag, value in pairs(data) do
-			local control = self.ConfigValues[flag]
-			if control and type(control.Set) == "function" then
-				control:Set(value, true, true)
+		self.LoadingConfig = true
+		local ok = pcall(function()
+			if data.__theme then
+				self:SetTheme(data.__theme)
 			end
-		end
 
-		return true
+			if data.__accent then
+				self:SetAccentColor(normalizeColor(data.__accent, self.Theme.Accent))
+			end
+
+			if data.__autoSave ~= nil then
+				self.AutoSave = data.__autoSave == true
+			end
+
+			if data.__autoLoad ~= nil then
+				self.AutoLoad = data.__autoLoad == true
+			end
+
+			if data.__autoSaveDelay ~= nil then
+				self.AutoSaveDelay = math.clamp(tonumber(data.__autoSaveDelay) or self.AutoSaveDelay or 1, 0.2, 10)
+			end
+
+			for flag, value in pairs(data) do
+				local control = self.ConfigValues[flag]
+				if control and type(control.Set) == "function" then
+					control:Set(value, true, true)
+				end
+			end
+		end)
+		self.LoadingConfig = false
+		return ok
 	end
 
-	function window:SaveConfig(name)
+	function window:SaveConfig(name, silent)
 		setConfigName(name)
 
 		if not getFileApi() then
-			self:Notify("Config", "File API is not available.", "Warning")
+			if not silent then
+				self:Notify("Config", "File API is not available.", "Warning")
+			end
 			return false
 		end
 
@@ -1948,29 +2127,42 @@ function DarkUI:CreateWindow(config)
 			end)
 
 			if not ok then
-				self:Notify("Config", "Could not create config folder.", "Error")
+				if not silent then
+					self:Notify("Config", "Could not create config folder.", "Error")
+				end
 				return false
 			end
 		end
 
+		self.SavingConfig = true
 		local ok = pcall(function()
 			writefile(configPath(), HttpService:JSONEncode(self:GetConfig()))
 		end)
+		self.SavingConfig = false
+		if ok then
+			saveManagerState()
+		end
 
-		self:Notify("Config", ok and "Settings saved." or "Settings could not be saved.", ok and "Success" or "Error")
+		if not silent then
+			self:Notify("Config", ok and "Settings saved." or "Settings could not be saved.", ok and "Success" or "Error")
+		end
 		return ok
 	end
 
-	function window:LoadConfig(name)
+	function window:LoadConfig(name, silent)
 		setConfigName(name)
 
 		if not getFileApi() then
-			self:Notify("Config", "File API is not available.", "Warning")
+			if not silent then
+				self:Notify("Config", "File API is not available.", "Warning")
+			end
 			return false
 		end
 
 		if not isfile(configPath()) then
-			self:Notify("Config", "No saved config found.", "Warning")
+			if not silent then
+				self:Notify("Config", "No saved config found.", "Warning")
+			end
 			return false
 		end
 
@@ -1979,10 +2171,15 @@ function DarkUI:CreateWindow(config)
 		end)
 
 		if ok then
-			self:ApplyConfig(decoded)
+			ok = self:ApplyConfig(decoded)
+			if ok then
+				saveManagerState()
+			end
 		end
 
-		self:Notify("Config", ok and "Settings loaded." or "Config could not be read.", ok and "Success" or "Error")
+		if not silent then
+			self:Notify("Config", ok and "Settings loaded." or "Config could not be read.", ok and "Success" or "Error")
+		end
 		return ok
 	end
 
@@ -4241,6 +4438,40 @@ function DarkUI:CreateWindow(config)
 					Title = "Config",
 					Default = string.gsub(window.ConfigName, "%.json$", ""),
 					Placeholder = "default",
+					Callback = function(text)
+						window:SetConfigName(text)
+						window:ScheduleAutoSave("config_name")
+					end,
+				})
+
+				self:AddToggle({
+					Title = "Auto Save",
+					Description = "Automatically saves flagged controls after changes.",
+					Default = window.AutoSave,
+					Callback = function(enabled)
+						window:SetAutoSave(enabled)
+					end,
+				})
+
+				self:AddToggle({
+					Title = "Auto Load Selected",
+					Description = "Loads this config automatically after controls register.",
+					Default = window.AutoLoad,
+					Callback = function(enabled)
+						window:SetAutoLoad(enabled)
+						window:ScheduleAutoSave("auto_load")
+					end,
+				})
+
+				self:AddSlider({
+					Title = "Auto Save Delay",
+					Min = 0.2,
+					Max = 10,
+					Decimals = 1,
+					Default = window.AutoSaveDelay,
+					Callback = function(value)
+						window:SetAutoSaveDelay(value)
+					end,
 				})
 
 				self:AddButton({
@@ -4350,6 +4581,7 @@ function DarkUI:CreateWindow(config)
 		local settingsSubSections = {}
 		local settingsSubButtons = {}
 		local settingsSubTabOrder = 0
+		local buildingBuiltInSettingsSections = true
 		local settingsSectionStorage = make("Folder", {
 			Name = "DarkUISettingsSectionStorage",
 			Parent = tab.Page,
@@ -4414,13 +4646,20 @@ function DarkUI:CreateWindow(config)
 
 			for _, section in ipairs(self.Sections) do
 				if section.TabName == settingsName and section.Container then
-					local pageName = resolveBuiltInSettingsSectionPage(section)
+					if section.Container:GetAttribute("DarkUIExternalSettingsSection") == true then
+						section.Container:SetAttribute("BaseVisible", false)
+						section.Container.Visible = false
+						section.Container.Parent = settingsSectionStorage
+						section:UpdateVisibility()
+					else
+						local pageName = resolveBuiltInSettingsSectionPage(section)
 
-					local selected = pageName == name
-					section.Container:SetAttribute("BaseVisible", selected)
-					section.Container.Visible = selected
-					section.Container.Parent = selected and holder or settingsSectionStorage
-					section:UpdateVisibility()
+						local selected = pageName == name
+						section.Container:SetAttribute("BaseVisible", selected)
+						section.Container.Visible = selected
+						section.Container.Parent = selected and holder or settingsSectionStorage
+						section:UpdateVisibility()
+					end
 				end
 			end
 
@@ -4506,7 +4745,14 @@ function DarkUI:CreateWindow(config)
 		function tab:AddSection(options)
 			local section = rawAddSettingsSection(self, options)
 			if section and section.Container then
-				resolveBuiltInSettingsSectionPage(section)
+				if not buildingBuiltInSettingsSections then
+					section.Container:SetAttribute("DarkUIExternalSettingsSection", true)
+					section.Container:SetAttribute("BaseVisible", false)
+					section.Container.Visible = false
+					section.Container.Parent = settingsSectionStorage
+				else
+					resolveBuiltInSettingsSectionPage(section)
+				end
 				setBuiltInSettingsPage(activeBuiltInSettingsPage)
 			end
 			return section
@@ -4664,6 +4910,40 @@ function DarkUI:CreateWindow(config)
 			Title = "Config Name",
 			Default = string.gsub(self.ConfigName, "%.json$", ""),
 			Placeholder = "default",
+			Callback = function(text)
+				self:SetConfigName(text)
+				self:ScheduleAutoSave("config_name")
+			end,
+		})
+
+		configManagerSection:AddToggle({
+			Title = "Auto Save",
+			Description = "Automatically saves flagged controls after changes.",
+			Default = self.AutoSave,
+			Callback = function(enabled)
+				self:SetAutoSave(enabled)
+			end,
+		})
+
+		configManagerSection:AddToggle({
+			Title = "Auto Load Selected",
+			Description = "Loads this config automatically after controls register.",
+			Default = self.AutoLoad,
+			Callback = function(enabled)
+				self:SetAutoLoad(enabled)
+				self:ScheduleAutoSave("auto_load")
+			end,
+		})
+
+		configManagerSection:AddSlider({
+			Title = "Auto Save Delay",
+			Min = 0.2,
+			Max = 10,
+			Decimals = 1,
+			Default = self.AutoSaveDelay,
+			Callback = function(value)
+				self:SetAutoSaveDelay(value)
+			end,
 		})
 
 		configManagerSection:AddButton({
@@ -4705,6 +4985,7 @@ function DarkUI:CreateWindow(config)
 		end)
 		setBuiltInSettingsPage("General")
 		renderSettingsStickyHeader()
+		buildingBuiltInSettingsSections = false
 
 		if false then
 
@@ -5367,6 +5648,40 @@ function DarkUI:CreateWindow(config)
 			Default = string.gsub(self.ConfigName, "%.json$", ""),
 			Placeholder = "default",
 		})
+		connect(configNameBox.FocusLost, function()
+			self:SetConfigName(configNameBox.Text)
+			self:ScheduleAutoSave("config_name")
+		end)
+
+		createSwitch(configGroup, {
+			Title = "Auto Save",
+			Description = "Automatically saves flagged controls after changes.",
+			Default = self.AutoSave,
+			Callback = function(value)
+				self:SetAutoSave(value)
+			end,
+		})
+		createSwitch(configGroup, {
+			Title = "Auto Load Selected",
+			Description = "Loads the selected snapshot after controls register.",
+			Default = self.AutoLoad,
+			Callback = function(value)
+				self:SetAutoLoad(value)
+			end,
+		})
+		createSlider(configGroup, {
+			Title = "Auto Save Delay",
+			Description = "Seconds to wait after the last change before saving.",
+			Min = 0.2,
+			Max = 10,
+			Default = self.AutoSaveDelay,
+			Decimals = 1,
+			Suffix = "s",
+			Callback = function(value)
+				self:SetAutoSaveDelay(value)
+			end,
+		})
+
 		createButtonRow(configGroup, {
 			Title = "Save Snapshot",
 			Description = "Save current control values, theme and accent color.",
