@@ -1935,8 +1935,8 @@ function DarkUI:CreateWindow(config)
 			FPSClock = os.clock(),
 		}
 
-		local statusHeight = tonumber(options.Height) or 52
-		local statusWidth = tonumber(options.Width) or 700
+		local statusHeight = tonumber(options.Height) or 36
+		local statusWidth = tonumber(options.Width) or 520
 		local statusPosition = options.Position or UDim2.new(0.5, 0, 0, tonumber(options.Y) or 32)
 		local statusSize = options.Size or UDim2.new(0.62, 0, 0, statusHeight)
 
@@ -1955,7 +1955,7 @@ function DarkUI:CreateWindow(config)
 			corner(999),
 			styledStroke(stroke(self.Theme.Stroke, 0.52, 1), "Stroke"),
 			make("UISizeConstraint", {
-				MinSize = Vector2.new(math.min(360, statusWidth), statusHeight),
+				MinSize = Vector2.new(math.min(300, statusWidth), statusHeight),
 				MaxSize = Vector2.new(statusWidth, statusHeight),
 			}),
 		}), "Surface")
@@ -1965,11 +1965,11 @@ function DarkUI:CreateWindow(config)
 		local label = styledText(DarkUI:Text({
 			Font = DarkUI.Fonts.Bold,
 			Parent = bar,
-			Position = UDim2.fromOffset(20, 6),
+			Position = UDim2.fromOffset(16, 3),
 			RichText = true,
-			Size = UDim2.new(1, -40, 1, -15),
+			Size = UDim2.new(1, -32, 1, -9),
 			Text = "",
-			TextSize = tonumber(options.TextSize) or 23,
+			TextSize = tonumber(options.TextSize) or 16,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			TextYAlignment = Enum.TextYAlignment.Center,
 		}), "Text")
@@ -1980,8 +1980,8 @@ function DarkUI:CreateWindow(config)
 			Name = "DarkUIRuntimeStatusLineHolder",
 			BackgroundTransparency = 1,
 			ClipsDescendants = true,
-			Position = UDim2.new(0, 42, 1, -8),
-			Size = UDim2.new(1, -84, 0, 4),
+			Position = UDim2.new(0, 34, 1, -6),
+			Size = UDim2.new(1, -68, 0, 3),
 			ZIndex = bar.ZIndex + 1,
 			Parent = bar,
 		})
@@ -1991,7 +1991,7 @@ function DarkUI:CreateWindow(config)
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.fromScale(0, 0.5),
-			Size = UDim2.new(1, 0, 0, 3),
+			Size = UDim2.new(1, 0, 0, 2),
 			ZIndex = bar.ZIndex + 1,
 			Parent = lineHolder,
 		}, {
@@ -2003,7 +2003,7 @@ function DarkUI:CreateWindow(config)
 			BackgroundTransparency = 0.08,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0, -70, 0, 0),
-			Size = UDim2.fromOffset(74, 4),
+			Size = UDim2.fromOffset(58, 3),
 			ZIndex = bar.ZIndex + 2,
 			Parent = lineHolder,
 		}, {
@@ -2143,7 +2143,7 @@ function DarkUI:CreateWindow(config)
 			label.Text = text
 
 			local shimmerAlpha = (now * 0.46) % 1
-			shine.Position = UDim2.new(shimmerAlpha, -74, 0, 0)
+			shine.Position = UDim2.new(shimmerAlpha, -58, 0, 0)
 			shine.BackgroundTransparency = phase == 2 and 0 or 0.16
 			line.BackgroundTransparency = phase == 2 and 0 or 0.08
 		end
