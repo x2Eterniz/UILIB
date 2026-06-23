@@ -1,17 +1,13 @@
---[[
-█████╗ ██╗  ██╗██╗ ██████╗ ███╗   ███╗    ██╗  ██╗██╗   ██╗██████╗ 
-██╔══██╗╚██╗██╔╝██║██╔═══██╗████╗ ████║    ██║  ██║██║   ██║██╔══██╗
-███████║ ╚███╔╝ ██║██║   ██║██╔████╔██║    ███████║██║   ██║██████╔╝
-██╔══██║ ██╔██╗ ██║██║   ██║██║╚██╔╝██║    ██╔══██║██║   ██║██╔══██╗
-██║  ██║██╔╝ ██╗██║╚██████╔╝██║ ╚═╝ ██║    ██║  ██║╚██████╔╝██████╔╝
-╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝     ╚═╝    ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ 
-Axiom UI library by x2Eterniz
-]]--
-                                                                    
+-- Vxizi UI Library
+-- Standalone Roblox Lua UI library.
+-- Usage:
+-- local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/user/repo/main/uilib.lua"))()
+-- local window = UI:CreateWindow({ Title = "Vxizi", Icon = "rbxassetid://0" })
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -455,6 +451,24 @@ local function colorToTable(color)
 	}
 end
 
+local function colorToHex(color)
+	color = color or Color3.new(1, 1, 1)
+	return string.format(
+		"#%02X%02X%02X",
+		math.clamp(math.floor(color.R * 255 + 0.5), 0, 255),
+		math.clamp(math.floor(color.G * 255 + 0.5), 0, 255),
+		math.clamp(math.floor(color.B * 255 + 0.5), 0, 255)
+	)
+end
+
+local function formatDurationParts(seconds)
+	seconds = math.max(0, math.floor(tonumber(seconds) or 0))
+	local hours = math.floor(seconds / 3600)
+	local minutes = math.floor((seconds % 3600) / 60)
+	local secs = seconds % 60
+	return hours, minutes, secs
+end
+
 function DarkUI:Text(props)
 	props = props or {}
 
@@ -548,6 +562,9 @@ function DarkUI:CreateWindow(config)
 		FullVisibilityAnimation = config.FullVisibilityAnimation ~= false,
 		DropdownsOutsideWindow = config.DropdownsOutsideWindow == true,
 		Acrylic = config.Acrylic ~= false,
+		StatusBarEnabled = config.StatusBar ~= false,
+		StatusBarHideWithWindow = config.StatusBarHideWithWindow ~= false,
+		StatusBarHubName = config.StatusBarHubName or config.RuntimeStatusName or config.HubName or "Axiom Hub",
 		Borderless = config.Borderless ~= false,
 		Shadow = config.Shadow == true,
 		Destroyed = false,
@@ -574,6 +591,9 @@ function DarkUI:CreateWindow(config)
 
 	local function styledBackground(instance, key)
 		instance:SetAttribute("DarkUIBackground", key)
+		if instance:GetAttribute("DarkUIBaseTransparency") == nil then
+			instance:SetAttribute("DarkUIBaseTransparency", instance.BackgroundTransparency)
+		end
 		instance.BackgroundColor3 = window.Theme[key] or window.Theme.Panel
 		if window.Acrylic then
 			local transparency = window.Theme[key .. "Transparency"]
@@ -788,6 +808,7 @@ function DarkUI:CreateWindow(config)
 		rootStroke,
 	})
 	root:SetAttribute("DarkUIBackground", "Background")
+	root:SetAttribute("DarkUIBaseTransparency", 0)
 	rootStroke:SetAttribute("DarkUIStroke", "Stroke")
 
 	local rootScale = make("UIScale", {
@@ -1604,6 +1625,9 @@ function DarkUI:CreateWindow(config)
 			root.Visible = true
 			shadow.Visible = true
 			glow.Visible = true
+			if window.RuntimeStatusBar and window.StatusBarHideWithWindow then
+				window.RuntimeStatusBar.Frame.Visible = window.RuntimeStatusBar.Enabled == true
+			end
 			if animated ~= false then
 				rootScale.Scale = 0.94
 				tween(rootScale, { Scale = 1 }, 0.18)
@@ -1620,12 +1644,18 @@ function DarkUI:CreateWindow(config)
 						root.Visible = false
 						shadow.Visible = false
 						glow.Visible = false
+						if window.RuntimeStatusBar and window.StatusBarHideWithWindow then
+							window.RuntimeStatusBar.Frame.Visible = false
+						end
 					end
 				end)
 			else
 				root.Visible = false
 				shadow.Visible = false
 				glow.Visible = false
+				if window.RuntimeStatusBar and window.StatusBarHideWithWindow then
+					window.RuntimeStatusBar.Frame.Visible = false
+				end
 			end
 		end
 	end
@@ -1777,6 +1807,11 @@ function DarkUI:CreateWindow(config)
 					if transparency ~= nil then
 						descendant.BackgroundTransparency = transparency
 					end
+				else
+					local baseTransparency = descendant:GetAttribute("DarkUIBaseTransparency")
+					if baseTransparency ~= nil then
+						descendant.BackgroundTransparency = baseTransparency
+					end
 				end
 			end
 
@@ -1859,6 +1894,335 @@ function DarkUI:CreateWindow(config)
 		statusPill.Visible = true
 		statusPill:SetAttribute("DarkUIText", good == false and "Error" or "Accent")
 		statusPill.TextColor3 = good == false and self.Theme.Error or self.Theme.Accent
+	end
+
+	function window:SetAcrylic(enabled)
+		self.Acrylic = enabled == true
+		rootTransparency = self.Acrylic and (self.Theme.BackgroundTransparency or 0.18) or 0
+		shadowVisibleTransparency = self.Shadow and (self.Acrylic and 0.82 or 0.64) or 1
+		glowVisibleTransparency = self.Borderless and 1 or (self.Acrylic and 0.995 or 0.975)
+
+		root.BackgroundTransparency = rootTransparency
+		if shadow.Visible then
+			shadow.BackgroundTransparency = shadowVisibleTransparency
+		end
+		if glow.Visible then
+			glow.BackgroundTransparency = glowVisibleTransparency
+		end
+
+		self:_applyTheme()
+		return self.Acrylic
+	end
+
+	function window:CreateRuntimeStatusBar(options)
+		options = options or {}
+
+		if self.RuntimeStatusBar and self.RuntimeStatusBar.Frame and self.RuntimeStatusBar.Frame.Parent then
+			self.RuntimeStatusBar:SetVisible(options.Visible ~= false)
+			return self.RuntimeStatusBar
+		end
+
+		local statusState = {
+			Enabled = options.Visible ~= false,
+			HideWithWindow = options.HideWithWindow ~= false,
+			Draggable = options.Draggable ~= false,
+			StartTime = tonumber(options.StartTime) or os.clock(),
+			FPS = 60,
+			Ping = "-- ms",
+			HubName = options.HubName or options.Name or self.StatusBarHubName or "Axiom Hub",
+			LastPingAt = 0,
+			FrameCount = 0,
+			FPSClock = os.clock(),
+		}
+
+		local statusHeight = tonumber(options.Height) or 52
+		local statusWidth = tonumber(options.Width) or 700
+		local statusPosition = options.Position or UDim2.new(0.5, 0, 0, tonumber(options.Y) or 32)
+		local statusSize = options.Size or UDim2.new(0.62, 0, 0, statusHeight)
+
+		local bar = styledBackground(make("Frame", {
+			Name = "DarkUIRuntimeStatusBar",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Active = true,
+			BorderSizePixel = 0,
+			ClipsDescendants = true,
+			Position = statusPosition,
+			Size = statusSize,
+			Visible = statusState.Enabled,
+			ZIndex = tonumber(options.ZIndex) or 260,
+			Parent = screenGui,
+		}, {
+			corner(999),
+			styledStroke(stroke(self.Theme.Stroke, 0.52, 1), "Stroke"),
+			make("UISizeConstraint", {
+				MinSize = Vector2.new(math.min(360, statusWidth), statusHeight),
+				MaxSize = Vector2.new(statusWidth, statusHeight),
+			}),
+		}), "Surface")
+		bar:SetAttribute("DarkUIBaseTransparency", 0.02)
+		bar.BackgroundTransparency = self.Acrylic and (self.Theme.SurfaceTransparency or 0.18) or 0.02
+
+		local label = styledText(DarkUI:Text({
+			Font = DarkUI.Fonts.Bold,
+			Parent = bar,
+			Position = UDim2.fromOffset(20, 6),
+			RichText = true,
+			Size = UDim2.new(1, -40, 1, -15),
+			Text = "",
+			TextSize = tonumber(options.TextSize) or 23,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextYAlignment = Enum.TextYAlignment.Center,
+		}), "Text")
+		label.Name = "DarkUIRuntimeStatusText"
+		label.ZIndex = bar.ZIndex + 2
+
+		local lineHolder = make("Frame", {
+			Name = "DarkUIRuntimeStatusLineHolder",
+			BackgroundTransparency = 1,
+			ClipsDescendants = true,
+			Position = UDim2.new(0, 42, 1, -8),
+			Size = UDim2.new(1, -84, 0, 4),
+			ZIndex = bar.ZIndex + 1,
+			Parent = bar,
+		})
+
+		local line = styledBackground(make("Frame", {
+			Name = "DarkUIAccent",
+			BackgroundTransparency = 0,
+			BorderSizePixel = 0,
+			Position = UDim2.fromScale(0, 0.5),
+			Size = UDim2.new(1, 0, 0, 3),
+			ZIndex = bar.ZIndex + 1,
+			Parent = lineHolder,
+		}, {
+			corner(999),
+		}), "Accent")
+
+		local shine = styledBackground(make("Frame", {
+			Name = "DarkUIRuntimeStatusShine",
+			BackgroundTransparency = 0.08,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0, -70, 0, 0),
+			Size = UDim2.fromOffset(74, 4),
+			ZIndex = bar.ZIndex + 2,
+			Parent = lineHolder,
+		}, {
+			corner(999),
+			make("UIGradient", {
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.5, 0),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		}), "Text")
+
+		local dragHitbox = make("TextButton", {
+			Name = "DarkUIRuntimeStatusDragHitbox",
+			Active = true,
+			AutoButtonColor = false,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 1),
+			Text = "",
+			ZIndex = bar.ZIndex + 5,
+			Parent = bar,
+		})
+
+		local statusDragging = false
+		local statusDragStart = nil
+		local statusStartPosition = nil
+
+		local function beginStatusDrag(input)
+			if statusState.Draggable ~= true then
+				return
+			end
+
+			if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+				return
+			end
+
+			statusDragging = true
+			statusDragStart = input.Position
+			statusStartPosition = bar.Position
+			pop(bar, 0.985)
+		end
+
+		connect(dragHitbox.InputBegan, beginStatusDrag)
+		connect(UserInputService.InputChanged, function(input)
+			if not statusDragging then
+				return
+			end
+
+			if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
+				return
+			end
+
+			local delta = input.Position - statusDragStart
+			bar.Position = UDim2.new(
+				statusStartPosition.X.Scale,
+				statusStartPosition.X.Offset + delta.X,
+				statusStartPosition.Y.Scale,
+				statusStartPosition.Y.Offset + delta.Y
+			)
+		end)
+		connect(UserInputService.InputEnded, function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				statusDragging = false
+			end
+		end)
+
+		local function readPingText()
+			local ok, result = pcall(function()
+				local network = Stats and Stats:FindFirstChild("Network")
+				local serverStats = network and network:FindFirstChild("ServerStatsItem")
+				local pingItem = serverStats and (serverStats:FindFirstChild("Data Ping") or serverStats:FindFirstChild("DataPing"))
+				if pingItem and type(pingItem.GetValueString) == "function" then
+					return pingItem:GetValueString()
+				end
+				return nil
+			end)
+
+			result = ok and tostring(result or "") or ""
+			result = string.gsub(result, "^%s+", "")
+			result = string.gsub(result, "%s+$", "")
+			return result ~= "" and result or "-- ms"
+		end
+
+		local function updateText()
+			if not statusState.Enabled or not bar.Parent then
+				return
+			end
+
+			local now = os.clock()
+			if now - statusState.LastPingAt >= 1 then
+				statusState.LastPingAt = now
+				statusState.Ping = readPingText()
+			end
+
+			local accentHex = colorToHex(self.Theme.Accent)
+			local textHex = colorToHex(self.Theme.Text)
+			local mutedHex = colorToHex(self.Theme.Muted)
+			local elapsed = now - statusState.StartTime
+			local phase = math.floor((elapsed % 15) / 5)
+			local text
+
+			if phase == 0 then
+				local hours, minutes, seconds = formatDurationParts(elapsed)
+				text = string.format(
+					'<b>RUNTIME:</b> <font color="%s">%d</font>Hours <font color="%s">%d</font>Minutes <font color="%s">%d</font>Seconds',
+					accentHex,
+					hours,
+					accentHex,
+					minutes,
+					accentHex,
+					seconds
+				)
+			elseif phase == 1 then
+				text = string.format(
+					'<b>FPS:</b> <font color="%s">%d</font> <font color="%s">|</font> <b>PING:</b> <font color="%s">%s</font>',
+					accentHex,
+					math.max(0, math.floor(statusState.FPS + 0.5)),
+					mutedHex,
+					accentHex,
+					statusState.Ping
+				)
+			else
+				local pulse = (math.sin(now * 5.4) + 1) / 2
+				local workingColor = mixColor(self.Theme.Accent, self.Theme.Text, pulse * 0.36)
+				local dots = string.rep(".", math.floor(now * 3.2) % 4)
+				text = string.format(
+					'<font color="%s"><b>%s</b></font> <font color="%s">IS WORKING%s</font>',
+					textHex,
+					string.upper(tostring(statusState.HubName or "Axiom Hub")),
+					colorToHex(workingColor),
+					dots
+				)
+			end
+
+			label.Text = text
+
+			local shimmerAlpha = (now * 0.46) % 1
+			shine.Position = UDim2.new(shimmerAlpha, -74, 0, 0)
+			shine.BackgroundTransparency = phase == 2 and 0 or 0.16
+			line.BackgroundTransparency = phase == 2 and 0 or 0.08
+		end
+
+		function statusState:SetVisible(visible)
+			self.Enabled = visible == true
+			bar.Visible = self.Enabled and (not window.StatusBarHideWithWindow or uiVisible)
+			window.StatusBarEnabled = self.Enabled
+			return self.Enabled
+		end
+
+		function statusState:SetHubName(name)
+			self.HubName = tostring(name or self.HubName or "Axiom Hub")
+			updateText()
+		end
+
+		function statusState:SetDraggable(enabled)
+			self.Draggable = enabled == true
+			dragHitbox.Visible = self.Draggable
+			return self.Draggable
+		end
+
+		function statusState:SetPosition(position)
+			if typeof(position) == "UDim2" then
+				bar.Position = position
+			end
+		end
+
+		function statusState:Destroy()
+			self.Enabled = false
+			if bar and bar.Parent then
+				bar:Destroy()
+			end
+		end
+
+		statusState.Frame = bar
+		statusState.Label = label
+		statusState.Line = line
+		statusState.Shine = shine
+		statusState.DragHitbox = dragHitbox
+		self.RuntimeStatusBar = statusState
+		self.StatusBar = statusState
+
+		connect(RunService.RenderStepped, function()
+			if not statusState.Enabled or not bar.Parent then
+				return
+			end
+
+			statusState.FrameCount += 1
+			local now = os.clock()
+			local elapsed = now - statusState.FPSClock
+			if elapsed >= 0.5 then
+				statusState.FPS = statusState.FrameCount / elapsed
+				statusState.FrameCount = 0
+				statusState.FPSClock = now
+			end
+		end)
+
+		task.spawn(function()
+			while bar.Parent and not self.Destroyed do
+				updateText()
+				task.wait(0.12)
+			end
+		end)
+
+		updateText()
+		return statusState
+	end
+
+	function window:SetStatusBarVisible(visible)
+		if not self.RuntimeStatusBar then
+			if visible == false then
+				self.StatusBarEnabled = false
+				return false
+			end
+			self:CreateRuntimeStatusBar({ Visible = true })
+		end
+
+		return self.RuntimeStatusBar:SetVisible(visible)
 	end
 
 	function window:AttachTooltip(guiObject, text)
@@ -2072,6 +2436,8 @@ function DarkUI:CreateWindow(config)
 
 		data.__theme = self.ThemeName
 		data.__accent = colorToTable(self.Theme.Accent)
+		data.__acrylic = self.Acrylic == true
+		data.__statusBar = self.StatusBarEnabled == true
 		data.__autoSave = self.AutoSave == true
 		data.__autoLoad = self.AutoLoad == true
 		data.__autoSaveDelay = self.AutoSaveDelay
@@ -2091,6 +2457,14 @@ function DarkUI:CreateWindow(config)
 
 			if data.__accent then
 				self:SetAccentColor(normalizeColor(data.__accent, self.Theme.Accent))
+			end
+
+			if data.__acrylic ~= nil then
+				self:SetAcrylic(data.__acrylic == true)
+			end
+
+			if data.__statusBar ~= nil then
+				self:SetStatusBarVisible(data.__statusBar == true)
 			end
 
 			if data.__autoSave ~= nil then
@@ -4843,6 +5217,16 @@ function DarkUI:CreateWindow(config)
 			end,
 		})
 
+		windowSection:AddToggle({
+			Title = "Status Bar",
+			Description = "Show the animated runtime, FPS, ping, and working status pill.",
+			Default = self.StatusBarEnabled,
+			Flag = "ui_runtime_status_bar",
+			Callback = function(value)
+				self:SetStatusBarVisible(value)
+			end,
+		})
+
 		local themeSection = tab:AddSection({
 			Title = "Theme Manager",
 			Collapsible = false,
@@ -4880,8 +5264,7 @@ function DarkUI:CreateWindow(config)
 			Default = self.Acrylic,
 			Flag = "ui_acrylic",
 			Callback = function(value)
-				self.Acrylic = value
-				self:_applyTheme()
+				self:SetAcrylic(value)
 			end,
 		})
 
@@ -5574,6 +5957,14 @@ function DarkUI:CreateWindow(config)
 				self.FullVisibilityAnimation = value
 			end,
 		})
+		createSwitch(windowGroup, {
+			Title = "Status Bar",
+			Description = "Show animated runtime, FPS, ping and working status.",
+			Default = self.StatusBarEnabled,
+			Callback = function(value)
+				self:SetStatusBarVisible(value)
+			end,
+		})
 
 		createCategory(themePage, "Appearance")
 		local appearance = createGroup(themePage)
@@ -5631,8 +6022,7 @@ function DarkUI:CreateWindow(config)
 			Description = "Use softer transparent dark surfaces.",
 			Default = self.Acrylic,
 			Callback = function(value)
-				self.Acrylic = value
-				self:_applyTheme()
+				self:SetAcrylic(value)
 			end,
 		})
 		createSwitch(appearance, {
@@ -5887,6 +6277,12 @@ function DarkUI:CreateWindow(config)
 
 	if window.BuiltInSettings and not window.BuiltInSettingsCreated and #window.TabOrder == 0 then
 		window:CreateBuiltInSettingsTab()
+	end
+
+	if window.StatusBarEnabled then
+		local statusOptions = config.StatusBarOptions or config.RuntimeStatusBarOptions or {}
+		statusOptions.HubName = statusOptions.HubName or window.StatusBarHubName
+		window:CreateRuntimeStatusBar(statusOptions)
 	end
 
 	window:_applyTheme()
